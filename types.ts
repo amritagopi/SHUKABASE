@@ -32,6 +32,7 @@ export interface AppSettings {
   backendUrl: string;
   useMockData: boolean;
   model: string;
+  language: 'ru' | 'en';
 }
 
 export interface ConversationHeader {

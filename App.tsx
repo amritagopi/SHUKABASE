@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Settings, BookOpen, Database, AlertCircle, Menu, X, Search, Sparkles, Server, Scroll } from 'lucide-react';
+import { Send, Settings, BookOpen, Database, AlertCircle, Menu, X, Search, Sparkles, Server, Scroll, Globe } from 'lucide-react';
 import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader } from './types';
 import { generateRAGResponse, getConversations, getConversation, saveConversation } from './services/geminiService';
 import { DEMO_CHUNKS } from './constants';
 import { ParsedContent } from './utils/citationParser';
 import ConversationHistory from './ConversationHistory';
+import { TRANSLATIONS } from './translations';
 
 const DEFAULT_SETTINGS: AppSettings = {
   apiKey: process.env.API_KEY || '',
   backendUrl: 'http://localhost:5000/api/search',
   useMockData: false,
   model: 'gemini-2.5-flash-lite',
+  language: 'en',
 };
 
 const App: React.FC = () => {
@@ -24,6 +26,12 @@ const App: React.FC = () => {
   const [highlightedSourceId, setHighlightedSourceId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Helper for translations
+  const t = (key: keyof typeof TRANSLATIONS.en) => {
+    const lang = settings.language || 'en';
+    return TRANSLATIONS[lang][key] || TRANSLATIONS['en'][key];
+  };
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -134,11 +142,11 @@ const App: React.FC = () => {
       // Note: We need to get the latest state of agentSteps from the activeConversation/thinkingMessage
       // But since we are inside the async function, we can't rely on state variable 'activeConversation' being perfectly up to date if we just used it.
       // However, we updated it via setActiveConversation callback.
-      // A cleaner way is to just use the steps we collected? 
+      // A cleaner way is to just use the steps we collected?
       // Actually, let's just grab the steps from the last update or trust the state update flow.
       // For simplicity, we will just use the steps we have.
 
-      // Wait, we need to access the *latest* steps. 
+      // Wait, we need to access the *latest* steps.
       // Let's use a functional update for the final save to ensure we don't lose steps.
 
       setActiveConversation(prev => {
@@ -168,7 +176,7 @@ const App: React.FC = () => {
     } catch (error: any) {
       const errorMessage: Message = {
         role: 'model',
-        parts: [{ text: `❌ **Error**: ${error.message}` }],
+        parts: [{ text: `❌ **${t('error')}**: ${error.message}` }],
       };
       setActiveConversation(prev => prev ? ({ ...prev, messages: prev.messages.slice(0, -1).concat(errorMessage) }) : null);
     } finally {
@@ -180,8 +188,8 @@ const App: React.FC = () => {
     try {
       const convo = await getConversation(id);
       setActiveConversation(convo);
-      // We should probably load sources for the active conversation if we saved them, 
-      // but currently we don't save sources list in conversation, only IDs. 
+      // We should probably load sources for the active conversation if we saved them,
+      // but currently we don't save sources list in conversation, only IDs.
       // For now, we clear sources on load or we could re-fetch them if we had a bulk fetch endpoint.
       setCurrentSources([]);
     } catch (error) {
@@ -207,6 +215,13 @@ const App: React.FC = () => {
     }, 100);
   };
 
+  const toggleLanguage = () => {
+    setSettings(prev => ({
+      ...prev,
+      language: prev.language === 'en' ? 'ru' : 'en'
+    }));
+  };
+
   return (
     <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden font-sans">
 
@@ -216,6 +231,7 @@ const App: React.FC = () => {
         activeConversationId={activeConversation?.id || null}
         onSelectConversation={handleSelectConversation}
         onNewChat={handleNewChat}
+        t={t}
       />
 
       {/* MIDDLE PANEL: Chat Interface */}
@@ -226,13 +242,20 @@ const App: React.FC = () => {
               <Scroll className="text-white" size={18} />
             </div>
             <div>
-              <h1 className="font-bold text-lg tracking-tight text-slate-100">Shukabase AI</h1>
-              <p className="text-xs text-slate-500">Gemini Intelligence + Local RAG</p>
+              <h1 className="font-bold text-lg tracking-tight text-slate-100">{t('appTitle')}</h1>
+              <p className="text-xs text-slate-500">{t('appSubtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold uppercase tracking-wider text-slate-300 transition-colors border border-slate-700"
+            >
+              <Globe size={14} className="text-amber-500" />
+              {settings.language === 'en' ? 'EN' : 'RU'}
+            </button>
             <div className={`hidden md:flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border ${settings.useMockData ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-              {settings.useMockData ? 'Demo Mode' : 'Connected'}
+              {settings.useMockData ? t('demoMode') : t('connected')}
             </div>
             <button
               onClick={() => setIsSettingsOpen(true)}
@@ -262,19 +285,19 @@ const App: React.FC = () => {
                       <div key={idx} className="text-xs font-mono flex gap-2 items-start animate-fadeIn">
                         {step.type === 'thought' && (
                           <>
-                            <span className="text-amber-500/50 shrink-0">thinking...</span>
+                            <span className="text-amber-500/50 shrink-0">{t('agentThinking')}</span>
                             <span className="text-slate-400 italic">{step.content}</span>
                           </>
                         )}
                         {step.type === 'action' && (
                           <>
-                            <span className="text-emerald-500/50 shrink-0">executing</span>
+                            <span className="text-emerald-500/50 shrink-0">{t('agentExecuting')}</span>
                             <span className="text-emerald-400">{step.content}</span>
                           </>
                         )}
                         {step.type === 'observation' && (
                           <>
-                            <span className="text-blue-500/50 shrink-0">result</span>
+                            <span className="text-blue-500/50 shrink-0">{t('agentResult')}</span>
                             <span className="text-blue-400">{step.content}</span>
                           </>
                         )}
@@ -290,7 +313,7 @@ const App: React.FC = () => {
                       <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                       <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
                     </div>
-                    <span className="text-xs text-slate-400 font-medium">Agent working...</span>
+                    <span className="text-xs text-slate-400 font-medium">{t('agentWorking')}</span>
                   </div>
                 ) : (
                   msg.role === 'user' ? (
@@ -313,8 +336,8 @@ const App: React.FC = () => {
           {!activeConversation && (
             <div className="flex flex-col items-center justify-center h-full text-slate-500">
               <Sparkles size={48} className="mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Shukabase AI</h2>
-              <p>Select a conversation or start a new chat.</p>
+              <h2 className="text-2xl font-bold mb-2">{t('welcomeTitle')}</h2>
+              <p>{t('welcomeText')}</p>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -327,7 +350,7 @@ const App: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask a question about the scriptures..."
+              placeholder={t('inputPlaceholder')}
               className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder-slate-500 rounded-xl pl-4 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all shadow-lg"
               disabled={loading}
             />
@@ -350,18 +373,18 @@ const App: React.FC = () => {
           <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950">
             <h2 className="font-semibold text-slate-200 flex items-center gap-2">
               <Database size={18} className="text-amber-500" />
-              Retrieved Verses
+              {t('retrievedVerses')}
             </h2>
             <div className="text-xs font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded">
-              {currentSources.length} found
+              {currentSources.length} {t('found')}
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {currentSources.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-slate-600 p-8 text-center">
                 <BookOpen size={48} className="mb-4 opacity-20" />
-                <p className="text-sm">No verses loaded.</p>
-                <p className="text-xs mt-2 opacity-50">Your search results will appear here.</p>
+                <p className="text-sm">{t('noVerses')}</p>
+                <p className="text-xs mt-2 opacity-50">{t('searchPlaceholder')}</p>
               </div>
             ) : (
               currentSources.map((chunk) => (
@@ -408,7 +431,7 @@ const App: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-2xl">
             <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-slate-100">Settings</h3>
+              <h3 className="font-bold text-lg text-slate-100">{t('settings')}</h3>
               <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-white">
                 <X size={20} />
               </button>
@@ -417,7 +440,7 @@ const App: React.FC = () => {
             <div className="p-6 space-y-6">
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Gemini API Key</label>
+                <label className="text-sm font-medium text-slate-300">{t('geminiApiKey')}</label>
                 <input
                   type="password"
                   value={settings.apiKey}
@@ -427,7 +450,7 @@ const App: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <label className="text-sm font-medium text-slate-300">Data Connection</label>
+                <label className="text-sm font-medium text-slate-300">{t('dataConnection')}</label>
                 <div className="flex gap-4">
                   <label className={`
                     flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition-all
@@ -438,7 +461,7 @@ const App: React.FC = () => {
                   `}>
                     <input type="radio" className="hidden" checked={settings.useMockData} onChange={() => setSettings({ ...settings, useMockData: true })} />
                     <BookOpen size={24} />
-                    <span className="text-xs font-semibold">Demo</span>
+                    <span className="text-xs font-semibold">{t('demoMode')}</span>
                   </label>
 
                   <label className={`
@@ -450,14 +473,14 @@ const App: React.FC = () => {
                   `}>
                     <input type="radio" className="hidden" checked={!settings.useMockData} onChange={() => setSettings({ ...settings, useMockData: false })} />
                     <Server size={24} />
-                    <span className="text-xs font-semibold">Bridge</span>
+                    <span className="text-xs font-semibold">{t('bridge')}</span>
                   </label>
                 </div>
               </div>
 
               {!settings.useMockData && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">Backend URL</label>
+                  <label className="text-sm font-medium text-slate-300">{t('backendUrl')}</label>
                   <input
                     type="text"
                     value={settings.backendUrl}
@@ -467,7 +490,7 @@ const App: React.FC = () => {
                   />
                   <div className="flex items-start gap-2 text-xs text-amber-500/80 bg-amber-950/20 p-2 rounded border border-amber-900/30">
                     <AlertCircle size={14} className="mt-0.5 shrink-0" />
-                    <span>Start `bridge.py` to enable retrieval from your local FAISS index.</span>
+                    <span>{t('bridgeHint')}</span>
                   </div>
                 </div>
               )}
@@ -479,7 +502,7 @@ const App: React.FC = () => {
                 onClick={() => setIsSettingsOpen(false)}
                 className="w-full py-2.5 bg-amber-700 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
               >
-                Save
+                {t('save')}
               </button>
             </div>
           </div>

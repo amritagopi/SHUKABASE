@@ -65,8 +65,8 @@ export const searchScriptures = async (query: string, settings: AppSettings): Pr
   if (!settings.backendUrl) throw new Error("Backend URL missing");
 
   try {
-    const isCyrillic = /[а-яА-ЯёЁ]/.test(query);
-    const lang = isCyrillic ? 'ru' : 'en';
+    // Use the language from settings, fallback to 'en' if not set
+    const lang = settings.language || 'en';
 
     const response = await fetch(settings.backendUrl, {
       method: 'POST',
@@ -116,9 +116,15 @@ export const generateRAGResponse = async (
   // We maintain a "scratchpad" of the agent's internal monologue and actions
   let scratchpad = "";
 
+  const languageInstruction = settings.language === 'ru'
+    ? "IMPORTANT: The user prefers Russian. You MUST search the database using Russian queries (translate if necessary) and your Final Answer MUST be in Russian."
+    : "IMPORTANT: The user prefers English. You MUST search the database using English queries and your Final Answer MUST be in English.";
+
   const SYSTEM_PROMPT = `
 You are an intelligent spiritual research assistant. Your goal is to answer the user's question by searching the scripture database.
 You have access to a tool called 'search_database'.
+
+${languageInstruction}
 
 INSTRUCTIONS:
 1.  Analyze the user's request.
