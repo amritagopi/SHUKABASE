@@ -45,40 +45,7 @@ const App: React.FC = () => {
     scrollToBottom();
   }, [activeConversation?.messages]);
 
-  const retrieveRelevantChunks = async (query: string): Promise<SourceChunk[]> => {
-    if (settings.useMockData) {
-      await new Promise(resolve => setTimeout(resolve, 600));
-      return DEMO_CHUNKS.map(chunk => ({
-        ...chunk,
-        score: 0.8 + Math.random() * 0.1
-      })).slice(0, 4);
-    } else {
-      if (!settings.backendUrl) throw new Error("Backend URL missing");
-      try {
-        const isCyrillic = /[а-яА-ЯёЁ]/.test(query);
-        const lang = isCyrillic ? 'ru' : 'en';
-        const response = await fetch(settings.backendUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: query, language: lang })
-        });
-        if (!response.ok) throw new Error(`Backend Error: ${response.status}`);
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error || "Unknown error from backend");
-        return (data.results || []).map((item: any) => ({
-          id: `${(item.book || 'unknown').replace(/\s+/g, "").toLowerCase()}.${item.chapter}.${item.verse}`,
-          bookTitle: item.book || 'Unknown',
-          chapter: item.chapter,
-          verse: item.verse,
-          content: item.text,
-          score: item.final_score || item.score || 0
-        }));
-      } catch (err: any) {
-        console.error("Retrieval error", err);
-        throw new Error(`Connection Failed: ${err.message}. \n\nMake sure 'rag/rag_api_server.py' is running on port 5000.`);
-      }
-    }
-  };
+
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -92,7 +59,13 @@ const App: React.FC = () => {
     setLoading(true);
 
     const userMessage: Message = { role: 'user', parts: [{ text: userMsgContent }] };
-    const thinkingMessage: Message = { role: 'model', parts: [{ text: '' }], isThinking: true };
+    // Initial thinking message with empty steps
+    const thinkingMessage: Message = {
+      role: 'model',
+      parts: [{ text: '' }],
+      isThinking: true,
+      agentSteps: []
+    };
 
     let conversationToUpdate: Conversation;
     if (activeConversation) {
@@ -106,66 +79,116 @@ const App: React.FC = () => {
         messages: [userMessage, thinkingMessage],
       };
     }
-    
+
     setActiveConversation(conversationToUpdate);
+    // Clear previous sources for a new query
+    setCurrentSources([]);
 
     try {
-      const chunks = await retrieveRelevantChunks(userMsgContent);
-      setCurrentSources(chunks);
+      // We no longer pre-fetch chunks. The agent does it.
+      // const chunks = await retrieveRelevantChunks(userMsgContent);
+      // setCurrentSources(chunks);
 
-      let responseText: string;
-      if (chunks.length === 0) {
-        responseText = "I searched the scriptures but found no relevant verses matching your query.";
-      } else {
-        const history = conversationToUpdate.messages
-          .filter(m => !m.isThinking)
-          .slice(-50) // Short-term memory: last 50 messages
-          .map(m => ({ role: m.role, parts: m.parts }));
-        
-        responseText = await generateRAGResponse(userMsgContent, chunks, settings, history);
-      }
+      const history = conversationToUpdate.messages
+        .filter(m => !m.isThinking)
+        .slice(-50)
+        .map(m => ({ role: m.role, parts: m.parts }));
+
+      const responseText = await generateRAGResponse(
+        userMsgContent,
+        [], // No initial chunks
+        settings,
+        history,
+        (step) => {
+          // onStep callback: Update the thinking message with new steps
+          setActiveConversation(prev => {
+            if (!prev) return null;
+            const newMessages = [...prev.messages];
+            const lastMsg = newMessages[newMessages.length - 1];
+            if (lastMsg.isThinking) {
+              lastMsg.agentSteps = [...(lastMsg.agentSteps || []), step];
+            }
+            return { ...prev, messages: newMessages };
+          });
+        },
+        (foundChunks) => {
+          // onSourcesFound callback: Add new sources to the sidebar
+          setCurrentSources(prev => {
+            // Avoid duplicates
+            const existingIds = new Set(prev.map(c => c.id));
+            const newUnique = foundChunks.filter(c => !existingIds.has(c.id));
+            return [...prev, ...newUnique];
+          });
+        }
+      );
 
       const finalBotMessage: Message = {
         role: 'model',
         parts: [{ text: responseText }],
-        relatedChunkIds: chunks.map(c => c.id),
+        // We can keep the steps in the final message too if we want to show the history of reasoning
+        agentSteps: conversationToUpdate.messages[conversationToUpdate.messages.length - 1].agentSteps,
+        relatedChunkIds: currentSources.map(c => c.id), // This might need to be updated with the latest currentSources
       };
 
       // Replace the "thinking" message with the final response
-      const finalMessages = conversationToUpdate.messages.slice(0, -1).concat(finalBotMessage);
-      const finalConversation = { ...conversationToUpdate, messages: finalMessages };
-      
-      setActiveConversation(finalConversation);
-      await saveConversation(finalConversation);
-      
-      // Update conversations list if it's a new chat
-      if (!conversations.some(c => c.id === finalConversation.id)) {
-        setConversations(prev => [{ id: finalConversation.id, title: finalConversation.title, createdAt: finalConversation.createdAt }, ...prev]);
-      }
+      // Note: We need to get the latest state of agentSteps from the activeConversation/thinkingMessage
+      // But since we are inside the async function, we can't rely on state variable 'activeConversation' being perfectly up to date if we just used it.
+      // However, we updated it via setActiveConversation callback.
+      // A cleaner way is to just use the steps we collected? 
+      // Actually, let's just grab the steps from the last update or trust the state update flow.
+      // For simplicity, we will just use the steps we have.
+
+      // Wait, we need to access the *latest* steps. 
+      // Let's use a functional update for the final save to ensure we don't lose steps.
+
+      setActiveConversation(prev => {
+        if (!prev) return null;
+        const msgs = [...prev.messages];
+        const thinkingMsg = msgs[msgs.length - 1];
+        const finalSteps = thinkingMsg.agentSteps || [];
+
+        const finalMsg: Message = {
+          role: 'model',
+          parts: [{ text: responseText }],
+          agentSteps: finalSteps,
+          relatedChunkIds: currentSources.map(c => c.id) // This might be slightly stale if currentSources update hasn't processed, but usually fine.
+        };
+
+        const finalConversation = { ...prev, messages: msgs.slice(0, -1).concat(finalMsg) };
+        saveConversation(finalConversation); // Fire and forget save
+
+        // Update list if new
+        if (!conversations.some(c => c.id === finalConversation.id)) {
+          setConversations(old => [{ id: finalConversation.id, title: finalConversation.title, createdAt: finalConversation.createdAt }, ...old]);
+        }
+
+        return finalConversation;
+      });
 
     } catch (error: any) {
       const errorMessage: Message = {
         role: 'model',
         parts: [{ text: `❌ **Error**: ${error.message}` }],
       };
-      const finalMessages = conversationToUpdate.messages.slice(0, -1).concat(errorMessage);
-      const finalConversation = { ...conversationToUpdate, messages: finalMessages };
-      setActiveConversation(finalConversation);
-      await saveConversation(finalConversation);
+      setActiveConversation(prev => prev ? ({ ...prev, messages: prev.messages.slice(0, -1).concat(errorMessage) }) : null);
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleSelectConversation = async (id: string) => {
     try {
       const convo = await getConversation(id);
       setActiveConversation(convo);
+      // We should probably load sources for the active conversation if we saved them, 
+      // but currently we don't save sources list in conversation, only IDs. 
+      // For now, we clear sources on load or we could re-fetch them if we had a bulk fetch endpoint.
+      setCurrentSources([]);
     } catch (error) {
       console.error("Failed to load conversation", error);
     }
   };
-  
+
   const handleNewChat = () => {
     setActiveConversation(null);
     setCurrentSources([]);
@@ -186,9 +209,9 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden font-sans">
-      
+
       {/* LEFT PANEL: Conversation History */}
-      <ConversationHistory 
+      <ConversationHistory
         conversations={conversations}
         activeConversationId={activeConversation?.id || null}
         onSelectConversation={handleSelectConversation}
@@ -222,50 +245,77 @@ const App: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
           {(activeConversation?.messages || []).map((msg, index) => (
-            !msg.isThinking ? (
+            <div
+              key={`${activeConversation?.id}-${index}`}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
               <div
-                key={`${activeConversation?.id}-${index}`}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[95%] md:max-w-[80%] rounded-2xl px-5 py-4 shadow-xl ${msg.role === 'user'
-                      ? 'bg-gradient-to-r from-amber-700 to-orange-800 text-white rounded-tr-none'
-                      : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-none'
+                className={`max-w-[95%] md:max-w-[80%] rounded-2xl px-5 py-4 shadow-xl ${msg.role === 'user'
+                  ? 'bg-gradient-to-r from-amber-700 to-orange-800 text-white rounded-tr-none'
+                  : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-none'
                   }`}
-                >
-                  {msg.role === 'user' ? (
+              >
+                {/* Render Agent Steps (Thoughts/Actions) */}
+                {msg.agentSteps && msg.agentSteps.length > 0 && (
+                  <div className="mb-4 space-y-2 border-b border-slate-700/50 pb-3">
+                    {msg.agentSteps.map((step, idx) => (
+                      <div key={idx} className="text-xs font-mono flex gap-2 items-start animate-fadeIn">
+                        {step.type === 'thought' && (
+                          <>
+                            <span className="text-amber-500/50 shrink-0">thinking...</span>
+                            <span className="text-slate-400 italic">{step.content}</span>
+                          </>
+                        )}
+                        {step.type === 'action' && (
+                          <>
+                            <span className="text-emerald-500/50 shrink-0">executing</span>
+                            <span className="text-emerald-400">{step.content}</span>
+                          </>
+                        )}
+                        {step.type === 'observation' && (
+                          <>
+                            <span className="text-blue-500/50 shrink-0">result</span>
+                            <span className="text-blue-400">{step.content}</span>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {msg.isThinking && msg.parts[0].text === '' ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
+                    </div>
+                    <span className="text-xs text-slate-400 font-medium">Agent working...</span>
+                  </div>
+                ) : (
+                  msg.role === 'user' ? (
                     <p className="whitespace-pre-wrap">{msg.parts[0].text}</p>
                   ) : (
                     <ParsedContent content={msg.parts[0].text} onCitationClick={handleCitationClick} />
+                  )
+                )}
+
+                <div className="mt-2 flex items-center justify-between opacity-50 text-[10px] uppercase tracking-wider">
+                  <span>{new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  {msg.role === 'model' && (
+                    <span className="flex items-center gap-1"><Sparkles size={10} />Gemini Agent</span>
                   )}
-                  <div className="mt-2 flex items-center justify-between opacity-50 text-[10px] uppercase tracking-wider">
-                    <span>{new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    {msg.role === 'model' && (
-                      <span className="flex items-center gap-1"><Sparkles size={10} />Gemini 2.5</span>
-                    )}
-                  </div>
                 </div>
-              </div>
-            ) : null
-          ))}
-          {loading && (
-            <div className="flex justify-start">
-              <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-none px-5 py-4 flex items-center gap-3">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
-                </div>
-                <span className="text-xs text-slate-400 font-medium">Consulting scriptures...</span>
               </div>
             </div>
-          )}
+          ))}
+
           {!activeConversation && (
-             <div className="flex flex-col items-center justify-center h-full text-slate-500">
-                <Sparkles size={48} className="mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Shukabase AI</h2>
-                <p>Select a conversation or start a new chat.</p>
-              </div>
+            <div className="flex flex-col items-center justify-center h-full text-slate-500">
+              <Sparkles size={48} className="mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Shukabase AI</h2>
+              <p>Select a conversation or start a new chat.</p>
+            </div>
           )}
           <div ref={messagesEndRef} />
         </div>

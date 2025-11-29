@@ -12,12 +12,19 @@ export interface MessagePart {
   text: string;
 }
 
+export interface AgentStep {
+  type: 'thought' | 'action' | 'observation';
+  content: string;
+  timestamp: number;
+}
+
 export interface Message {
   role: 'user' | 'model';
   parts: MessagePart[];
   timestamp?: number;
   relatedChunkIds?: string[];
   isThinking?: boolean;
+  agentSteps?: AgentStep[];
 }
 
 export interface AppSettings {
