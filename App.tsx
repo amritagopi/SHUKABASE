@@ -524,11 +524,6 @@ const App: React.FC = () => {
                 >
                   <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                   <option value="gemini-2.0-flash-lite-preview-02-05">Gemini 2.0 Flash Lite Preview</option>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                  <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
-                  <option value="gemma-2-27b-it">Gemma 2 27B</option>
-                  <option value="gemma-3-27b-it">Gemma 3 27B (Experimental)</option>
                 </select>
                 <p className="text-xs text-slate-500">Select a different model if you hit rate limits.</p>
               </div>
