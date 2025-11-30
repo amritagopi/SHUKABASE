@@ -137,13 +137,13 @@ const App: React.FC = () => {
         const finalSteps = thinkingMsg.agentSteps || [];
 
         // Deduplicate gathered sources for the message record
-        const uniqueSourceIds = Array.from(new Set(gatheredSources.map(c => c.id)));
+        const uniqueSources = Array.from(new Map(gatheredSources.map(item => [item.id, item])).values());
 
         const finalMsg: Message = {
           role: 'model',
           parts: [{ text: responseText }],
           agentSteps: finalSteps,
-          relatedChunkIds: uniqueSourceIds
+          sources: uniqueSources // Сохраняем полные объекты источников!
         };
 
         const finalConversation = { ...prev, messages: msgs.slice(0, -1).concat(finalMsg) };
@@ -189,8 +189,17 @@ const App: React.FC = () => {
   const handleSelectConversation = async (id: string) => {
     try {
       const convo = await getConversation(id);
-      setActiveConversation(convo);
-      setCurrentSources([]);
+      if (convo) {
+        setActiveConversation(convo);
+
+        // Восстанавливаем источники из последнего сообщения модели
+        const lastModelMessage = [...convo.messages].reverse().find(m => m.role === 'model' && m.sources && m.sources.length > 0);
+        if (lastModelMessage && lastModelMessage.sources) {
+          setCurrentSources(lastModelMessage.sources);
+        } else {
+          setCurrentSources([]);
+        }
+      }
     } catch (error) {
       console.error("Failed to load conversation", error);
     }
