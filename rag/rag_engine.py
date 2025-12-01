@@ -10,6 +10,7 @@
 
 import json
 import numpy as np
+import pickle
 from pathlib import Path
 from typing import List, Dict, Tuple, Any
 import logging
@@ -270,19 +271,40 @@ class RAGEngine:
         else:
              logger.warning(f"  - Файл с чанками не найден: {chunks_file}")
 
-        # --- Построение BM25 индекса ---
+        # --- Построение или Загрузка BM25 индекса ---
+        bm25_file = self.base_dir / f"bm25_index_{language}.pkl"
+
         if language in self.metadata and self.metadata[language]:
-            logger.info(f"⏳ Строю индекс BM25 для языка '{language}'...")
-            try:
-                corpus = []
-                for meta in self.metadata[language]:
-                    text = self._get_text_from_meta(meta, language)
-                    corpus.append(self._tokenize(text, language))
-                
-                self.bm25_indices[language] = BM25Okapi(corpus)
-                logger.info(f"✅ Индекс BM25 построен ({len(corpus)} документов)")
-            except Exception as e:
-                logger.error(f"❌ Ошибка при построении BM25: {e}")
+            # Попытка загрузить существующий индекс
+            if bm25_file.exists():
+                logger.info(f"📂 Загружаю индекс BM25 для языка '{language}' из файла...")
+                try:
+                    with open(bm25_file, 'rb') as f:
+                        self.bm25_indices[language] = pickle.load(f)
+                    logger.info(f"✅ Индекс BM25 успешно загружен")
+                except Exception as e:
+                    logger.error(f"❌ Ошибка при загрузке BM25 индекса: {e}. Буду строить заново.")
+
+            # Если индекс не загружен (файла нет или ошибка), строим его
+            if language not in self.bm25_indices:
+                logger.info(f"⏳ Строю индекс BM25 для языка '{language}'...")
+                try:
+                    corpus = []
+                    for meta in self.metadata[language]:
+                        text = self._get_text_from_meta(meta, language)
+                        corpus.append(self._tokenize(text, language))
+                    
+                    self.bm25_indices[language] = BM25Okapi(corpus)
+                    logger.info(f"✅ Индекс BM25 построен ({len(corpus)} документов)")
+                    
+                    # Сохраняем индекс для следующего раза
+                    logger.info(f"💾 Сохраняю индекс BM25 в файл {bm25_file}...")
+                    with open(bm25_file, 'wb') as f:
+                        pickle.dump(self.bm25_indices[language], f)
+                    logger.info(f"✅ Индекс BM25 сохранен")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Ошибка при построении BM25: {e}")
 
     def _get_embedding(self, texts: List[str]) -> np.ndarray:
         """Получает эмбеддинги для списка текстов с помощью Gemini API."""

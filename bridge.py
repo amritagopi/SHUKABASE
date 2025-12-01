@@ -35,7 +35,7 @@ app.add_middleware(
 @app.get("/search")
 def search(q: str):
     """
-    Простой поиск для BiblioMind / Shukabase AI Frontend
+    Простой поиск для Shukabase Frontend
     """
     try:
         # Определяем язык (упрощенно)

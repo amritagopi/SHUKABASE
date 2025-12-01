@@ -35,7 +35,31 @@ export const TRANSLATIONS = {
         chatDeleted: "Chat deleted",
         chatExported: "Chat exported",
         quotaExceeded: "Quota exceeded for the current model. Please switch to a different model in Settings and ask the assistant to continue.",
-        readFull: "Read Full"
+        readFull: "Read Full",
+        citation: "ref",
+        jumpToSource: "Jump to source",
+        books: {
+            "sb": "Srimad-Bhagavatam",
+            "bg": "Bhagavad-gita As It Is",
+            "cc": "Sri Caitanya-caritamrta",
+            "nod": "Nectar of Devotion",
+            "noi": "Nectar of Instruction",
+            "iso": "Sri Isopanisad",
+            "kb": "Krishna Book",
+            "tlc": "Teachings of Lord Caitanya",
+            "ssr": "Science of Self Realization",
+            "tqk": "Teachings of Queen Kunti",
+            "pop": "Path of Perfection",
+            "poy": "Perfection of Yoga",
+            "lcfl": "Life Comes from Life",
+            "sc": "Science of Self Realization",
+            "rv": "Raja-Vidya",
+            "bbd": "Beyond Birth and Death",
+            "owk": "On the Way to Krsna",
+            "ej": "Easy Journey to Other Planets",
+            "lob": "Light of the Bhagavata",
+            "spl": "Prabhupada Lilamrta"
+        }
     },
     ru: {
         appTitle: "SHUKABASE",
@@ -73,6 +97,30 @@ export const TRANSLATIONS = {
         chatDeleted: "Чат удален",
         chatExported: "Чат экспортирован",
         quotaExceeded: "Лимиты на текущую модель исчерпаны. Пожалуйста, переключитесь на другую модель в настройках, после чего попросите ассистента продолжить.",
-        readFull: "Читать полностью"
+        readFull: "Читать полностью",
+        citation: "цитата",
+        jumpToSource: "Перейти к источнику",
+        books: {
+            "sb": "Шримад-Бхагаватам",
+            "bg": "Бхагавад-гита как она есть",
+            "cc": "Шри Чайтанья-чаритамрита",
+            "nod": "Нектар преданности",
+            "noi": "Нектар наставлений",
+            "iso": "Шри Ишопанишад",
+            "kb": "Источник вечного наслаждения",
+            "tlc": "Учение Господа Чайтаньи",
+            "ssr": "Наука самоосознания",
+            "tqk": "Учение царицы Кунти",
+            "pop": "Путь к совершенству",
+            "poy": "Совершенство йоги",
+            "lcfl": "Жизнь происходит из жизни",
+            "sc": "Наука самоосознания",
+            "rv": "Раджа-видья",
+            "bbd": "По ту сторону рождения и смерти",
+            "owk": "На пути к Кришне",
+            "ej": "Легкое путешествие на другие планеты",
+            "lob": "Свет Бхагаваты",
+            "spl": "Прабхупада-лиламрита"
+        }
     }
 };
