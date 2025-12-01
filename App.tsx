@@ -28,6 +28,7 @@ const App: React.FC = () => {
   const [fullTextModalOpen, setFullTextModalOpen] = useState(false);
   const [fullTextContent, setFullTextContent] = useState('');
   const [fullTextTitle, setFullTextTitle] = useState('');
+  const [currentHtmlPath, setCurrentHtmlPath] = useState<string>('');
 
   // Helper for translations
   const t = (key: keyof typeof TRANSLATIONS.en) => {
@@ -230,89 +231,158 @@ const App: React.FC = () => {
     }));
   };
 
-  const handleReadFull = async (chunk: SourceChunk) => {
+  const loadFullText = async (path: string, title?: string) => {
     try {
-      const lang = settings.language || 'en';
-      const bookMap: Record<string, string> = {
-        'Srimad-Bhagavatam': 'sb',
-        'Bhagavad-gita As It Is': 'bg',
-        'Sri Caitanya-caritamrta': 'cc',
-        'Nectar of Devotion': 'nod',
-        'Nectar of Instruction': 'noi',
-        'Teachings of Lord Caitanya': 'tqk',
-        'Sri Isopanisad': 'iso',
-        'Light of the Bhagavata': 'lob',
-        'Perfect Questions, Perfect Answers': 'pop',
-        'Path of Perfection': 'pop',
-        'Science of Self Realization': 'sc',
-        'Life Comes from Life': 'lcfl',
-        'Krishna Book': 'kb',
-        'Raja-Vidya': 'rv',
-        'Beyond Birth and Death': 'bbd',
-        'Civilization and Transcendence': 'ct',
-        'Krsna Consciousness The Matchless Gift': 'mg',
-        'Easy Journey to Other Planets': 'ej',
-        'On the Way to Krsna': 'owk',
-        'Perfection of Yoga': 'poy',
-        'Spiritual Yoga': 'sy',
-        'Transcendental Teachings of Prahlad Maharaja': 'ttpm',
-        'sb': 'sb',
-        'bg': 'bg',
-        'cc': 'cc',
-        'nod': 'nod',
-        'noi': 'noi',
-        'tqk': 'tqk',
-        'iso': 'iso',
-        'lob': 'lob',
-        'pop': 'pop',
-        'sc': 'sc',
-        'rv': 'rv',
-        'bbd': 'bbd',
-        'owk': 'owk',
-        'poy': 'poy',
-        'spl': 'spl'
-      };
+      console.log("Loading full text from:", path);
+      const response = await fetch(path);
+      console.log("Fetch response status:", response.status);
 
-      let bookFolder = bookMap[chunk.bookTitle] || null;
-      let chapterPath = '';
 
-      if (chunk.chapter && typeof chunk.chapter === 'string' && (chunk.chapter.includes('/') || chunk.chapter.includes('\\'))) {
-        const normalizedPath = chunk.chapter.replace(/\\/g, '/');
-        chapterPath = `/books/${lang}/${normalizedPath}`;
-      } else if (bookFolder) {
-        chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
-      } else {
-        if (!bookFolder) {
-          for (const [title, folder] of Object.entries(bookMap)) {
-            if (chunk.bookTitle.includes(title) || title.includes(chunk.bookTitle)) {
-              bookFolder = folder;
-              break;
-            }
-          }
-        }
-
-        if (bookFolder) {
-          chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
-        } else {
-          alert('Book folder not found for: ' + chunk.bookTitle);
-          return;
-        }
-      }
-
-      console.log("Loading full text from:", chapterPath);
-
-      const response = await fetch(chapterPath);
       if (!response.ok) {
         throw new Error(`Failed to load: ${response.statusText}`);
       }
 
       const htmlContent = await response.text();
-      setFullTextContent(htmlContent);
-      setFullTextTitle(`${chunk.bookTitle} - Chapter ${chunk.chapter || 1}`);
+      console.log("Loaded content length:", htmlContent.length);
+
+      // Extract body content to avoid nesting <html>/<body> tags
+      let contentToDisplay = htmlContent;
+      const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+      if (bodyMatch) {
+        contentToDisplay = bodyMatch[1];
+      }
+
+      // Try to extract title from HTML if not provided
+      let displayTitle = title || '';
+      if (!displayTitle) {
+        const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
+        if (titleMatch) {
+          displayTitle = titleMatch[1].replace(/<[^>]+>/g, '');
+        }
+      }
+
+      setFullTextContent(contentToDisplay);
+      setFullTextTitle(displayTitle || 'Text View');
+      setCurrentHtmlPath(path);
       setFullTextModalOpen(true);
     } catch (error) {
       console.error('Error loading full text:', error);
       alert('Could not load full text. The file may not exist.');
+    }
+  };
+
+  const handleReadFull = async (chunk: SourceChunk) => {
+    console.log("handleReadFull called with chunk:", chunk);
+    const lang = settings.language || 'en';
+    const bookMap: Record<string, string> = {
+      'Srimad-Bhagavatam': 'sb',
+      'Bhagavad-gita As It Is': 'bg',
+      'Sri Caitanya-caritamrta': 'cc',
+      'Nectar of Devotion': 'nod',
+      'Nectar of Instruction': 'noi',
+      'Teachings of Lord Caitanya': 'tqk',
+      'Sri Isopanisad': 'iso',
+      'Light of the Bhagavata': 'lob',
+      'Perfect Questions, Perfect Answers': 'pop',
+      'Path of Perfection': 'pop',
+      'Science of Self Realization': 'sc',
+      'Life Comes from Life': 'lcfl',
+      'Krishna Book': 'kb',
+      'Raja-Vidya': 'rv',
+      'Beyond Birth and Death': 'bbd',
+      'Civilization and Transcendence': 'ct',
+      'Krsna Consciousness The Matchless Gift': 'mg',
+      'Easy Journey to Other Planets': 'ej',
+      'On the Way to Krsna': 'owk',
+      'Perfection of Yoga': 'poy',
+      'Spiritual Yoga': 'sy',
+      'Transcendental Teachings of Prahlad Maharaja': 'ttpm',
+      'sb': 'sb',
+      'bg': 'bg',
+      'cc': 'cc',
+      'nod': 'nod',
+      'noi': 'noi',
+      'tqk': 'tqk',
+      'iso': 'iso',
+      'lob': 'lob',
+      'pop': 'pop',
+      'sc': 'sc',
+      'rv': 'rv',
+      'bbd': 'bbd',
+      'owk': 'owk',
+      'poy': 'poy',
+      'spl': 'spl'
+    };
+
+    let bookFolder = bookMap[chunk.bookTitle] || null;
+    let chapterPath = '';
+
+    if (chunk.chapter && typeof chunk.chapter === 'string' && (chunk.chapter.includes('/') || chunk.chapter.includes('\\'))) {
+      const normalizedPath = chunk.chapter.replace(/\\/g, '/');
+      chapterPath = `/books/${lang}/${normalizedPath}`;
+    } else if (bookFolder) {
+      // If we have a specific verse, try to load that first
+      if (chunk.verse) {
+        chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter}/${chunk.verse}/index.html`;
+      } else {
+        chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
+      }
+    } else {
+      if (!bookFolder) {
+        for (const [title, folder] of Object.entries(bookMap)) {
+          if (chunk.bookTitle.includes(title) || title.includes(chunk.bookTitle)) {
+            bookFolder = folder;
+            break;
+          }
+        }
+      }
+
+      if (bookFolder) {
+        if (chunk.verse) {
+          chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter}/${chunk.verse}/index.html`;
+        } else {
+          chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
+        }
+      } else {
+        alert('Book folder not found for: ' + chunk.bookTitle);
+        return;
+      }
+    }
+
+    console.log("Constructed chapterPath:", chapterPath);
+    await loadFullText(chapterPath, `${chunk.bookTitle} - ${chunk.chapter ? 'Chapter ' + chunk.chapter : ''} ${chunk.verse ? 'Verse ' + chunk.verse : ''}`);
+  };
+
+  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest('a');
+
+    if (anchor && anchor.href) {
+      // Check if it's a relative link within the books directory
+      const href = anchor.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('#')) {
+        e.preventDefault();
+
+        // Resolve relative path
+        // currentHtmlPath is like "/books/ru/bg/2/1/index.html"
+        const currentDir = currentHtmlPath.substring(0, currentHtmlPath.lastIndexOf('/'));
+
+        // Simple path resolution
+        const parts = currentDir.split('/');
+        const relativeParts = href.split('/');
+
+        for (const part of relativeParts) {
+          if (part === '.') continue;
+          if (part === '..') {
+            parts.pop();
+          } else {
+            parts.push(part);
+          }
+        }
+
+        const newPath = parts.join('/');
+        loadFullText(newPath);
+      }
     }
   };
 
@@ -537,14 +607,33 @@ const App: React.FC = () => {
           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b border-slate-800 flex justify-between items-center">
               <h3 className="font-bold text-lg text-slate-100">{fullTextTitle}</h3>
-              <button onClick={() => setFullTextModalOpen(false)} className="text-slate-400 hover:text-white">
-                <X size={24} />
-              </button>
+              <div className="flex items-center gap-2">
+                <a
+                  href={currentHtmlPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 text-slate-400 hover:text-amber-500 transition-colors"
+                  title="Open in new tab"
+                >
+                  <Globe size={20} />
+                </a>
+                <button onClick={() => setFullTextModalOpen(false)} className="text-slate-400 hover:text-white">
+                  <X size={24} />
+                </button>
+              </div>
             </div>
             <div
               className="flex-1 overflow-y-auto p-6 prose prose-invert prose-slate max-w-none"
-              dangerouslySetInnerHTML={{ __html: fullTextContent }}
-            />
+              onClick={handleModalClick}
+            >
+              {fullTextContent ? (
+                <div dangerouslySetInnerHTML={{ __html: fullTextContent }} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-slate-500">
+                  <p>Loading content...</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

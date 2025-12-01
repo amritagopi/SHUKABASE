@@ -1,0 +1,566 @@
+{
+  "createdAt": "2025-11-30T07:47:00.768Z",
+  "id": "1764488820768-otm5jyco8",
+  "messages": [
+    {
+      "parts": [
+        {
+          "text": "расскажи о термине акинчана"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "agentSteps": [
+        {
+          "content": "Формирую окончательный ответ...",
+          "timestamp": 1764488825126,
+          "type": "thought"
+        },
+        {
+          "content": "Формирую окончательный ответ...",
+          "timestamp": 1764488825126,
+          "type": "thought"
+        }
+      ],
+      "parts": [
+        {
+          "text": "Термин \"акинчана\" (акинчана) происходит из санскрита и буквально означает «ничего не имеющий», «бедный» или «нищий».\n\nВ буддийской литературе это слово используется для описания тех, кто полностью отказался от всех материальных благ и привязанностей в стремлении достичь нирваны.\n\nВ индуистской традиции \"акинчана\" может относиться к садху или йогину, который живет в бедности и отречении, посвящая свою жизнь духовной практике и самосовершенствованию. Это состояние отрешенности от материального мира является важным аспектом духовного пути для достижения высших целей [[bhagavad-gita.13.8-12]]."
+        }
+      ],
+      "role": "model",
+      "sources": []
+    },
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "как объясняет это Шрила Прабхупада?"
+        }
+      ]
+    },
+    {
+      "role": "model",
+      "parts": [
+        {
+          "text": "Произошла ошибка в процессе размышления агента. Попробуйте еще раз."
+        }
+      ],
+      "agentSteps": [],
+      "sources": []
+    },
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "как объясняет это Шрила Прабхупада?"
+        }
+      ]
+    },
+    {
+      "role": "model",
+      "parts": [
+        {
+          "text": "Произошла ошибка в процессе размышления агента. Попробуйте еще раз."
+        }
+      ],
+      "agentSteps": [
+        {
+          "type": "thought",
+          "content": "The user is asking for an explanation of the term \"akinchan\" specifically from the perspective of Srila Prabhupada. I need to search the database for mentions of \"akinchan\" or related concepts in Srila Prabhupada's teachings, likely within his books like the Bhagavad-gita As It Is, Srimad-Bhagavatam, or his lectures. I should look for definitions and explanations of what it means to be \"akinchan\" in the context of devotional service and spiritual life as taught by him.\n\nI will search for \"akinchan Srila Prabhupada\" and \"akinchan definition Prabhupada\".",
+          "timestamp": 1764489316886
+        },
+        {
+          "type": "thought",
+          "content": "The user is asking for an explanation of the term \"akinchan\" specifically from the perspective of Srila Prabhupada. I need to search the database for mentions of \"akinchan\" or related concepts in Srila Prabhupada's teachings, likely within his books like the Bhagavad-gita As It Is, Srimad-Bhagavatam, or his lectures. I should look for definitions and explanations of what it means to be \"akinchan\" in the context of devotional service and spiritual life as taught by him.\n\nI will search for \"akinchan Srila Prabhupada\" and \"akinchan definition Prabhupada\".",
+          "timestamp": 1764489316886
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akinchan Srila Prabhupada definition\"",
+          "timestamp": 1764489316887
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akinchan Srila Prabhupada definition\"",
+          "timestamp": 1764489316887
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489331564
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489331564
+        },
+        {
+          "type": "thought",
+          "content": "The previous search results did not contain the term \"akinchan\" or its direct explanation by Srila Prabhupada. The results were about Caitanya Mahaprabhu's pastimes and general descriptions of devotees. I need to refine my search to specifically look for Srila Prabhupada's commentary or explanation of the word \"akinchan\" or the concept of being \"akinchan\" (one who has nothing). I will try searching for \"akinchan\" in conjunction with \"Prabhupada\" and terms like \"meaning,\" \"definition,\" or \"explanation.\" I will also consider related concepts like \"renunciation\" or \"detachment\" as Prabhupada might explain \"akinchan\" through these.\n\nLet's try a broader search for the term itself within Prabhupada's works.",
+          "timestamp": 1764489436111
+        },
+        {
+          "type": "thought",
+          "content": "The previous search results did not contain the term \"akinchan\" or its direct explanation by Srila Prabhupada. The results were about Caitanya Mahaprabhu's pastimes and general descriptions of devotees. I need to refine my search to specifically look for Srila Prabhupada's commentary or explanation of the word \"akinchan\" or the concept of being \"akinchan\" (one who has nothing). I will try searching for \"akinchan\" in conjunction with \"Prabhupada\" and terms like \"meaning,\" \"definition,\" or \"explanation.\" I will also consider related concepts like \"renunciation\" or \"detachment\" as Prabhupada might explain \"akinchan\" through these.\n\nLet's try a broader search for the term itself within Prabhupada's works.",
+          "timestamp": 1764489436111
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akinchan meaning Prabhupada\"",
+          "timestamp": 1764489436112
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akinchan meaning Prabhupada\"",
+          "timestamp": 1764489436112
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489446109
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489446109
+        },
+        {
+          "type": "thought",
+          "content": "The previous searches did not yield any relevant results for Srila Prabhupada's explanation of \"akinchan.\" The term itself is crucial, and the search needs to be more specific to Srila Prabhupada's writings or lectures. I will try searching for the term \"akincana\" (which is the more common Sanskrit spelling) and \"Prabhupada\" together, looking for definitions or explanations of the spiritual quality.\n\nI will try searching for \"akincana definition Srila Prabhupada\" and \"akincana meaning Srila Prabhupada\".",
+          "timestamp": 1764489553316
+        },
+        {
+          "type": "thought",
+          "content": "The previous searches did not yield any relevant results for Srila Prabhupada's explanation of \"akinchan.\" The term itself is crucial, and the search needs to be more specific to Srila Prabhupada's writings or lectures. I will try searching for the term \"akincana\" (which is the more common Sanskrit spelling) and \"Prabhupada\" together, looking for definitions or explanations of the spiritual quality.\n\nI will try searching for \"akincana definition Srila Prabhupada\" and \"akincana meaning Srila Prabhupada\".",
+          "timestamp": 1764489553316
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akincana definition Srila Prabhupada\"",
+          "timestamp": 1764489553316
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akincana definition Srila Prabhupada\"",
+          "timestamp": 1764489553316
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489562515
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489562515
+        },
+        {
+          "type": "thought",
+          "content": "The search results still do not contain a direct explanation of the term \"akincana\" by Srila Prabhupada. The previous searches were too broad or focused on unrelated contexts. I need to specifically look for Srila Prabhupada's definition or explanation of \"akincana\" as a spiritual quality. The term itself is \"akincana,\" meaning \"one who has nothing.\" I will try searching for this specific term in conjunction with \"Prabhupada\" and keywords like \"meaning,\" \"definition,\" \"explanation,\" or \"quality.\"\n\nLet's try searching for the exact phrase \"akincana, or one who has nothing\" in Srila Prabhupada's works.",
+          "timestamp": 1764489669004
+        },
+        {
+          "type": "thought",
+          "content": "The search results still do not contain a direct explanation of the term \"akincana\" by Srila Prabhupada. The previous searches were too broad or focused on unrelated contexts. I need to specifically look for Srila Prabhupada's definition or explanation of \"akincana\" as a spiritual quality. The term itself is \"akincana,\" meaning \"one who has nothing.\" I will try searching for this specific term in conjunction with \"Prabhupada\" and keywords like \"meaning,\" \"definition,\" \"explanation,\" or \"quality.\"\n\nLet's try searching for the exact phrase \"akincana, or one who has nothing\" in Srila Prabhupada's works.",
+          "timestamp": 1764489669004
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akincana, or one who has nothing Srila Prabhupada\"",
+          "timestamp": 1764489669004
+        },
+        {
+          "type": "action",
+          "content": "Ищу в писаниях: \"akincana, or one who has nothing Srila Prabhupada\"",
+          "timestamp": 1764489669004
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489677448
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489677448
+        }
+      ],
+      "sources": [
+        {
+          "id": "cc.cc\\antya\\19\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\19\\advanced-view\\index.html",
+          "verse": null,
+          "content": "hu recited that same verse and made its meaning clear. Text 90 Verse textkṛṣṇa-gandha-lubdhā rādhā sakhīre ye kahilāsei śloka paḍi’ prabhu artha karilā kṛṣṇa-gandha-lubdhā rādhā sakhīre ye kahilāsei śloka paḍi’ prabhu artha karilā kṛṣṇa-gandha-lubdhā rādhā sakhīre ye kahilāsei śloka paḍi’ prabhu artha karilā Synonymskṛṣṇa-gandha—the scent of the body of Kṛṣṇa;lubdhā—hankering after;rādhā—Śrīmatī Rādhārāṇī;sakhīre—to Hergopīfriends;yekahilā—whatever She said;sei—that;śloka—verse;paḍi’—reciting;prabhu—Śrī Caitanya Mahāprabhu;arthakarilā—explained its meaning. kṛṣṇa-gandha—the scent of the body of Kṛṣṇa;lubdhā—hankering after;rādhā—Śrīmatī Rādhārāṇī;sakhīre—to Hergopīfriends;yekahilā—whatever She said;sei—that;śloka—verse;paḍi’—reciting;prabhu—Śrī Caitanya Mahāprabhu;arthakarilā—explained its meaning. kṛṣṇa-gandha—the scent of the body of Kṛṣṇa;lubdhā—hankering after;rādhā—Śrīmatī Rādhārāṇī;sakhīre—to Hergopīfriends;yekahilā—whatever She said;sei—that;śloka—verse;paḍi’—reciting;prabhu—Śrī Caitanya Mahāprabhu;arthakarilā—explained its meaning. kṛṣṇa-gandha—the scent of the body of Kṛṣṇa; the scent of the body of Kṛṣṇa lubdhā—hankering after; hankering after rādhā—Śrīmatī Rādhārāṇī; Śrīmatī Rādhārāṇī sakhīre—to Hergopīfriends; to Hergopīfriends yekahilā—whatever She said; whatever She said sei—that; śloka—verse; paḍi’—reciting; reciting prabhu—Śrī Caitanya Mahāprabhu; Śrī Caitanya Mahāprabhu arthakarilā—explained its meaning. explained its meaning TranslationŚrīmatī Rādhārāṇī once spoke a verse to Her gopī friends describing how She hankers for the transcendental scent of Kṛṣṇa’s body. Śrī Caitanya Mahāprabhu recited that same verse and made its meaning clear. Śrīmatī Rādhārāṇī once spoke a verse to Her gopī friends describing how She hankers for the transcendental scent of Kṛṣṇa’s body. Śrī Caitanya Mahāprabhu recited that same verse and made its meaning clear. Śrīmatī Rādhārāṇī once spoke a verse to Her gopī friends describing how She hankers for the transcendental scent of Kṛṣṇa’s body.",
+          "score": -2.1869614124298096
+        },
+        {
+          "id": "cc.cc\\antya\\1\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\1\\advanced-view\\index.html",
+          "verse": null,
+          "content": "bhu’s dealings with them continued every day. Thus receiving the transcendental favor of the Lord, Śrīla Rūpa Gosvāmī felt unlimited pleasure. Text 62Verse textbhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojanaSynonymsbhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden.TranslationAfter Śrī Caitanya Mahāprabhu, taking all His devotees with Him, performed the Guṇḍicā-mārjana [washing and cleansing of the Guṇḍicā temple], He went to the garden known as Āiṭoṭā and accepted prasādam at a picnic within the garden. Text 62 Verse textbhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojana bhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojana bhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojana Synonymsbhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden. bhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden. bhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden. bhakta-gaṇa—all the devotees; all the devotees lañā—taking; taking kailā—performed; performed guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple; cleansing and washing of the Guṇḍicā temple āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā; coming to the nearby garden named Āiṭoṭā kailā—had; vanya-bhojana—a picnic within the garden. a picnic within the garden TranslationAfter Śrī Caitanya Mahāprabhu, taking all His devotees with Him,",
+          "score": -1.9045125246047974
+        },
+        {
+          "id": "sb.sb\\11\\4\\11\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\4\\11\\index.html",
+          "verse": null,
+          "content": "erformers of penance who have become very bitter and angry through denial of the senses. Being indifferent to the Supreme Lord, such persons do not achieve ultimate liberation, nor can they enjoy material sense gratification; rather, they become angry, and through cursing others or enjoying false pride they uselessly exhaust the results of their painful austerities. It is understood that when ayogīcurses he diminishes the mystic power he has accumulated. Thus, anger gives neither liberation nor material sense gratification but merely burns up all the results of material penances and austerities. Being useless, such anger is compared to a useless puddle found in a cow’s hoofprint. Thus after crossing over the ocean of sense gratification the greatyogīswho are indifferent to the Supreme Lord drown in puddles of anger. Although the demigods admit that the devotees of the Lord actually conquer the miseries of material life, it is understood here that a similar result is not to be obtained by so-calledyogīswho are not interested in devotional service to the Supreme Lord. Those who do not accept the devotional service of the Supreme Lord can be considered in two categories. Those engaged in sense gratification are easily conquered by the demigods through various weapons such as hunger, thirst, sexual desire, lamentation for the past and vain hoping for the future. Such materialistic fools, infatuated with the material world, are easily controlled by the demigods, who are the ultimate supplying agents of sense gratification. But according to Śrīdhara Svāmī, persons who attempt to subdue the desires of the material senses and thus avoid the control of the demigods without surrendering to the Supreme Lord are even more foolish than the sense gratifiers. Although crossing the ocean of sense gratification, those who perform severe penances without service to the Lord eventually drown in tiny puddles of anger. One who simply performs material penances does not actually purify his heart.",
+          "score": -2.3787553310394287
+        },
+        {
+          "id": "cc.cc\\adi\\4\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\adi\\4\\advanced-view\\index.html",
+          "verse": null,
+          "content": "t, for She is the helper of the Lord in realizing the essence of His desires.” PurportIn this verse from theGīta-govinda(3.1), Jayadeva Gosvāmī describes Śrī Kṛṣṇa’s leaving therāsa-līlāto search for Śrīmatī Rādhārāṇī. In this verse from theGīta-govinda(3.1), Jayadeva Gosvāmī describes Śrī Kṛṣṇa’s leaving therāsa-līlāto search for Śrīmatī Rādhārāṇī. In this verse from theGīta-govinda(3.1), Jayadeva Gosvāmī describes Śrī Kṛṣṇa’s leaving therāsa-līlāto search for Śrīmatī Rādhārāṇī. Text 220Bengaliসেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥Verse textsei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāraSynonymssei—that;rādhāra—of Śrīmatī Rādhārāṇī;bhāva—the emotion;lañā—taking;caitanya—of Lord Caitanya;avatāra—the incarnation;yuga-dharma—the religion of the age;nāma-prema—the holy name and love of Godhead;kaila—did;paracāra—preaching.TranslationLord Caitanya appeared with the sentiment of Rādhā. He preached the dharma of this age — the chanting of the holy name and pure love of God. Text 220 Bengaliসেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥ সেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥ সেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥ Verse textsei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāra sei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāra sei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāra Synonymssei—that;rādhāra—of Śrīmatī Rādhārāṇī;bhāva—the emotion;lañā—taking;caitanya—of Lord Caitanya;avatāra—the incarnation;yuga-dharma—the religion of the age;nāma-prema—the holy name and love of Godhead;kaila—did;paracāra—preaching. sei—that;rādhāra—of Śrīmatī Rādhārāṇī;bhāva—the emotion;lañā—taking;caitanya—of Lord Caitanya;avatāra—the incarnation;yuga-dharma—the religion of the age;nāma-prema—the holy name and love of Godhead;kaila—did;paracāra—preaching.",
+          "score": -2.3185229301452637
+        },
+        {
+          "id": "sb.sb\\11\\3\\31\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\3\\31\\index.html",
+          "verse": null,
+          "content": "sādhana-bhaktiandrāgānuga-bhakti.Śrīla Prabhupāda has elaborately explained in his bookThe Nectar of Devotionthe progress of the devotee fromsādhana-bhakti,or the execution of regulative principles, torāgānuga-bhakti,or service executed in love of Godhead. According to Śrīla Bhaktisiddhānta Sarasvatī Ṭhākura, a liberated soul is always enthusiastic due to the appearance of transcendental ecstasy within his body. Thus he always aspires to remain overwhelmed in chanting the glories of the Personality of Godhead, Hari. The wordsbhaktyā sañjātayā bhaktyāindicate that there are two divisions ofbhakti-yoga:sādhana-bhaktiandrāgānuga-bhakti.Śrīla Prabhupāda has elaborately explained in his bookThe Nectar of Devotionthe progress of the devotee fromsādhana-bhakti,or the execution of regulative principles, torāgānuga-bhakti,or service executed in love of Godhead. According to Śrīla Bhaktisiddhānta Sarasvatī Ṭhākura, a liberated soul is always enthusiastic due to the appearance of transcendental ecstasy within his body. Thus he always aspires to remain overwhelmed in chanting the glories of the Personality of Godhead, Hari. Text 30Text 32",
+          "score": -1.2511258125305176
+        },
+        {
+          "id": "cc.cc\\antya\\4\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\4\\advanced-view\\index.html",
+          "verse": null,
+          "content": "reased because of the call. Text 118Verse textmadhyāhne samudra-vālu hañāche agni-samasei-pathe sanātana karilā gamanaSynonymsmadhya-ahne—at noon;samudra-vālu—the sand by the sea;hañāche—was;agni-sama—as hot as fire;sei-pathe—by that path;sanātana—Sanātana Gosvāmī;karilāgamana—came.TranslationAt noon the sand on the beach was as hot as fire, but Sanātana Gosvāmī came by that path. Text 118 Verse textmadhyāhne samudra-vālu hañāche agni-samasei-pathe sanātana karilā gamana madhyāhne samudra-vālu hañāche agni-samasei-pathe sanātana karilā gamana madhyāhne samudra-vālu hañāche agni-samasei-pathe sanātana karilā gamana Synonymsmadhya-ahne—at noon;samudra-vālu—the sand by the sea;hañāche—was;agni-sama—as hot as fire;sei-pathe—by that path;sanātana—Sanātana Gosvāmī;karilāgamana—came. madhya-ahne—at noon;samudra-vālu—the sand by the sea;hañāche—was;agni-sama—as hot as fire;sei-pathe—by that path;sanātana—Sanātana Gosvāmī;karilāgamana—came. madhya-ahne—at noon;samudra-vālu—the sand by the sea;hañāche—was;agni-sama—as hot as fire;sei-pathe—by that path;sanātana—Sanātana Gosvāmī;karilāgamana—came. madhya-ahne—at noon; at noon samudra-vālu—the sand by the sea; the sand by the sea hañāche—was; agni-sama—as hot as fire; as hot as fire sei-pathe—by that path; by that path sanātana—Sanātana Gosvāmī; Sanātana Gosvāmī karilāgamana—came. TranslationAt noon the sand on the beach was as hot as fire, but Sanātana Gosvāmī came by that path. At noon the sand on the beach was as hot as fire, but Sanātana Gosvāmī came by that path. At noon the sand on the beach was as hot as fire, but Sanātana Gosvāmī came by that path. Text 119Verse text‘prabhu bolāñāche’, — ei ānandita manetapta-vālukāte pā poḍe, tāhā nāhi jāneSynonymsprabhubolāñāche—the Lord has called;ei—this;ānandita—happy;mane—within the mind;tapta-vālukāte—on the hot sand;pā—feet;poḍe—were burning;tāhā—that;nāhijāne—could not understand.TranslationOverwhelmed by joy at being called by the Lord, Sanātana Gosvāmī did not feel that his feet were burning in the hot sand.",
+          "score": -2.525696277618408
+        },
+        {
+          "id": "cc.cc\\antya\\3\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\3\\advanced-view\\index.html",
+          "verse": null,
+          "content": "a Ṭhākura. Therefore he called for local prostitutes and began a plan to discredit His Holiness. By no means could he find any fault in the character of Haridāsa Ṭhākura. Therefore he called for local prostitutes and began a plan to discredit His Holiness. PurportThis is typical of atheistic men, but even among so-called religionists,sādhus,mendicants,sannyāsīsandbrahmacārīs,there are many enemies of the Kṛṣṇa consciousness movement who always try to find faults in it, not considering that the movement is spreading automatically by the grace of Lord Śrī Caitanya Mahāprabhu, who wanted it spread all over the world, in every town and village. We are trying to fulfill the Lord’s desire, and our attempt has become fairly successful, but the enemies of this movement unnecessarily try to find faults in it, exactly like the old rascal Rāmacandra Khān, who opposed Haridāsa Ṭhākura. This is typical of atheistic men, but even among so-called religionists,sādhus,mendicants,sannyāsīsandbrahmacārīs,there are many enemies of the Kṛṣṇa consciousness movement who always try to find faults in it, not considering that the movement is spreading automatically by the grace of Lord Śrī Caitanya Mahāprabhu, who wanted it spread all over the world, in every town and village. We are trying to fulfill the Lord’s desire, and our attempt has become fairly successful, but the enemies of this movement unnecessarily try to find faults in it, exactly like the old rascal Rāmacandra Khān, who opposed Haridāsa Ṭhākura. This is typical of atheistic men, but even among so-called religionists,sādhus,mendicants,sannyāsīsandbrahmacārīs,there are many enemies of the Kṛṣṇa consciousness movement who always try to find faults in it, not considering that the movement is spreading automatically by the grace of Lord Śrī Caitanya Mahāprabhu, who wanted it spread all over the world, in every town and village. We are trying to fulfill the Lord’s desire, and our attempt has become fairly successful, but the enemies of this movement unnecessarily try to find",
+          "score": -1.8338119983673096
+        },
+        {
+          "id": "sb.sb\\10\\84\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\10\\84\\index.html",
+          "verse": null,
+          "content": "we continue to ignore you. Previously, dear brother, we did nothing to benefit you because we were unable to, yet even now that you are present before us, our eyes are so blinded by the intoxication of material good fortune that we continue to ignore you. Text 64:O most respectful one, may a person who wants the highest benefit in life never gain kingly opulence, for it leaves him blind to the needs of his own family and friends. Text 64:O most respectful one, may a person who wants the highest benefit in life never gain kingly opulence, for it leaves him blind to the needs of his own family and friends. O most respectful one, may a person who wants the highest benefit in life never gain kingly opulence, for it leaves him blind to the needs of his own family and friends. Text 65:Śrī Śukadeva Gosvāmī said: His heart softened by feelings of intimate sympathy, Vasudeva wept. His eyes brimmed with tears as he remembered the friendship Nanda had shown him. Text 65:Śrī Śukadeva Gosvāmī said: His heart softened by feelings of intimate sympathy, Vasudeva wept. His eyes brimmed with tears as he remembered the friendship Nanda had shown him. Śrī Śukadeva Gosvāmī said: His heart softened by feelings of intimate sympathy, Vasudeva wept. His eyes brimmed with tears as he remembered the friendship Nanda had shown him. Text 66:And on his part, Nanda was also full of affection for his friend Vasudeva. Thus during the following days Nanda would repeatedly announce, “I will be leaving later today” and “I will be leaving tomorrow.” But out of love for Kṛṣṇa and Balarāma he remained there for three more months, honored by all the Yadus. Text 66:And on his part, Nanda was also full of affection for his friend Vasudeva. Thus during the following days Nanda would repeatedly announce, “I will be leaving later today” and “I will be leaving tomorrow.” But out of love for Kṛṣṇa and Balarāma he remained there for three more months, honored by all the Yadus. And on his part, Nanda was also full of affection for his friend Vasudeva.",
+          "score": -1.9039127826690674
+        },
+        {
+          "id": "sb.sb\\3\\18\\22-23\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\3\\18\\22-23\\index.html",
+          "verse": null,
+          "content": "s,demigods and other innocent living entities. Demons habitually find fault with the demigods,brāhmaṇasand innocent, to whom they are a constant source of fear. The way of the demon is to take power from the demigods and then tease the demigods themselves. There is an instance of a great devotee of Lord Śiva who obtained a boon from Lord Śiva that the head of whomever he touched with his hand would come off its trunk. As soon as the boon was offered to him, the demon wanted to touch the very head of Lord Śiva. That is their way. The devotees of the Supreme Personality of Godhead do not, however, ask any favor for sense gratification. Even if they are offered liberation, they refuse it. They are happy simply engaging in the transcendental loving service of the Lord. ŚB 3.18.22-23 Devanagariब्रह्मोवाचएष ते देव देवानामङ्‌घ्रिमूलमुपेयुषाम् ।विप्राणां सौरभेयीणां भूतानामप्यनागसाम् ॥ २२ ॥आगस्कृद्भयकृद्दुष्कृदस्मद्राद्धवरोऽसुर: ।अन्वेषन्नप्रतिरथो लोकानटति कण्टक: ॥ २३ ॥ ब्रह्मोवाचएष ते देव देवानामङ्‌घ्रिमूलमुपेयुषाम् ।विप्राणां सौरभेयीणां भूतानामप्यनागसाम् ॥ २२ ॥आगस्कृद्भयकृद्दुष्कृदस्मद्राद्धवरोऽसुर: ।अन्वेषन्नप्रतिरथो लोकानटति कण्टक: ॥ २३ ॥ ब्रह्मोवाचएष ते देव देवानामङ्‌घ्रिमूलमुपेयुषाम् ।विप्राणां सौरभेयीणां भूतानामप्यनागसाम् ॥ २२ ॥आगस्कृद्भयकृद्दुष्कृदस्मद्राद्धवरोऽसुर: ।अन्वेषन्नप्रतिरथो लोकानटति कण्टक: ॥ २३ ॥ Verse textbrahmovācaeṣa te deva devānāmaṅghri-mūlam upeyuṣāmviprāṇāṁ saurabheyīṇāṁbhūtānām apy anāgasāmāgas-kṛd bhaya-kṛd duṣkṛdasmad-rāddha-varo ’suraḥanveṣann apratiratholokān aṭati kaṇṭakaḥ brahmovācaeṣa te deva devānāmaṅghri-mūlam upeyuṣāmviprāṇāṁ saurabheyīṇāṁbhūtānām apy anāgasām brahmovācaeṣa te deva devānāmaṅghri-mūlam upeyuṣāmviprāṇāṁ saurabheyīṇāṁbhūtānām apy anāgasām āgas-kṛd bhaya-kṛd duṣkṛdasmad-rāddha-varo ’suraḥanveṣann apratiratholokān aṭati kaṇṭakaḥ āgas-kṛd bhaya-kṛd duṣkṛdasmad-rāddha-varo ’suraḥanveṣann apratiratholokān aṭati kaṇṭakaḥ Synonymsbrahmāuvāca—Lord Brahmā said;eṣaḥ—this demon;te—Your;deva—O Lord;devānām—to the demigods;aṅghri-mūlam—Your feet;upeyuṣām—to those having",
+          "score": -1.9363396167755127
+        },
+        {
+          "id": "sb.sb\\10\\84\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\10\\84\\advanced-view\\index.html",
+          "verse": null,
+          "content": "as tatrakṛṣṇa-rāma-didṛkṣayā iti sambhāṣamāṇāsustrībhiḥ strīṣu nṛbhir nṛṣuāyayur munayas tatrakṛṣṇa-rāma-didṛkṣayā dvaipāyano nāradaś cacyavano devalo ’sitaḥviśvāmitraḥ śatānandobharadvājo ’tha gautamaḥ dvaipāyano nāradaś cacyavano devalo ’sitaḥviśvāmitraḥ śatānandobharadvājo ’tha gautamaḥ rāmaḥ sa-śiṣyo bhagavānvasiṣṭho gālavo bhṛguḥpulastyaḥ kaśyapo ’triś camārkaṇḍeyo bṛhaspatiḥ rāmaḥ sa-śiṣyo bhagavānvasiṣṭho gālavo bhṛguḥpulastyaḥ kaśyapo ’triś camārkaṇḍeyo bṛhaspatiḥ dvitas tritaś caikataś cabrahma-putrās tathāṅgirāḥagastyo yājñavalkyaś cavāmadevādayo ’pare dvitas tritaś caikataś cabrahma-putrās tathāṅgirāḥagastyo yājñavalkyaś cavāmadevādayo ’pare Synonymsiti—thus;sambhāṣamāṇāsu—as they were conversing;strībhiḥ—with women;strīṣu—women;nṛbhiḥ—with men;nṛṣu—men;āyayuḥ—arrived;munayaḥ—great sages;tatra—at that place;kṛṣṇa-rāma—Lord Kṛṣṇa and Lord Balarāma;didṛkṣayā—with the desire to see;dvaipāyanaḥ—Dvaipāyana Vedavyāsa;nāradaḥ—Nārada;ca—and;cyavanaḥdevalaḥasitaḥ—Cyavana, Devala and Asita;viśvāmitraḥśatānandaḥ—Viśvāmitra and Śatānanda;bharadvājaḥathagautamaḥ—Bharadvāja and Gautama;rāmaḥ—Paraśurāma;sa—with;śiṣyaḥ—his disciples;bhagavān—the incarnation of the Supreme Lord;vasiṣṭhaḥgālavaḥbhṛguḥ—Vasiṣṭha, Gālava and Bhṛgu;pulastyaḥkaśyapaḥatriḥca—Pulastya, Kaśyapa and Atri;mārkaṇḍeyaḥbṛhaspatiḥ—Mārkaṇḍeya and Bṛhaspati;dvitaḥtritaḥcaekataḥca—Dvita, Trita and Ekata;brahma-putrāḥ—sons of Lord Brahmā (Sanaka, Sanat, Sananda and Sanātana);tathā—and also;aṅgirāḥ—Aṅgirā;agastyaḥyājñavalkyaḥca—Agastya and Yājñavalkya;vāmadeva-ādayaḥ—led by Vāmadeva;apare—others. iti—thus;sambhāṣamāṇāsu—as they were conversing;strībhiḥ—with women;strīṣu—women;nṛbhiḥ—with men;nṛṣu—men;āyayuḥ—arrived;munayaḥ—great sages;tatra—at that place;kṛṣṇa-rāma—Lord Kṛṣṇa and Lord Balarāma;didṛkṣayā—with the desire to see;dvaipāyanaḥ—Dvaipāyana Vedavyāsa;nāradaḥ—Nārada;ca—and;cyavanaḥdevalaḥasitaḥ—Cyavana, Devala and Asita;viśvāmitraḥśatānandaḥ—Viśvāmitra and Śatānanda;bharadvājaḥathagautamaḥ—Bharadvāja and Gautama;rāmaḥ—Paraśurāma;sa—with;śiṣyaḥ—his",
+          "score": -2.3771228790283203
+        },
+        {
+          "id": "sb.sb\\10\\84\\67-68\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\10\\84\\67-68\\index.html",
+          "verse": null,
+          "content": "d him and took his leave, accompanied by the Yadus’ large army. Convinced by all these arguments that his son’s happiness was of prime importance, Nanda accepted the gifts offered him and took his leave, accompanied by the Yadus’ large army. Text 66Text 69",
+          "score": -2.6994125843048096
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "попробуй еще"
+        }
+      ]
+    },
+    {
+      "role": "model",
+      "parts": [
+        {
+          "text": "Śrīla Prabhupāda explains the essence of the term \"akinchanā\" (meaning \"having no material possessions\") through the teachings of Lord Caitanya Mahāprabhu. According to Prabhupāda, one who aspires to go beyond the cycle of birth and death should renounce material possessions. This implies not seeking happiness in the material world, nor aspiring for promotion to heavenly planets, nor accumulating material wealth [[sb.sb\\3\\25\\advanced-view\\index.html.null]]. The state of being \"akinchanā\" is thus a spiritual ideal, signifying a detachment from worldly belongings and desires, which is crucial for spiritual advancement and liberation from material existence."
+        }
+      ],
+      "agentSteps": [
+        {
+          "type": "thought",
+          "content": "The user is asking for an explanation of the term \"akinchanā\" specifically from the perspective of Śrīla Prabhupāda. I need to search the database for instances where Śrīla Prabhupāda discusses this term or related concepts of poverty, renunciation, and detachment in the context of spiritual life.",
+          "timestamp": 1764489736428
+        },
+        {
+          "type": "thought",
+          "content": "The user is asking for an explanation of the term \"akinchanā\" specifically from the perspective of Śrīla Prabhupāda. I need to search the database for instances where Śrīla Prabhupāda discusses this term or related concepts of poverty, renunciation, and detachment in the context of spiritual life.",
+          "timestamp": 1764489736428
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda on akinchanā\"",
+          "timestamp": 1764489736428
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda on akinchanā\"",
+          "timestamp": 1764489736428
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489745567
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489745567
+        },
+        {
+          "type": "thought",
+          "content": "The search results provided are not directly relevant to the term \"akinchanā.\" They seem to be snippets from the Chaitanya Charitamrita, mentioning devotees, Lord Chaitanya, and verses from other texts, but without any explicit definition or discussion of \"akinchanā\" by Śrīla Prabhupāda. I need to refine my search to specifically look for explanations of \"akinchanā\" or its meaning in Prabhupāda's works.",
+          "timestamp": 1764489746999
+        },
+        {
+          "type": "thought",
+          "content": "The search results provided are not directly relevant to the term \"akinchanā.\" They seem to be snippets from the Chaitanya Charitamrita, mentioning devotees, Lord Chaitanya, and verses from other texts, but without any explicit definition or discussion of \"akinchanā\" by Śrīla Prabhupāda. I need to refine my search to specifically look for explanations of \"akinchanā\" or its meaning in Prabhupāda's works.",
+          "timestamp": 1764489746999
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda meaning of akinchanā\"",
+          "timestamp": 1764489746999
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda meaning of akinchanā\"",
+          "timestamp": 1764489746999
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489756400
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489756400
+        },
+        {
+          "type": "thought",
+          "content": "The previous search results were still not specific enough to find Śrīla Prabhupāda's explanation of \"akinchanā.\" The term itself doesn't appear directly in these snippets. I need to broaden my search to include related concepts that Prabhupāda might have used to explain the idea of being \"akinchanā,\" such as \"renunciation,\" \"detachment,\" \"poverty,\" and \"having nothing\" in a spiritual context. I will look for these terms in conjunction with Prabhupāda's teachings.",
+          "timestamp": 1764489758241
+        },
+        {
+          "type": "thought",
+          "content": "The previous search results were still not specific enough to find Śrīla Prabhupāda's explanation of \"akinchanā.\" The term itself doesn't appear directly in these snippets. I need to broaden my search to include related concepts that Prabhupāda might have used to explain the idea of being \"akinchanā,\" such as \"renunciation,\" \"detachment,\" \"poverty,\" and \"having nothing\" in a spiritual context. I will look for these terms in conjunction with Prabhupāda's teachings.",
+          "timestamp": 1764489758241
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda on having nothing for Kṛṣṇa\"",
+          "timestamp": 1764489758241
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda on having nothing for Kṛṣṇa\"",
+          "timestamp": 1764489758241
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489766790
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489766790
+        },
+        {
+          "type": "thought",
+          "content": "The search results are still not yielding a direct explanation of \"akinchanā\" by Śrīla Prabhupāda. The term itself is not appearing in the provided snippets. The snippets mention concepts like renunciation (giving up posts), spiritual engagement, and devotional service, which are related to the idea of being \"akinchanā,\" but they don't define the term. I need to try a more targeted search, perhaps looking for the Sanskrit word directly within Prabhupāda's purports or lectures, or focusing on the *concept* of having nothing in a spiritual sense as explained by him.",
+          "timestamp": 1764489768972
+        },
+        {
+          "type": "thought",
+          "content": "The search results are still not yielding a direct explanation of \"akinchanā\" by Śrīla Prabhupāda. The term itself is not appearing in the provided snippets. The snippets mention concepts like renunciation (giving up posts), spiritual engagement, and devotional service, which are related to the idea of being \"akinchanā,\" but they don't define the term. I need to try a more targeted search, perhaps looking for the Sanskrit word directly within Prabhupāda's purports or lectures, or focusing on the *concept* of having nothing in a spiritual sense as explained by him.",
+          "timestamp": 1764489768972
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"akinchanā definition Śrīla Prabhupāda\"",
+          "timestamp": 1764489768972
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"akinchanā definition Śrīla Prabhupāda\"",
+          "timestamp": 1764489768972
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489777485
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489777485
+        },
+        {
+          "type": "thought",
+          "content": "The search results continue to be unhelpful in finding a direct explanation of \"akinchanā\" by Śrīla Prabhupāda. The term itself is not present in the provided snippets. The snippets are from the Chaitanya Charitamrita and discuss various pastimes and emotions of Lord Chaitanya and the gopis, but they do not define or elaborate on \"akinchanā.\" I need to try a different approach. Since \"akinchanā\" means \"having nothing,\" I will search for Prabhupāda's explanations of devotees who have renounced everything for Kṛṣṇa, or the concept of spiritual poverty as a virtue.",
+          "timestamp": 1764489779740
+        },
+        {
+          "type": "thought",
+          "content": "The search results continue to be unhelpful in finding a direct explanation of \"akinchanā\" by Śrīla Prabhupāda. The term itself is not present in the provided snippets. The snippets are from the Chaitanya Charitamrita and discuss various pastimes and emotions of Lord Chaitanya and the gopis, but they do not define or elaborate on \"akinchanā.\" I need to try a different approach. Since \"akinchanā\" means \"having nothing,\" I will search for Prabhupāda's explanations of devotees who have renounced everything for Kṛṣṇa, or the concept of spiritual poverty as a virtue.",
+          "timestamp": 1764489779740
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda on devotees who have nothing\"",
+          "timestamp": 1764489779740
+        },
+        {
+          "type": "action",
+          "content": "Ищу: \"Śrīla Prabhupāda on devotees who have nothing\"",
+          "timestamp": 1764489779740
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489788261
+        },
+        {
+          "type": "observation",
+          "content": "Найдено 5 отрывков.",
+          "timestamp": 1764489788261
+        },
+        {
+          "type": "thought",
+          "content": "Формирую окончательный ответ...",
+          "timestamp": 1764489791440
+        },
+        {
+          "type": "thought",
+          "content": "Формирую окончательный ответ...",
+          "timestamp": 1764489791440
+        }
+      ],
+      "sources": [
+        {
+          "id": "cc.cc\\antya\\1\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\1\\advanced-view\\index.html",
+          "verse": null,
+          "content": "bhu’s dealings with them continued every day. Thus receiving the transcendental favor of the Lord, Śrīla Rūpa Gosvāmī felt unlimited pleasure. Text 62Verse textbhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojanaSynonymsbhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden.TranslationAfter Śrī Caitanya Mahāprabhu, taking all His devotees with Him, performed the Guṇḍicā-mārjana [washing and cleansing of the Guṇḍicā temple], He went to the garden known as Āiṭoṭā and accepted prasādam at a picnic within the garden. Text 62 Verse textbhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojana bhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojana bhakta-gaṇa lañā kailā guṇḍicā mārjanaāitoṭā āsi’ kailā vanya-bhojana Synonymsbhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden. bhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden. bhakta-gaṇa—all the devotees;lañā—taking;kailā—performed;guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple;āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā;kailā—had;vanya-bhojana—a picnic within the garden. bhakta-gaṇa—all the devotees; all the devotees lañā—taking; taking kailā—performed; performed guṇḍicāmārjana—cleansing and washing of the Guṇḍicā temple; cleansing and washing of the Guṇḍicā temple āiṭoṭāāsi’—coming to the nearby garden named Āiṭoṭā; coming to the nearby garden named Āiṭoṭā kailā—had; vanya-bhojana—a picnic within the garden. a picnic within the garden TranslationAfter Śrī Caitanya Mahāprabhu, taking all His devotees with Him,",
+          "score": -1.6553173065185547
+        },
+        {
+          "id": "cc.cc\\antya\\19\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\19\\advanced-view\\index.html",
+          "verse": null,
+          "content": "hu recited that same verse and made its meaning clear. Text 90 Verse textkṛṣṇa-gandha-lubdhā rādhā sakhīre ye kahilāsei śloka paḍi’ prabhu artha karilā kṛṣṇa-gandha-lubdhā rādhā sakhīre ye kahilāsei śloka paḍi’ prabhu artha karilā kṛṣṇa-gandha-lubdhā rādhā sakhīre ye kahilāsei śloka paḍi’ prabhu artha karilā Synonymskṛṣṇa-gandha—the scent of the body of Kṛṣṇa;lubdhā—hankering after;rādhā—Śrīmatī Rādhārāṇī;sakhīre—to Hergopīfriends;yekahilā—whatever She said;sei—that;śloka—verse;paḍi’—reciting;prabhu—Śrī Caitanya Mahāprabhu;arthakarilā—explained its meaning. kṛṣṇa-gandha—the scent of the body of Kṛṣṇa;lubdhā—hankering after;rādhā—Śrīmatī Rādhārāṇī;sakhīre—to Hergopīfriends;yekahilā—whatever She said;sei—that;śloka—verse;paḍi’—reciting;prabhu—Śrī Caitanya Mahāprabhu;arthakarilā—explained its meaning. kṛṣṇa-gandha—the scent of the body of Kṛṣṇa;lubdhā—hankering after;rādhā—Śrīmatī Rādhārāṇī;sakhīre—to Hergopīfriends;yekahilā—whatever She said;sei—that;śloka—verse;paḍi’—reciting;prabhu—Śrī Caitanya Mahāprabhu;arthakarilā—explained its meaning. kṛṣṇa-gandha—the scent of the body of Kṛṣṇa; the scent of the body of Kṛṣṇa lubdhā—hankering after; hankering after rādhā—Śrīmatī Rādhārāṇī; Śrīmatī Rādhārāṇī sakhīre—to Hergopīfriends; to Hergopīfriends yekahilā—whatever She said; whatever She said sei—that; śloka—verse; paḍi’—reciting; reciting prabhu—Śrī Caitanya Mahāprabhu; Śrī Caitanya Mahāprabhu arthakarilā—explained its meaning. explained its meaning TranslationŚrīmatī Rādhārāṇī once spoke a verse to Her gopī friends describing how She hankers for the transcendental scent of Kṛṣṇa’s body. Śrī Caitanya Mahāprabhu recited that same verse and made its meaning clear. Śrīmatī Rādhārāṇī once spoke a verse to Her gopī friends describing how She hankers for the transcendental scent of Kṛṣṇa’s body. Śrī Caitanya Mahāprabhu recited that same verse and made its meaning clear. Śrīmatī Rādhārāṇī once spoke a verse to Her gopī friends describing how She hankers for the transcendental scent of Kṛṣṇa’s body.",
+          "score": -1.8246463537216187
+        },
+        {
+          "id": "cc.cc\\adi\\4\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\adi\\4\\advanced-view\\index.html",
+          "verse": null,
+          "content": "t, for She is the helper of the Lord in realizing the essence of His desires.” PurportIn this verse from theGīta-govinda(3.1), Jayadeva Gosvāmī describes Śrī Kṛṣṇa’s leaving therāsa-līlāto search for Śrīmatī Rādhārāṇī. In this verse from theGīta-govinda(3.1), Jayadeva Gosvāmī describes Śrī Kṛṣṇa’s leaving therāsa-līlāto search for Śrīmatī Rādhārāṇī. In this verse from theGīta-govinda(3.1), Jayadeva Gosvāmī describes Śrī Kṛṣṇa’s leaving therāsa-līlāto search for Śrīmatī Rādhārāṇī. Text 220Bengaliসেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥Verse textsei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāraSynonymssei—that;rādhāra—of Śrīmatī Rādhārāṇī;bhāva—the emotion;lañā—taking;caitanya—of Lord Caitanya;avatāra—the incarnation;yuga-dharma—the religion of the age;nāma-prema—the holy name and love of Godhead;kaila—did;paracāra—preaching.TranslationLord Caitanya appeared with the sentiment of Rādhā. He preached the dharma of this age — the chanting of the holy name and pure love of God. Text 220 Bengaliসেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥ সেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥ সেই রাধার ভাব লঞা চৈতন্যাবতার ।যুগধর্ম নাম–প্রেম কৈল পরচার ॥ ২২০ ॥ Verse textsei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāra sei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāra sei rādhāra bhāva lañā caitanyāvatārayuga-dharma nāma-prema kaila paracāra Synonymssei—that;rādhāra—of Śrīmatī Rādhārāṇī;bhāva—the emotion;lañā—taking;caitanya—of Lord Caitanya;avatāra—the incarnation;yuga-dharma—the religion of the age;nāma-prema—the holy name and love of Godhead;kaila—did;paracāra—preaching. sei—that;rādhāra—of Śrīmatī Rādhārāṇī;bhāva—the emotion;lañā—taking;caitanya—of Lord Caitanya;avatāra—the incarnation;yuga-dharma—the religion of the age;nāma-prema—the holy name and love of Godhead;kaila—did;paracāra—preaching.",
+          "score": -1.884663462638855
+        },
+        {
+          "id": "cc.cc\\madhya\\14\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\madhya\\14\\advanced-view\\index.html",
+          "verse": null,
+          "content": "regulative principles. Only then can he try to understand Kṛṣṇa and thegopīs.Śrī Caitanya Mahāprabhu and Svarūpa Dāmodara Gosvāmī are here talking about the relationship between Kṛṣṇa and thegopīs;therefore the subject matter is neither mundane nor erotic. Being asannyāsī,Śrī Caitanya Mahāprabhu was very strict in His dealings with women. Unless thegopīswere on the spiritual platform, Śrī Caitanya Mahāprabhu would have never even mentioned them to Svarūpa Dāmodara Gosvāmī. Therefore these descriptions do not at all pertain to material activity. Text 158 Bengaliএবং শশঙ্কাংশুবিরাজিতা নিশাঃস সত্যকামোঽনুরতাবলাগণঃ ।সিষেব আত্মন্যবরুদ্ধ-সৌরতঃসর্বাঃ শরৎকাব্যকথারসাশ্রয়াঃ ॥ ১৫৮ ॥ এবং শশঙ্কাংশুবিরাজিতা নিশাঃস সত্যকামোঽনুরতাবলাগণঃ ।সিষেব আত্মন্যবরুদ্ধ-সৌরতঃসর্বাঃ শরৎকাব্যকথারসাশ্রয়াঃ ॥ ১৫৮ ॥ এবং শশঙ্কাংশুবিরাজিতা নিশাঃস সত্যকামোঽনুরতাবলাগণঃ ।সিষেব আত্মন্যবরুদ্ধ-সৌরতঃসর্বাঃ শরৎকাব্যকথারসাশ্রয়াঃ ॥ ১৫৮ ॥ Verse textevaṁ śaśaṅkāṁśu-virājitā niśāḥsa satya-kāmo ’nuratābalā-gaṇaḥsiṣeva ātmany avaruddha-saurataḥsarvāḥ śarat-kāvya-kathā-rasāśrayāḥ evaṁ śaśaṅkāṁśu-virājitā niśāḥsa satya-kāmo ’nuratābalā-gaṇaḥsiṣeva ātmany avaruddha-saurataḥsarvāḥ śarat-kāvya-kathā-rasāśrayāḥ evaṁ śaśaṅkāṁśu-virājitā niśāḥsa satya-kāmo ’nuratābalā-gaṇaḥsiṣeva ātmany avaruddha-saurataḥsarvāḥ śarat-kāvya-kathā-rasāśrayāḥ Synonymsevam—thus;śaśaṅka-aṁśu—with rays of moonshine;virājitāḥ—beautifully existing;niśāḥ—nights;saḥ—He;satya-kāmaḥ—the Absolute Truth;anurata—to whom are attracted;abalā-gaṇaḥ—women;siṣeva—performed;ātmani—in His own self;avaruddha-saurataḥ—His transcendental lusty desire was checked;sarvāḥ—all;śarat—in autumn;kāvya—poetic;kathā—words;rasa-āśrayāḥ—full of all transcendental mellows. evam—thus;śaśaṅka-aṁśu—with rays of moonshine;virājitāḥ—beautifully existing;niśāḥ—nights;saḥ—He;satya-kāmaḥ—the Absolute Truth;anurata—to whom are attracted;abalā-gaṇaḥ—women;siṣeva—performed;ātmani—in His own self;avaruddha-saurataḥ—His transcendental lusty desire was checked;sarvāḥ—all;śarat—in autumn;kāvya—poetic;kathā—words;rasa-āśrayāḥ—full of all",
+          "score": -1.8107932806015015
+        },
+        {
+          "id": "cc.cc\\antya\\9\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\9\\index.html",
+          "verse": null,
+          "content": "r sake that Rāmānanda Rāya resigned from the governorship of South India and Sanātana Gosvāmī gave up his post as minister. “It is only for Your sake that Rāmānanda Rāya resigned from the governorship of South India and Sanātana Gosvāmī gave up his post as minister. Text 71:“It is for Your sake that Raghunātha dāsa gave up all his family relationships. His father sent money and men here to serve him. Text 71:“It is for Your sake that Raghunātha dāsa gave up all his family relationships. His father sent money and men here to serve him. “It is for Your sake that Raghunātha dāsa gave up all his family relationships. His father sent money and men here to serve him. Text 72:“However, because he has received the mercy of Your lotus feet, he does not even accept his father’s money. Instead he eats by begging alms from centers for the distribution of food. Text 72:“However, because he has received the mercy of Your lotus feet, he does not even accept his father’s money. Instead he eats by begging alms from centers for the distribution of food. “However, because he has received the mercy of Your lotus feet, he does not even accept his father’s money. Instead he eats by begging alms from centers for the distribution of food. Text 73:“Gopīnātha Paṭṭanāyaka is a good gentleman. He does not desire material benefits from You. Text 73:“Gopīnātha Paṭṭanāyaka is a good gentleman. He does not desire material benefits from You. “Gopīnātha Paṭṭanāyaka is a good gentleman. He does not desire material benefits from You. Text 74:“It is not Gopīnātha who sent all those men so that You would release him from his plight. Rather, his friends and servants, seeing his distressed condition, informed You because they all knew that Gopīnātha is a soul surrendered unto You. Text 74:“It is not Gopīnātha who sent all those men so that You would release him from his plight. Rather, his friends and servants, seeing his distressed condition, informed You because they all knew that Gopīnātha is a soul surrendered unto You.",
+          "score": -2.5819249153137207
+        },
+        {
+          "id": "cc.cc\\antya\\13\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\antya\\13\\advanced-view\\index.html",
+          "verse": null,
+          "content": "tulasīramālā—a garland made oftulasīleaves;chuṭā-pāna-viḍā—unspiced betel;mahotsave—at a festival;pāñāchilā—got. caudda-hāta—fourteen cubits (about twenty-one feet) long; fourteen cubits (about twenty-one feet) long jagannāthera—of Lord Jagannātha; of Lord Jagannātha tulasīramālā—a garland made oftulasīleaves; a garland made oftulasīleaves chuṭā-pāna-viḍā—unspiced betel; unspiced betel mahotsave—at a festival; at a festival pāñāchilā—got. TranslationAt a festival Śrī Caitanya Mahāprabhu had been given some unspiced betel and a garland of tulasī leaves fourteen cubits long. The garland had been worn by Lord Jagannātha. At a festival Śrī Caitanya Mahāprabhu had been given some unspiced betel and a garland of tulasī leaves fourteen cubits long. The garland had been worn by Lord Jagannātha. At a festival Śrī Caitanya Mahāprabhu had been given some unspiced betel and a garland of tulasī leaves fourteen cubits long. The garland had been worn by Lord Jagannātha. Text 124Verse textsei mālā, chuṭā pāna prabhu tāṅre dilā‘iṣṭa-deva’ kari’ mālā dhariyā rākhilāSynonymsseimālā—that garland;chuṭāpāna—the betel;prabhu—Śrī Caitanya Mahāprabhu;tāṅredilā—delivered to him;iṣṭa-deva—his worshipable Deity;kari’—accepting as;mālā—that garland;dhariyārākhilā—kept.TranslationŚrī Caitanya Mahāprabhu gave the garland and betel to Raghunātha Bhaṭṭa, who accepted them as a worshipable Deity and preserved them very carefully. Text 124 Verse textsei mālā, chuṭā pāna prabhu tāṅre dilā‘iṣṭa-deva’ kari’ mālā dhariyā rākhilā sei mālā, chuṭā pāna prabhu tāṅre dilā‘iṣṭa-deva’ kari’ mālā dhariyā rākhilā sei mālā, chuṭā pāna prabhu tāṅre dilā‘iṣṭa-deva’ kari’ mālā dhariyā rākhilā Synonymsseimālā—that garland;chuṭāpāna—the betel;prabhu—Śrī Caitanya Mahāprabhu;tāṅredilā—delivered to him;iṣṭa-deva—his worshipable Deity;kari’—accepting as;mālā—that garland;dhariyārākhilā—kept. seimālā—that garland;chuṭāpāna—the betel;prabhu—Śrī Caitanya Mahāprabhu;tāṅredilā—delivered to him;iṣṭa-deva—his worshipable Deity;kari’—accepting as;mālā—that",
+          "score": -1.41709566116333
+        },
+        {
+          "id": "sb.sb\\10\\2\\21\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\10\\2\\21\\index.html",
+          "verse": null,
+          "content": "as within Devakī’s womb, but killing an enemy in such a nescient state would not be an exhibition of prowess. According tokṣatriyarules, an enemy should be fought face to face and with proper weapons. Then if the enemy is killed, the victor becomes famous. Kaṁsa very conscientiously deliberated upon these facts and therefore refrained from killing Devakī, although he was completely confident that his enemy had already appeared within her womb. ŚB 10.2.21 Devanagariकिमद्य तस्मिन् करणीयमाशु मेयदर्थतन्त्रो न विहन्ति विक्रमम् । स्त्रिया: स्वसुर्गुरुमत्या वधोऽयंयश: श्रियं हन्त्यनुकालमायु: ॥ २१ ॥ किमद्य तस्मिन् करणीयमाशु मेयदर्थतन्त्रो न विहन्ति विक्रमम् । स्त्रिया: स्वसुर्गुरुमत्या वधोऽयंयश: श्रियं हन्त्यनुकालमायु: ॥ २१ ॥ किमद्य तस्मिन् करणीयमाशु मेयदर्थतन्त्रो न विहन्ति विक्रमम् । स्त्रिया: स्वसुर्गुरुमत्या वधोऽयंयश: श्रियं हन्त्यनुकालमायु: ॥ २१ ॥ Verse textkim adya tasmin karaṇīyam āśu meyad artha-tantro na vihanti vikramamstriyāḥ svasur gurumatyā vadho ’yaṁyaśaḥ śriyaṁ hanty anukālam āyuḥ kim adya tasmin karaṇīyam āśu meyad artha-tantro na vihanti vikramamstriyāḥ svasur gurumatyā vadho ’yaṁyaśaḥ śriyaṁ hanty anukālam āyuḥ kim adya tasmin karaṇīyam āśu meyad artha-tantro na vihanti vikramamstriyāḥ svasur gurumatyā vadho ’yaṁyaśaḥ śriyaṁ hanty anukālam āyuḥ Synonymskim—what;adya—now, immediately;tasmin—in this situation;karaṇīyam—is to be done;āśu—without delay;me—my duty;yat—because;artha-tantraḥ—the Supreme Personality of Godhead, who is always determined to protect thesādhusand kill theasādhus;na—does not;vihanti—give up;vikramam—His prowess;striyāḥ—of a woman;svasuḥ—of my sister;guru-matyāḥ—especially when she is pregnant;vadhaḥayam—the killing;yaśaḥ—fame;śriyam—opulence;hanti—will vanquish;anukālam—forever;āyuḥ—and the duration of life. kim—what;adya—now, immediately;tasmin—in this situation;karaṇīyam—is to be done;āśu—without delay;me—my duty;yat—because;artha-tantraḥ—the Supreme Personality of Godhead, who is always determined to protect thesādhusand kill theasādhus;na—does not;vihanti—give up;vikramam—His",
+          "score": -1.450782060623169
+        },
+        {
+          "id": "noi.noi\\3\\index.html.null",
+          "bookTitle": "noi",
+          "chapter": "noi\\3\\index.html",
+          "verse": null,
+          "content": "ndane cause, nor can it be terminated by any mundane cause or permanently curtailed by any material interruption. Therefore a devotee should be confident about his engagement and should not be very interested in the activities of thekarmīs, jñānīsandyogīs. Devotional service is so pure and perfect that once having begun, one is forcibly dragged to ultimate success. Sometimes a person will give up his ordinary material engagements and out of sentiment take shelter of the lotus feet of the Supreme Lord and thus begin the preliminary execution of devotional service. Even if such an immature devotee falls down, there is no loss on his part. On the other hand, what is the gain of one who executes the prescribed duties according to hisvarṇaandāśramabut does not take to devotional service? Although a fallen devotee may take his next birth in a low family, his devotional service will nonetheless resume from where it left off. Devotional service isahaituky apratihatā;it is not the effect of any mundane cause, nor can it be terminated by any mundane cause or permanently curtailed by any material interruption. Therefore a devotee should be confident about his engagement and should not be very interested in the activities of thekarmīs, jñānīsandyogīs. There are certainly many good qualities among fruitive actors, philosophical speculators and mysticyogīs,but all good qualities automatically develop in the character of a devotee. No extraneous endeavor is needed. As confirmed byŚrīmad-Bhāgavatam(5.18.12), all the good qualities of the demigods manifest progressively in one who has developed pure devotional service. Because a devotee is not interested in any material activity, he does not become materially contaminated. He is immediately situated on the platform of transcendental life. However, one who engages in mundane activity – be he a so-calledjñānī,yogī,karmī, philanthropist, nationalist or whatever – cannot attain the higher stage ofmahātmā. He remains adurātmā,or cripple-minded person. According toBhagavad-gītā(9.",
+          "score": -1.478188395500183
+        },
+        {
+          "id": "sb.sb\\3\\25\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\3\\25\\advanced-view\\index.html",
+          "verse": null,
+          "content": "er opulences and performed all other duties. The Lord promises herein that He takes His devotee to the other side of birth and death. Lord Caitanya therefore recommended that one who aspires to go beyond birth and death should have no material possessions. This means that one should not try to be happy in this world or to be promoted to the heavenly world, nor should he try for material wealth, children, houses or cattle. How liberation is imperceptibly achieved by a pure devotee and what the symptoms are have been explained. For the conditioned soul there are two statuses of living. One status is in this present life, and the other is our preparation for the next life. If I am in the mode of goodness then I may be preparing for promotion to the higher planets, if I am in the mode of passion then I shall remain here in a society where activity is very prominent, and if I am in the mode of ignorance I may be degraded to animal life or a lower grade of human life. But for a devotee there is no concern for this life or the next life because in any life he does not desire elevation in material prosperity or a high-grade or low-grade life. He prays to the Lord, “My dear Lord, it does not matter where I am born, but let me be born, even as an ant, in the house of a devotee.” A pure devotee does not pray to the Lord for liberation from this material bondage. Actually, the pure devotee never thinks that he is fit for liberation. Considering his past life and his mischievous activities, he thinks that he is fit to be sent to the lowest region of hell. If in this life I am trying to become a devotee, this does not mean that in my many past lives I was one-hundred-percent pious. That is not possible. A devotee is therefore always conscious of his real position. Only by his full surrender to the Lord, by the Lord’s grace, are his sufferings made shorter. As stated inBhagavad-gītā,“Surrender unto Me, and I will give you protection from all kinds of sinful reaction.” That is His mercy.",
+          "score": 0.4066423177719116
+        },
+        {
+          "id": "mbk.mbk\\1\\12\\index.html.null",
+          "bookTitle": "mbk",
+          "chapter": "mbk\\1\\12\\index.html",
+          "verse": null,
+          "content": "he Kauravas would be covered with dishonor. All virtuous men would censure them. Having lost their reputation, their existence would become useless. Bhīṣma looked around the council chamber as he spoke. “It is fortunate for us that Kuntī’s sons still live. It is fortunate that Kuntī herself still lives. And it is fortunate that the sinful Purochana met his end. From the day I heard that Kuntī and her sons had perished in the fire, I could not face any living creature.” Bhīṣma asked Dhṛtarāṣṭra if he knew how the citizens felt. They had blamed the Pāṇḍavas’ death on the king. That the brothers had survived would repair his reputation. Dhṛtarāṣṭra should now take advantage of that good fortune and make amends with the Pāṇḍavas by awarding them their kingdom. They were virtuous, united, and ever protected by the Supreme Lord. Even Indra with all the gods could not deprive them of their rights. “If you desire justice, the welfare of all, and my pleasure, then give half the kingdom to these boys.” Bhīṣma asked Dhṛtarāṣṭra if he knew how the citizens felt. They had blamed the Pāṇḍavas’ death on the king. That the brothers had survived would repair his reputation. Dhṛtarāṣṭra should now take advantage of that good fortune and make amends with the Pāṇḍavas by awarding them their kingdom. They were virtuous, united, and ever protected by the Supreme Lord. Even Indra with all the gods could not deprive them of their rights. “If you desire justice, the welfare of all, and my pleasure, then give half the kingdom to these boys.” Bhīṣma sat down, looking across at Duryodhana who breathed heavily and ground his teeth. The prince stared at the floor as Droṇa stood up to speak. “O sire, it is said that counselors should always speak what is right, true and conducive to the king’s welfare and fame. My opinion then is the same as Bhīṣma’s. Return the kingdom to the Pāṇḍavas. Send a messenger skilled in diplomacy to Drupada, along with many gifts, and tell him how the alliance of his house with the house of Kuru has enhanced your",
+          "score": -1.3514277935028076
+        },
+        {
+          "id": "sb.sb\\5\\15\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\5\\15\\advanced-view\\index.html",
+          "verse": null,
+          "content": "a-udhāḥ—earth becoming like a cow whose udders flowed upon seeing Gaya’s qualities in ruling over the citizens.TranslationAll the chaste and honest daughters of Mahārāja Dakṣa, such as Śraddhā, Maitrī and Dayā, whose blessings were always effective, bathed Mahārāja Gaya with sanctified water. Indeed, they were very satisfied with Mahārāja Gaya. The planet earth personified came as a cow, and, as though she saw her calf, she delivered milk profusely when she saw all the good qualities of Mahārāja Gaya. In other words, Mahārāja Gaya was able to derive all benefits from the earth and thus satisfy the desires of his citizens. However, he personally had no desire.PurportThe earth over which Mahārāja Gaya ruled is compared to a cow. The good qualities whereby he maintained and ruled the citizens are compared to the calf. A cow delivers milk in the presence of her calf; similarly the cow, or earth, fulfilled the desires of Mahārāja Gaya, who was able to utilize all the resources of the earth to benefit his citizens. This was possible because he was bathed in sanctified water by the honest daughters of Dakṣa. Unless a king or ruler is blessed by authorities, he cannot rule the citizens very satisfactorily. Through the good qualities of the ruler, the citizens become very happy and well qualified.Text 11Devanagariछन्दांस्यकामस्य च यस्य कामान्दुदूहुराजह्रुरथो बलिं नृपा: । प्रत्यञ्चिता युधि धर्मेण विप्रायदाशिषां षष्ठमंशं परेत्य ॥ ११ ॥Verse textchandāṁsy akāmasya ca yasya kāmāndudūhur ājahrur atho baliṁ nṛpāḥpratyañcitā yudhi dharmeṇa viprāyadāśiṣāṁ ṣaṣṭham aṁśaṁ paretyaSynonymschandāṁsi—all the different parts of theVedas;akāmasya—of one who has no desire for personal sense gratification;ca—also;yasya—whose;kāmān—all desirables;dudūhuḥ—yielded;ājahruḥ—offered;atho—thus;balim—presentation;nṛpāḥ—all the kings;pratyañcitāḥ—being satisfied by his fighting in opposition;yudhi—in the war;dharmeṇa—by religious principles;viprāḥ—all thebrāhmaṇas;yadā—when;āśiṣām—of blessings;ṣaṣṭhamaṁśam—one sixth;paretya—in the next life.",
+          "score": -1.694899320602417
+        },
+        {
+          "id": "sb.sb\\5\\14\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\5\\14\\advanced-view\\index.html",
+          "verse": null,
+          "content": "the Kṛṣṇa consciousness movement these monkey disciples, being unable to follow the strict regulative principles, sometimes fall down and try to form societies based on sex. This is proof that such people are descendants of monkeys, as confirmed by Darwin. In this verse it is therefore clearly stated:yathā vānara jāteḥ. By fulfilling the process of evolution from the aquatics to the animal platform, a living entity eventually reaches the human form. The three modes of material nature are always working in the evolutionary process. Those who come to the human form through the quality ofsattva-guṇawere cows in their last animal incarnation. Those who come to the human form through the quality ofrajo-guṇawere lions in their last animal incarnation. And those who come to the human form through the quality oftamo-guṇawere monkeys in their last animal incarnation. In this age, those who come through the monkey species are considered by modern anthropologists like Darwin to be descendants of monkeys. We receive information herein that those who are simply interested in sex are actually no better than monkeys. Monkeys are very expert in sexual enjoyment, and sometimes sex glands are taken from monkeys and placed in the human body so that a human being can enjoy sex in old age. In this way modern civilization has advanced. Many monkeys in India were caught and sent to Europe so that their sex glands could serve as replacements for those of old people. Those who actually descend from the monkeys are interested in expanding their aristocratic families through sex. In theVedasthere are also certain ceremonies especially meant for sexual improvement and promotion to higher planetary systems, where the demigods are enjoying sex. The demigods are also very much inclined toward sex because that is the basic principle of material enjoyment. By fulfilling the process of evolution from the aquatics to the animal platform, a living entity eventually reaches the human form.",
+          "score": -1.9350197315216064
+        },
+        {
+          "id": "sb.sb\\3\\20\\11\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\3\\20\\11\\index.html",
+          "verse": null,
+          "content": "—this;smasamakalpayan—produced. sa-dvitīyāḥ—with their wives; with their wives kim—whether; whether asṛjan—created; created sva-tantrāḥ—remaining independent; remaining independent uta—or; karmasu—in their actions; in their actions āhosvit—or else; or else saṁhatāḥ—jointly; jointly sarve—all the Prajāpatis; all the Prajāpatis idam—this; smasamakalpayan—produced. produced TranslationDid they evolve the creation in conjunction with their respective wives, did they remain independent in their action, or did they all jointly produce it? Did they evolve the creation in conjunction with their respective wives, did they remain independent in their action, or did they all jointly produce it? Did they evolve the creation in conjunction with their respective wives, did they remain independent in their action, or did they all jointly produce it? Text 10Text 12",
+          "score": -1.9721531867980957
+        }
+      ]
+    }
+  ],
+  "title": "расскажи о термине акинчана"
+}

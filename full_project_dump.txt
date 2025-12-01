@@ -590,7 +590,7 @@ const App: React.FC = () => {
                 <div className="mt-2 flex items-center justify-between opacity-50 text-[10px] uppercase tracking-wider">
                   <span>{new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   {msg.role === 'model' && (
-                    <span className="flex items-center gap-1"><Sparkles size={10} />Gemini Agent</span>
+                    <span className="flex items-center gap-1"><Sparkles size={10} />AI Agent</span>
                   )}
                 </div>
               </div>

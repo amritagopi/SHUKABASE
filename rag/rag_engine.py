@@ -15,6 +15,7 @@ from typing import List, Dict, Tuple, Any
 import logging
 import os
 import time
+import re
 
 # Управление зависимостями
 try:
@@ -23,10 +24,12 @@ try:
     import torch
     import google.generativeai as genai
     from dotenv import load_dotenv
+    from rank_bm25 import BM25Okapi
+    from nltk.stem import SnowballStemmer
 except ImportError as e:
     raise ImportError(
         f"Отсутствует зависимость: {e}. "
-        "Установите необходимые пакеты: pip install faiss-cpu transformers torch google-generativeai python-dotenv"
+        "Установите необходимые пакеты: pip install faiss-cpu transformers torch google-generativeai python-dotenv rank_bm25 nltk"
     )
 
 logger = logging.getLogger(__name__)
@@ -168,7 +171,13 @@ class RAGEngine:
         
         self.reranker = RerankerModel(reranker_model)
         
+        self.stemmers = {
+            'ru': SnowballStemmer('russian'),
+            'en': SnowballStemmer('english')
+        }
+        
         self.indices: Dict[str, faiss.Index] = {}
+        self.bm25_indices: Dict[str, Any] = {}
         self.metadata: Dict[str, Any] = {}
         self.chunked_data: Dict[str, Dict] = {}
         
@@ -261,6 +270,20 @@ class RAGEngine:
         else:
              logger.warning(f"  - Файл с чанками не найден: {chunks_file}")
 
+        # --- Построение BM25 индекса ---
+        if language in self.metadata and self.metadata[language]:
+            logger.info(f"⏳ Строю индекс BM25 для языка '{language}'...")
+            try:
+                corpus = []
+                for meta in self.metadata[language]:
+                    text = self._get_text_from_meta(meta, language)
+                    corpus.append(self._tokenize(text, language))
+                
+                self.bm25_indices[language] = BM25Okapi(corpus)
+                logger.info(f"✅ Индекс BM25 построен ({len(corpus)} документов)")
+            except Exception as e:
+                logger.error(f"❌ Ошибка при построении BM25: {e}")
+
     def _get_embedding(self, texts: List[str]) -> np.ndarray:
         """Получает эмбеддинги для списка текстов с помощью Gemini API."""
         try:
@@ -290,6 +313,73 @@ class RAGEngine:
             # Возвращаем нулевой вектор, чтобы избежать падения
             dim = 768 # Размерность для text-embedding-004
             return np.zeros((len(texts), dim), dtype='float32')
+
+    def _tokenize(self, text: str, language: str) -> List[str]:
+        """Токенизация со стеммингом для BM25"""
+        words = re.findall(r'\w+', text.lower())
+        stemmer = self.stemmers.get(language)
+        if stemmer:
+            return [stemmer.stem(w) for w in words]
+        return words
+
+    def _get_text_from_meta(self, meta: Dict, language: str) -> str:
+        """Извлекает полный текст чанка по метаданным"""
+        book = meta.get('book')
+        chapter = meta.get('chapter')
+        chunk_idx = meta.get('chunk_idx')
+        
+        text = ""
+        chunks_map = self.chunked_data.get(language, {})
+        
+        if book and chapter and book in chunks_map and chapter in chunks_map[book]:
+            chapter_chunks = chunks_map[book][chapter]
+            if isinstance(chapter_chunks, list) and isinstance(chunk_idx, int):
+                if 0 <= chunk_idx < len(chapter_chunks):
+                    text = chapter_chunks[chunk_idx]
+        
+        if not text:
+            text = meta.get('text_preview', '')
+            
+        return text
+
+    def _search_by_keyword(self, query: str, language: str, top_k: int) -> List[Dict[str, Any]]:
+        """Поиск по ключевым словам с помощью BM25"""
+        bm25 = self.bm25_indices.get(language)
+        if not bm25: return []
+        
+        try:
+            tokenized_query = self._tokenize(query, language)
+            scores = bm25.get_scores(tokenized_query)
+            
+            # Получаем индексы топ-k результатов
+            top_n_indices = np.argsort(scores)[::-1][:top_k]
+            
+            results = []
+            metadata_list = self.metadata.get(language, [])
+            
+            for idx in top_n_indices:
+                score = scores[idx]
+                if score <= 0: continue
+                
+                meta = metadata_list[idx] if idx < len(metadata_list) else {}
+                text = self._get_text_from_meta(meta, language)
+                
+                results.append({
+                    'index': int(idx),
+                    'distance': 0.0,
+                    'score': float(score), # Raw BM25 score
+                    'text': text,
+                    'book': meta.get('book'), 
+                    'chapter': meta.get('chapter'), 
+                    'verse': None, 
+                    'chunk_idx': meta.get('chunk_idx'),
+                    'source': 'bm25'
+                })
+            
+            return results
+        except Exception as e:
+            logger.error(f"Ошибка при keyword поиске: {e}")
+            return []
 
 
     def _search_by_vector(self, query_embedding: np.ndarray, language: str, top_k: int, vector_distance_threshold: float = None) -> List[Dict[str, Any]]:
@@ -326,14 +416,8 @@ class RAGEngine:
                     continue
                 seen_ids.add(unique_id)
                 
-                # Попытка получить полный текст из chunked_data
-                text = ""
-                if book and chapter and book in chunks_map and chapter in chunks_map[book]:
-                    chapter_chunks = chunks_map[book][chapter]
-                    if isinstance(chapter_chunks, list) and isinstance(chunk_idx, int):
-                        if 0 <= chunk_idx < len(chapter_chunks):
-                            text = chapter_chunks[chunk_idx]
-                
+                # Попытка получить полный текст
+                text = self._get_text_from_meta(meta, language)
                 if not text:
                     text = meta.get('text_preview', '') + '...'
 
@@ -345,7 +429,8 @@ class RAGEngine:
                     'book': book, 
                     'chapter': chapter, 
                     'verse': None, 
-                    'chunk_idx': chunk_idx
+                    'chunk_idx': chunk_idx,
+                    'source': 'vector'
                 })
                 
                 if len(results) >= top_k:
@@ -393,29 +478,68 @@ class RAGEngine:
                      logger.info(f"      - Score: {res['score']:.4f}, Text preview: {res['text'][:50]}...")
                 all_results.extend(vector_results)
 
-            # 4. Удаление дубликатов и отбор лучших
+            # 4. Удаление дубликатов и отбор лучших для векторного поиска
             seen_indices = set()
-            unique_results = []
+            unique_vector_results = []
             for res in sorted(all_results, key=lambda x: x['score'], reverse=True):
                 if res['index'] not in seen_indices:
                     seen_indices.add(res['index'])
-                    unique_results.append(res)
+                    unique_vector_results.append(res)
 
-            top_results = unique_results[:top_k]
+            top_vector_results = unique_vector_results[:top_k * 2] # Берем с запасом для гибридного слияния
             
-            # 5. Переранжирование
+            # 5. Keyword Search (BM25)
+            keyword_results = []
+            if language in self.bm25_indices:
+                logger.info(f"   📚 Запуск BM25 поиска для '{query}'...")
+                keyword_results = self._search_by_keyword(query, language, top_k * 2)
+                logger.info(f"      - Найдено {len(keyword_results)} результатов по ключевым словам")
+
+            # 6. Hybrid Fusion (RRF - Reciprocal Rank Fusion)
+            # RRF score = 1 / (k + rank)
+            k_rrf = 60
+            combined_scores = {}
+            
+            # Process Vector Results
+            for rank, res in enumerate(top_vector_results):
+                idx = res['index']
+                if idx not in combined_scores:
+                    combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
+                combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                combined_scores[idx]['data']['vector_rank'] = rank + 1
+                
+            # Process Keyword Results
+            for rank, res in enumerate(keyword_results):
+                idx = res['index']
+                if idx not in combined_scores:
+                    combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
+                combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                combined_scores[idx]['data']['keyword_rank'] = rank + 1
+
+            # Sort by RRF score
+            hybrid_results = sorted(combined_scores.values(), key=lambda x: x['rrf_score'], reverse=True)
+            
+            # Extract top_k
+            final_candidates = []
+            for item in hybrid_results[:top_k]:
+                res = item['data']
+                res['score'] = item['rrf_score'] # Обновляем скор на RRF
+                final_candidates.append(res)
+            
+            logger.info(f"   🤝 Гибридный поиск: объединено {len(final_candidates)} результатов")
+
+            # 7. Переранжирование (Re-ranking)
             if use_reranking and self.reranker.model:
-                docs_to_rerank = [r['text'] for r in top_results]
+                docs_to_rerank = [r['text'] for r in final_candidates]
                 reranked_tuples = self.reranker.rerank(query, docs_to_rerank, top_k)
                 
-                # Сопоставление результатов re-ranker'а с исходными данными
                 final_results = []
                 for original_idx, score, text in reranked_tuples:
-                    original_result = top_results[original_idx]
+                    original_result = final_candidates[original_idx]
                     original_result['final_score'] = float(score)
                     final_results.append(original_result)
             else:
-                final_results = top_results
+                final_results = final_candidates
 
             return {
                 'success': True,

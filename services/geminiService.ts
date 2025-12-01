@@ -1,144 +1,21 @@
 import { GoogleGenAI } from "@google/genai";
 import { SourceChunk, AppSettings, Conversation, ConversationHeader, AgentStep } from '../types';
-import { INITIAL_SYSTEM_INSTRUCTION, DEMO_CHUNKS } from '../constants';
+import { DEMO_CHUNKS } from '../constants';
 
 const createClient = (apiKey: string) => new GoogleGenAI({ apiKey });
 
-// Base URL for the Python Backend API
-const API_BASE_URL = 'http://localhost:5000/api';
-
-// Helper to perform search against the Python RAG backend
-const searchChunks = async (query: string, settings: AppSettings): Promise<SourceChunk[]> => {
-  if (settings.useMockData) {
-    return DEMO_CHUNKS;
-  }
-
-  const searchEndpoint = `${API_BASE_URL}/search`;
-
-  try {
-    const response = await fetch(searchEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: query,
-        language: settings.language || 'en',
-        top_k: 5
-      })
-    });
-
-    if (!response.ok) {
-      console.warn(`Backend search failed: ${response.status} ${response.statusText}`);
-      return [];
-    }
-    const data = await response.json();
-
-    if (data.results && Array.isArray(data.results)) {
-      return data.results.map((r: any) => ({
-        id: `${(r.book || 'unknown').replace(/\s+/g, "").toLowerCase()}.${r.chapter}.${r.verse}`,
-        bookTitle: r.book || 'Unknown',
-        chapter: r.chapter,
-        verse: r.verse,
-        content: r.text,
-        score: r.final_score || r.score || 0
-      }));
-    }
-
-    return [];
-  } catch (e) {
-    console.warn("Search failed (network or parsing error), returning empty array:", e);
-    return [];
-  }
-}
-
-export const generateRAGResponse = async (
-  query: string,
-  initialChunks: SourceChunk[],
-  settings: AppSettings,
-  chatHistory: { role: string; parts: { text: string }[] }[] = [],
-  onStep?: (step: AgentStep) => void,
-  onSourcesFound?: (chunks: SourceChunk[]) => void
-) => {
-  if (!settings.apiKey) {
-    throw new Error("API Key is missing. Please check settings.");
-  }
-
-  if (onStep) onStep({ type: 'thought', content: 'Searching scriptures for context...', timestamp: Date.now() });
-
-  let chunks = initialChunks;
-  if (chunks.length === 0) {
-    chunks = await searchChunks(query, settings);
-  }
-
-  if (onSourcesFound) onSourcesFound(chunks);
-
-  if (onStep) onStep({ type: 'observation', content: `Found ${chunks.length} relevant verses.`, timestamp: Date.now() });
-
-  const client = createClient(settings.apiKey);
-
-  const contextString = chunks.map(chunk => {
-    const loc = chunk.chapter && chunk.verse
-      ? `Chapter ${chunk.chapter}, Verse ${chunk.verse}`
-      : `Page ${chunk.pageNumber}`;
-
-    return `
----
-ID: ${chunk.id}
-SOURCE: ${chunk.bookTitle} (${loc})
-TEXT: ${chunk.content}
----
-`;
-  }).join('\n');
-
-  const finalPrompt = `
-RETRIEVED SCRIPTURAL CONTEXT:
-${contextString}
-
-USER QUESTION:
-${query}
-
-Please answer the question based strictly on the context above. 
-Use citation format [[ID]] for every claim.
-`;
-
-  if (onStep) onStep({ type: 'thought', content: 'Generating response based on context...', timestamp: Date.now() });
-
-  try {
-    const response = await client.models.generateContent({
-      model: settings.model,
-      contents: [
-        ...chatHistory.map(msg => ({
-          role: msg.role,
-          parts: msg.parts
-        })),
-        {
-          role: 'user',
-          parts: [{ text: finalPrompt }]
-        }
-      ],
-      config: {
-        systemInstruction: INITIAL_SYSTEM_INSTRUCTION,
-        temperature: 0.3,
-      }
-    });
-
-    return response.text || "I could not generate a response.";
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw error;
-  }
-};
-
-// --- Conversation persistence ---
+const API_BASE_URL = "http://localhost:5000/api";
 
 export const getConversations = async (): Promise<ConversationHeader[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/conversations`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      // Return empty array on error to be resilient
+      return [];
+    }
     return await response.json();
-  } catch (e) {
-    console.error("Failed to fetch conversations:", e);
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
     return [];
   }
 };
@@ -146,10 +23,12 @@ export const getConversations = async (): Promise<ConversationHeader[]> => {
 export const getConversation = async (id: string): Promise<Conversation | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/conversations/${id}`);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      return null;
+    }
     return await response.json();
-  } catch (e) {
-    console.error(`Failed to fetch conversation ${id}:`, e);
+  } catch (error) {
+    console.error(`Error fetching conversation ${id}:`, error);
     return null;
   }
 };
@@ -158,13 +37,15 @@ export const saveConversation = async (conversation: Conversation): Promise<void
   try {
     await fetch(`${API_BASE_URL}/conversations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(conversation)
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(conversation),
     });
-  } catch (e) {
-    console.error("Failed to save conversation:", e);
+  } catch (error) {
+    console.error(`Error saving conversation ${conversation.id}:`, error);
   }
-};
+}
 
 export const deleteConversation = async (id: string): Promise<void> => {
   try {
@@ -175,5 +56,213 @@ export const deleteConversation = async (id: string): Promise<void> => {
   } catch (e) {
     console.error("Failed to delete conversation:", e);
     throw e;
+  }
+};
+
+export const searchScriptures = async (query: string, settings: AppSettings): Promise<SourceChunk[]> => {
+  if (settings.useMockData) {
+    return DEMO_CHUNKS;
+  }
+
+  // Use settings.backendUrl if available, otherwise fallback to API_BASE_URL/search
+  const url = settings.backendUrl || `${API_BASE_URL}/search`;
+
+  try {
+    const isCyrillic = /[а-яА-ЯёЁ]/.test(query);
+    const lang = isCyrillic ? 'ru' : (settings.language || 'en');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: query,
+        language: lang,
+        top_k: 20
+      })
+    });
+
+    if (!response.ok) {
+      console.warn(`Backend search failed: ${response.status}`);
+      return [];
+    }
+    const data = await response.json();
+
+    const results = data.results || [];
+    return results.map((item: any) => ({
+      id: `${(item.book || 'unknown').replace(/\s+/g, "").toLowerCase()}.${item.chapter}.${item.verse}`,
+      bookTitle: item.book || 'Unknown',
+      chapter: item.chapter,
+      verse: item.verse,
+      content: item.text,
+      score: item.final_score || item.score || 0
+    }));
+  } catch (err: any) {
+    console.error("Retrieval error", err);
+    return [];
+  }
+};
+
+export const generateRAGResponse = async (
+  userQuery: string,
+  initialChunks: SourceChunk[],
+  settings: AppSettings,
+  chatHistory: { role: string; parts: { text: string }[] }[] = [],
+  onStep?: (step: AgentStep) => void,
+  onSourcesFound?: (chunks: SourceChunk[]) => void
+) => {
+  if (!settings.apiKey) {
+    throw new Error("API Key is missing. Please check settings.");
+  }
+
+  const client = createClient(settings.apiKey);
+  const MAX_STEPS = 25;
+  let currentStep = 0;
+
+  let scratchpad = "";
+
+  const SYSTEM_PROMPT = `
+You are an intelligent spiritual research assistant. Your goal is to answer the user's question by searching the scripture database.
+You have access to a tool called 'search_database'.
+
+INSTRUCTIONS:
+1.  Analyze the user's request.
+2.  Use the following Thought-Action-Observation loop to gather information:
+    
+    Thought: <Reasoning about what to search for next>
+    Action: search_database("search query")
+    Observation: <The results from the database>
+    
+    (Repeat this loop as necessary until you have enough information)
+
+3.  When you have sufficient information, output the final answer:
+    
+    Thought: I have enough information.
+    Final Answer: <Your comprehensive, detailed response citing the sources found>
+
+4.  If the initial search results are not relevant, refine your search query and try again.
+5.  Always cite sources using [[ID]] format when providing the Final Answer.
+6.  If you have performed many searches and still haven't found the perfect answer, synthesize the best possible answer from what you HAVE found. Do not give up.
+
+Begin!
+`;
+
+  if (initialChunks.length > 0) {
+    const formattedContext = initialChunks.map(c => `[ID:${c.id}] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
+    scratchpad += `Observation: Found initial relevant verses:\n${formattedContext}\n\n`;
+  }
+
+  while (currentStep < MAX_STEPS) {
+    currentStep++;
+    console.log(`--- Agent Step ${currentStep} ---`);
+
+    const messages = [
+      ...chatHistory.map(msg => ({ role: msg.role, parts: msg.parts })),
+      { role: 'user', parts: [{ text: userQuery }] },
+      { role: 'model', parts: [{ text: scratchpad }] }
+    ];
+
+    try {
+      const result = await client.models.generateContent({
+        model: settings.model,
+        contents: messages,
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          temperature: 0.2,
+          stopSequences: ["Observation:"],
+        }
+      });
+
+      const responseText = result.text || "";
+      console.log("Agent Response:", responseText);
+
+      scratchpad += responseText;
+
+      const thoughtMatch = responseText.match(/Thought:\s*(.*?)(?=\nAction:|\nFinal Answer:|$)/si);
+      const actionMatch = responseText.match(/Action:\s*search_database\((["'])(.*?)\1\)/i);
+      const finalAnswerMatch = responseText.match(/Final Answer:\s*(.*)/si);
+
+      if (thoughtMatch && onStep) {
+        onStep({ type: 'thought', content: thoughtMatch[1].trim(), timestamp: Date.now() });
+      }
+
+      if (finalAnswerMatch) {
+        return finalAnswerMatch[1].trim();
+      }
+
+      if (actionMatch) {
+        const query = actionMatch[2];
+        console.log(`Agent Action: Searching for '${query}'`);
+
+        if (onStep) onStep({ type: 'action', content: `Searching for: "${query}"`, timestamp: Date.now() });
+
+        try {
+          const results = await searchScriptures(query, settings);
+
+          if (onSourcesFound) {
+            onSourcesFound(results);
+          }
+
+          let observation = "";
+          if (results.length === 0) {
+            observation = "\nObservation: No relevant verses found for this query.\n\n";
+          } else {
+            const formatted = results.map(c => `[ID:${c.id}] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
+            observation = `\nObservation: Found the following verses:\n${formatted}\n\n`;
+          }
+
+          scratchpad += observation;
+          if (onStep) onStep({ type: 'observation', content: `Found ${results.length} results.`, timestamp: Date.now() });
+
+        } catch (err: any) {
+          console.error("Search Error:", err);
+          scratchpad += `\nObservation: Error executing search: ${err.message}\n\n`;
+        }
+      } else {
+        console.log("Agent did not output Action or Final Answer. Continuing...");
+
+        if (!responseText.trim()) {
+          console.warn("Empty response from agent, breaking loop.");
+          break;
+        }
+
+        scratchpad += "\n";
+      }
+
+    } catch (error) {
+      console.error("Agent Loop Error:", error);
+      throw error;
+    }
+  }
+
+  console.warn("Agent reached MAX_STEPS. Forcing a conclusion.");
+  if (onStep) onStep({ type: 'thought', content: "Reaching time limit. Synthesizing available information...", timestamp: Date.now() });
+
+  try {
+    const finalPrompt = `
+      You have reached the maximum number of steps for this research. 
+      Please provide the best possible answer based on the information you have gathered so far in your scratchpad. 
+      Do not search anymore. Just summarize and answer.
+      Start your response with "Final Answer:".
+    `;
+
+    const result = await client.models.generateContent({
+      model: settings.model,
+      contents: [
+        ...chatHistory.map(msg => ({ role: msg.role, parts: msg.parts })),
+        { role: 'user', parts: [{ text: userQuery }] },
+        { role: 'model', parts: [{ text: scratchpad }] },
+        { role: 'user', parts: [{ text: finalPrompt }] }
+      ],
+      config: {
+        temperature: 0.3,
+      }
+    });
+
+    const text = result.text || "";
+    const match = text.match(/Final Answer:\s*(.*)/si);
+    return match ? match[1].trim() : text;
+
+  } catch (e) {
+    return "I pondered the question deeply and gathered much information, but I struggled to synthesize a final answer in time. Please check the retrieved sources.";
   }
 };
