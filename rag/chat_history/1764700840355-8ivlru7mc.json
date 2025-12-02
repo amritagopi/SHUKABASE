@@ -1,0 +1,187 @@
+{
+  "id": "1764700840355-8ivlru7mc",
+  "title": "Харе Кришна! Расскажи, пожалуйста, о Господе Чайта",
+  "createdAt": "2025-12-02T18:40:40.355Z",
+  "messages": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Харе Кришна! Расскажи, пожалуйста, о Господе Чайтанье"
+        }
+      ]
+    },
+    {
+      "role": "model",
+      "parts": [
+        {
+          "text": "❌ **Error**: {\"error\":{\"code\":400,\"message\":\"API key not valid. Please pass a valid API key.\",\"status\":\"INVALID_ARGUMENT\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_INVALID\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"API key not valid. Please pass a valid API key.\"}]}}"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Харе Кришна! Расскажи, пожалуйста, о Господе Чайтанье"
+        }
+      ]
+    },
+    {
+      "role": "model",
+      "parts": [
+        {
+          "text": "Господь Чайтанья, также известный как Шри Чайтанья Махапрабху, является центральной фигурой в гаудия-вайшнавизме. Он считается воплощением Кришны, пришедшим в этот мир, чтобы распространить санкиртану (совместное воспевание святых имен Бога) и любовь к Богу.\n\nОсновные аспекты Господа Чайтаньи, согласно приведенным текстам:\n\n*   **Миссия:** Его главная цель заключалась в освобождении всех живых существ во всей вселенной и проповеди вечной религии. Он предсказал, что Его имя будет воспеваться в каждом городе, стране и деревне [[spl.spl\\1\\3\\index.html.null]]. Его учение универсально и не ограничено какой-либо конкретной сектой, религией или нацией [[spl.spl\\1\\3\\index.html.null]].\n*   **Учение:** Он проповедовал, что учение Господа Чайтаньи является высшей формой теизма [[spl.spl\\1\\3\\index.html.null]]. Принцип киртана (совместного пения) был предложен как \"будущая церковь мира\", приглашающая всех людей, независимо от касты или клана, к высшему духовному развитию [[spl.spl\\1\\3\\index.html.null]].\n*   **Лила (игры):** Его лила является источником нектара и жизненной силы [[spl.spl\\1\\12\\index.html.null]].\n*   **Преемственность:** Он занимает важное место в цепи ученической преемственности, начиная от Шри Кришны [[spl.spl\\1\\5\\index.html.null]].\n*   **Влияние на Бхактивиноду Тхакура:** Бхактивинода Тхакур, высокопоставленный правительственный чиновник, сыграл ключевую роль в восстановлении уважения к вайшнавизму, которое было подорвано. Он проповедовал, что учения Господа Чайтаньи являются высшей формой теизма и предназначены для всех людей мира [[spl.spl\\1\\3\\index.html.null], [spl.spl\\1\\6\\index.html.null]]. Он также предсказал, что учение Господа Чайтаньи распространится по всему миру [[spl.spl\\1\\3\\index.html.null]].\n*   **Универсальность:** Господь Чайтанья пришел не только для освобождения жителей Индии, но и для освобождения всех живых существ [[spl.spl\\1\\3\\index.html.null]]. Его учение универсально и не эксклюзивно [[spl.spl\\1\\3\\index.html.null]].\n*   **Квалификация духовного учителя:** Господь Чайтанья учил, что неважно, брахман ли человек, санньяси или шудра; тот, кто знает науку о Кришне, может стать духовным учителем [[spl.spl\\2\\49\\index.html.null]].\n\nВ целом, Господь Чайтанья почитается как самый милостивый аватар, который принес в этот мир самое легкое и доступное средство духовного самосовершенствования – святое имя Кришны, распространяемое через санкиртану."
+        }
+      ],
+      "agentSteps": [
+        {
+          "type": "thought",
+          "content": "The user is asking for information about Lord Chaitanya. I should search the database for \"Lord Chaitanya\" to gather relevant information.",
+          "timestamp": 1764700876942
+        },
+        {
+          "type": "thought",
+          "content": "The user is asking for information about Lord Chaitanya. I should search the database for \"Lord Chaitanya\" to gather relevant information.",
+          "timestamp": 1764700876942
+        },
+        {
+          "type": "action",
+          "content": "Searching for: \"Lord Chaitanya\"",
+          "timestamp": 1764700876943
+        },
+        {
+          "type": "action",
+          "content": "Searching for: \"Lord Chaitanya\"",
+          "timestamp": 1764700876943
+        },
+        {
+          "type": "observation",
+          "content": "Found 20 results.",
+          "timestamp": 1764700932997
+        },
+        {
+          "type": "observation",
+          "content": "Found 20 results.",
+          "timestamp": 1764700932997
+        },
+        {
+          "type": "thought",
+          "content": "The search results provide a good overview of Lord Chaitanya's significance, his mission, and his teachings. I can now synthesize this information into a comprehensive answer. The results mention his desire to emancipate all living entities, his prophecy that his name will be sung everywhere, and the universal nature of his teachings. They also touch upon his lila (pastimes) and his role in the disciplic succession. Bhaktivinoda Thakur's efforts to reestablish Vaishnavism and his connection to Lord Chaitanya are also highlighted.",
+          "timestamp": 1764700938502
+        },
+        {
+          "type": "thought",
+          "content": "The search results provide a good overview of Lord Chaitanya's significance, his mission, and his teachings. I can now synthesize this information into a comprehensive answer. The results mention his desire to emancipate all living entities, his prophecy that his name will be sung everywhere, and the universal nature of his teachings. They also touch upon his lila (pastimes) and his role in the disciplic succession. Bhaktivinoda Thakur's efforts to reestablish Vaishnavism and his connection to Lord Chaitanya are also highlighted.",
+          "timestamp": 1764700938502
+        }
+      ],
+      "sources": [
+        {
+          "id": "spl.spl\\1\\3\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\1\\3\\index.html",
+          "verse": null,
+          "content": "ways from His pure teachings. The good reputation of Vaiṣṇavism had been compromised. Bhaktivinoda Ṭhākura, however, through his prolific writings and through his social position as a high government officer, reestablished the respectability of Vaiṣṇavism. He preached that the teachings of Lord Caitanya were the highest form of theism and were intended not for a particular sect or religion or nation but for all the people of the world. He prophesied that Lord Caitanya’s teachings would go worldwide, and he yearned for it. The religion preached by [Chaitanya] Mahaprabhu is universal and not exclusive. … The principle of kirtan as the future church of the world invites all classes of men, without distinction of caste or clan, to the highest cultivation of the spirit. This church, it appears, will extend all over the world and take the place of all sectarian churches, which exclude outsiders from the precincts of the mosque, church, or temple. The religion preached by [Chaitanya] Mahaprabhu is universal and not exclusive. … The principle of kirtan as the future church of the world invites all classes of men, without distinction of caste or clan, to the highest cultivation of the spirit. This church, it appears, will extend all over the world and take the place of all sectarian churches, which exclude outsiders from the precincts of the mosque, church, or temple. Lord Chaitanya did not advent Himself to liberate only a few men of India. Rather, His main objective was to emancipate all living entities of all countries throughout the entire universe and preach the Eternal Religion. Lord Chaitanya says in the Chaitanya Bhagwat: “In every town, country, and village, My name will be sung.” There is no doubt that this unquestionable order will come to pass. … Although there is still no pure society of Vaishnavas to be had, yet Lord Chaitanya’s prophetic words will in a few days come true, I am sure. Why not? Nothing is absolutely pure in the beginning. From imperfection, purity will come about.",
+          "score": 0.33774334192276
+        },
+        {
+          "id": "spl.spl\\1\\12\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\1\\12\\index.html",
+          "verse": null,
+          "content": "CHAPTER TWELVEThe Journey to America CHAPTER TWELVE Today the ship is plying very smoothly. I feel today better. But I am feeling separation from Sri Vrindaban and my Lords Sri Govinda, Gopinath, Radha Damodar. My only solace is Sri Chaitanya Charitamrita in which I am tasting the nectarine of Lord Chaitanya’s lila. I have left Bharatabhumi just to execute the order of Sri Bhaktisiddhanta Saraswati, in pursuance of Lord Chaitanya’s order. I have no qualification, but have taken up the risk just to carry out the order of His Divine Grace. I depend fully on Their mercy, so far away from Vrindaban. Today the ship is plying very smoothly. I feel today better. But I am feeling separation from Sri Vrindaban and my Lords Sri Govinda, Gopinath, Radha Damodar. My only solace is Sri Chaitanya Charitamrita in which I am tasting the nectarine of Lord Chaitanya’s lila. I have left Bharatabhumi just to execute the order of Sri Bhaktisiddhanta Saraswati, in pursuance of Lord Chaitanya’s order. I have no qualification, but have taken up the risk just to carry out the order of His Divine Grace. I depend fully on Their mercy, so far away from Vrindaban. – JaladutadiarySeptember 10, 1965 – JaladutadiarySeptember 10, 1965 THEJALADUTAIS a regular cargo carrier of the Scindia Steam Navigation Company, but there is a passenger cabin aboard. During the voyage from Calcutta to New York in August and September of 1965, the cabin was occupied by “Sri Abhoy Charanaravinda Bhaktivedanta Swami,” whose age was listed as sixty-nine and who was taken on board bearing “a complimentary ticket with food.” THEJALADUTAIS a regular cargo carrier of the Scindia Steam Navigation Company, but there is a passenger cabin aboard. During the voyage from Calcutta to New York in August and September of 1965, the cabin was occupied by “Sri Abhoy Charanaravinda Bhaktivedanta Swami,” whose age was listed as sixty-nine and who was taken on board bearing “a complimentary ticket with food.",
+          "score": 0.1953851282596588
+        },
+        {
+          "id": "spl.spl\\1\\5\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\1\\5\\index.html",
+          "verse": null,
+          "content": "ic succession from Sree Krishna, Brahma, Narada, Vyasa, Madhva, Madhabendra Puri, Iswara, Lord Chaitanya, Rupa Goswami, Jiva Goswami, Krishnadas, Narottama, Biswanath, Valadeva, Jagannath, Thakur Bhakti Vinode, Gour Kishore, Thakur Siddhanta Saraswati down to the AuthorWith Numerous Illustrations in Colours and Plain from Many Authentic ScripturesTo be Published Shortly – Customers Booked in AdvancePrice – India Rs. 18/-, Foreign £1 10s. An elaborate exposition of the world famous Hindu Philosophy – “The Bhagbat Geeta” – in its true, scientific, theistic interpretations by the chain of disciplic succession from Sree Krishna, Brahma, Narada, Vyasa, Madhva, Madhabendra Puri, Iswara, Lord Chaitanya, Rupa Goswami, Jiva Goswami, Krishnadas, Narottama, Biswanath, Valadeva, Jagannath, Thakur Bhakti Vinode, Gour Kishore, Thakur Siddhanta Saraswati down to the AuthorWith Numerous Illustrations in Colours and Plain from Many Authentic ScripturesTo be Published Shortly – Customers Booked in AdvancePrice – India Rs. 18/-, Foreign £1 10s. And a second major work:Lord Chaitanya,in two parts, totaling one thousand pages. Neither of these manuscripts was actually near completion, but Abhay was expressing his eagerness to undertake such large works on behalf of his spiritual master. And a second major work:Lord Chaitanya,in two parts, totaling one thousand pages. Neither of these manuscripts was actually near completion, but Abhay was expressing his eagerness to undertake such large works on behalf of his spiritual master. In attempting to print the second issue ofBack to Godhead,Abhay encountered the same difficulty as before. Twice he requested permission to purchase newsprint, and twice the government denied his request. Paper was restricted on account of the war. On July 10, 1944, Abhay wrote a third letter. In attempting to print the second issue ofBack to Godhead,Abhay encountered the same difficulty as before. Twice he requested permission to purchase newsprint, and twice the government denied his request.",
+          "score": 0.27295202016830444
+        },
+        {
+          "id": "spl.spl\\2\\49\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\2\\49\\index.html",
+          "verse": null,
+          "content": "A Mr. Chatterji had written from Calcutta to say that he was preaching worship of Lord Caitanya and was eager to show Śrīla Prabhupāda some articles he had written. Mr. Chatterji stated, “My theme is we can get to see our God, Gauranga, by taking sannyasa. Those who are grhasthas reach to the Godhead through nam sankirtana.” Śrīla Prabhupāda encouraged the man with a reply. Your theme is okay. There were many devotees of Lord Chaitanya like Adwaita Acharya, and even Lord Nityananda who were grihasthas. Lord Chaitanya left His grihastha life. It is a matter of understanding Krishna – that is the real qualification. Whether one is grihastha or sannyasi, how well he knows Krishna. Srila Narottama das Thakur has sung“grhe va vane ta ’thake, he gauranga bole dake.”*Lord Chaitanya says“Kiba vipra, kiba nyasi, sudra kene naya, yei krishna tattva vetta, sei guru haya.”*So please come and we shall discuss your articles. Your theme is okay. There were many devotees of Lord Chaitanya like Adwaita Acharya, and even Lord Nityananda who were grihasthas. Lord Chaitanya left His grihastha life. It is a matter of understanding Krishna – that is the real qualification. Whether one is grihastha or sannyasi, how well he knows Krishna. Srila Narottama das Thakur has sung“grhe va vane ta ’thake, he gauranga bole dake.”*Lord Chaitanya says“Kiba vipra, kiba nyasi, sudra kene naya, yei krishna tattva vetta, sei guru haya.”*So please come and we shall discuss your articles. * “It doesn’t matter whether one is living at home or in the forest, as long as he is chanting the name of Lord Caitanya he is a Vaiṣṇava.” * “It doesn’t matter whether one is living at home or in the forest, as long as he is chanting the name of Lord Caitanya he is a Vaiṣṇava.” * “Whether one is abrāhmaṇa,asannyāsīorśūdra– regardless of what he is – he can become a spiritual master if he knows the science of Kṛṣṇa.” (Cc. Madhya8.128) * “Whether one is abrāhmaṇa,asannyāsīorśūdra– regardless of what he is – he can become a spiritual master if he knows the science of",
+          "score": 0.25007760524749756
+        },
+        {
+          "id": "spl.spl\\1\\6\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\1\\6\\index.html",
+          "verse": null,
+          "content": "cated mostly to a biographical article Abhay had written about Śrīla Bhaktisiddhānta Sarasvatī and his father, Śrīla Bhaktivinoda Ṭhākura. He [Bhaktivinode Thakur] vehemently protested against the principles of those pseudo-transcendentalists now passed in the name of Lord Chaitanya. He initiated the reformatory movement by literary contributions while he still engaged as a high Government Officer. During his householder life and serving as a Magistrate, he wrote books of various descriptions in Bengali, English, Sanskrit & etc. to present an actual picture of pure devotional activities to Lord Chaitanya. Sreela Bhakti Siddhanta Saraswati Goswami Maharaj got inspiration from his very Childhood all about Sreela Thakur Bhaktivinode’s movement. [He] worked as the private secretary of Sreela Bhaktivinode Thakur and as such Bhaktivinode Thakur gave Him (Sreela Saraswati Thakur) the transcendental Power of Attorney to espouse the cause of Lord Chaitanya. And so after Sreela Bhaktivinode Thakur’s departure, Sreela Saraswati Thakur took up reins of that reformatory movement. He [Bhaktivinode Thakur] vehemently protested against the principles of those pseudo-transcendentalists now passed in the name of Lord Chaitanya. He initiated the reformatory movement by literary contributions while he still engaged as a high Government Officer. During his householder life and serving as a Magistrate, he wrote books of various descriptions in Bengali, English, Sanskrit & etc. to present an actual picture of pure devotional activities to Lord Chaitanya. Sreela Bhakti Siddhanta Saraswati Goswami Maharaj got inspiration from his very Childhood all about Sreela Thakur Bhaktivinode’s movement. [He] worked as the private secretary of Sreela Bhaktivinode Thakur and as such Bhaktivinode Thakur gave Him (Sreela Saraswati Thakur) the transcendental Power of Attorney to espouse the cause of Lord Chaitanya. And so after Sreela Bhaktivinode Thakur’s departure, Sreela Saraswati Thakur took up reins of that reformatory movement.",
+          "score": 0.24160552024841309
+        },
+        {
+          "id": "spl.spl\\2\\38\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\2\\38\\index.html",
+          "verse": null,
+          "content": "on your lips? (III) Why do you use a cushion unlike a real yogi – Did Lord Chaitanya use cushions? (IV) Why do you wear ring and a wrist gold watch? Are you not free from material attachment? (V) Did you visit Lord Chaitanya Krishna Temple at Gaudiya Math? If not, why not – The purest Vaishnava cult is indwelling there with pious Swamijis with Lord Krishna dwelling therein. Melodious sound from your throat is absent but a jarceing [sic] undivine comes out. Is there any divinity in your person? I doubt. One disgusted on hearing your speech. Your disciples dance with Hare Krishna mantram, (I) are they really God-intoxicated as Lord Chaitanya (II) Have you Swamiji really got free of your ego? If so, why you said, “I challenge,” and why are words like “I” and “my” always on your lips? (III) Why do you use a cushion unlike a real yogi – Did Lord Chaitanya use cushions? (IV) Why do you wear ring and a wrist gold watch? Are you not free from material attachment? (V) Did you visit Lord Chaitanya Krishna Temple at Gaudiya Math? If not, why not – The purest Vaishnava cult is indwelling there with pious Swamijis with Lord Krishna dwelling therein. Melodious sound from your throat is absent but a jarceing [sic] undivine comes out. Is there any divinity in your person? I doubt. One disgusted on hearing your speech. Although Śrīla Prabhupāda was surprised and hurt by the extreme virulence of such a letter, he was accustomed to his Godbrothers’ slights and insults. He forbade his disciples, however, to get involved in fights with his Godbrothers. Rather, they should simply avoid them. He said that persons who criticize the spreading of the Kṛṣṇa consciousness movement were useless and that he would push on: “The dogs may bark, but the caravan will pass.” Although Śrīla Prabhupāda was surprised and hurt by the extreme virulence of such a letter, he was accustomed to his Godbrothers’ slights and insults. He forbade his disciples, however, to get involved in fights with his Godbrothers. Rather, they should simply avoid them.",
+          "score": 0.18810641765594482
+        },
+        {
+          "id": "spl.spl\\1\\9\\index.html.null",
+          "bookTitle": "spl",
+          "chapter": "spl\\1\\9\\index.html",
+          "verse": null,
+          "content": "one of his Godbrothers for permission. He decided to turn to Bhaktivilāsa Tīrtha Mahārāja (formerly Kuñjavihārī), the leader of the Chaitanya Math in Calcutta. Abhay still thought of the Chaitanya Math as the headquarters of his spiritual master’s mission. During the heated legal disputes, the Chaitanya Math had been the most prized acquisition, and since 1948 it had been under the legal ownership of Bhaktivilāsa Tīrtha Mahārāja. Now, although eachsannyāsīhad his own place or places, the Chaitanya Math and Bhaktivilāsa Tīrtha Mahārāja legally represented the Gaudiya Math entity. Abhay felt that if he were to takesannyāsaand go preach in America, he should give the Chaitanya Math the first opportunity to support his work. In April 1959, Abhay wrote to Tīrtha Mahārāja, inquiring aboutsannyāsaand the Chaitanya Math’s printing some of his manuscripts. And since no one was going abroad, he volunteered to do so on behalf of the Chaitanya Math. Abhay first had to approach one of his Godbrothers for permission. He decided to turn to Bhaktivilāsa Tīrtha Mahārāja (formerly Kuñjavihārī), the leader of the Chaitanya Math in Calcutta. Abhay still thought of the Chaitanya Math as the headquarters of his spiritual master’s mission. During the heated legal disputes, the Chaitanya Math had been the most prized acquisition, and since 1948 it had been under the legal ownership of Bhaktivilāsa Tīrtha Mahārāja. Now, although eachsannyāsīhad his own place or places, the Chaitanya Math and Bhaktivilāsa Tīrtha Mahārāja legally represented the Gaudiya Math entity. Abhay felt that if he were to takesannyāsaand go preach in America, he should give the Chaitanya Math the first opportunity to support his work. In April 1959, Abhay wrote to Tīrtha Mahārāja, inquiring aboutsannyāsaand the Chaitanya Math’s printing some of his manuscripts. And since no one was going abroad, he volunteered to do so on behalf of the Chaitanya Math. Bhaktivilāsa Tīrtha Mahārāja replied that Abhay should first join the Chaitanya Math.",
+          "score": -0.5476643443107605
+        },
+        {
+          "id": "sb.sb\\11\\4\\20\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\4\\20\\index.html",
+          "verse": null,
+          "content": "ŚB 11.4.20Devanagariदेवासुरे युधि च दैत्यपतीन् सुरार्थेहत्वान्तरेषु भुवनान्यदधात् कलाभि: ।भूत्वाथ वामन इमामहरद् बले: क्ष्मांयाच्ञाच्छलेन समदाददिते: सुतेभ्य: ॥ २० ॥Verse textdevāsure yudhi ca daitya-patīn surārthehatvāntareṣu bhuvanāny adadhāt kalābhiḥbhūtvātha vāmana imām aharad baleḥ kṣmāṁyācñā-cchalena samadād aditeḥ sutebhyaḥSynonymsdeva-asure—of the demigods and demons;yudhi—in the battle;ca—and;daitya-patīn—the leaders of the demons;sura-arthe—for the sake of the demigods;hatvā—by killing;antareṣu—during the reign of each Manu;bhuvanāni—all the worlds;adadhāt—protected;kalābhiḥ—by His various appearances;bhūtvā—becoming;atha—moreover;vāmanaḥ—the incarnation as a dwarfbrāhmaṇaboy;imām—this;aharat—took away;baleḥ—from Bali Mahārāja;kṣmām—earth;yācñā-chalena—on the excuse of begging for charity;samadāt—gave;aditeḥ—of Aditi;sutebhyaḥ—to the sons (the demigods).TranslationThe Supreme Lord regularly takes advantage of the wars between the demons and demigods to kill the leaders of the demons. The Lord thus encourages the demigods by protecting the universe through His various incarnations during the reigns of each Manu. The Lord also appeared as Vāmana and took the earth away from Bali Mahārāja on the plea of begging three steps of land. The Lord then returned the entire world to the sons of Aditi. ŚB 11.4.20 Devanagariदेवासुरे युधि च दैत्यपतीन् सुरार्थेहत्वान्तरेषु भुवनान्यदधात् कलाभि: ।भूत्वाथ वामन इमामहरद् बले: क्ष्मांयाच्ञाच्छलेन समदाददिते: सुतेभ्य: ॥ २० ॥ देवासुरे युधि च दैत्यपतीन् सुरार्थेहत्वान्तरेषु भुवनान्यदधात् कलाभि: ।भूत्वाथ वामन इमामहरद् बले: क्ष्मांयाच्ञाच्छलेन समदाददिते: सुतेभ्य: ॥ २० ॥ देवासुरे युधि च दैत्यपतीन् सुरार्थेहत्वान्तरेषु भुवनान्यदधात् कलाभि: ।भूत्वाथ वामन इमामहरद् बले: क्ष्मांयाच्ञाच्छलेन समदाददिते: सुतेभ्य: ॥ २० ॥ Verse textdevāsure yudhi ca daitya-patīn surārthehatvāntareṣu bhuvanāny adadhāt kalābhiḥbhūtvātha vāmana imām aharad baleḥ kṣmāṁyācñā-cchalena samadād aditeḥ sutebhyaḥ devāsure yudhi ca daitya-patīn surārthehatvāntareṣu bhuvanāny adadhāt kalābhiḥbhūtvātha vāmana imām aharad",
+          "score": -1.5135486125946045
+        },
+        {
+          "id": "sb.sb\\12\\8\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\12\\8\\index.html",
+          "verse": null,
+          "content": "thods. Each philosopher understands You according to his particular speculative conclusions. I worship that Supreme Person, knowledge of whom is hidden by the bodily designations covering the conditioned soul’s spiritual identity. CHAPTER SEVENCHAPTER NINE",
+          "score": -1.9645377397537231
+        },
+        {
+          "id": "sb.sb\\11\\4\\19\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\4\\19\\index.html",
+          "verse": null,
+          "content": "ŚB 11.4.19Devanagariसंस्तुन्वतो निपतितान् श्रमणानृषींश्चशक्रं च वृत्रवधतस्तमसि प्रविष्टम् ।देवस्त्रियोऽसुरगृहे पिहिता अनाथाजघ्नेऽसुरेन्द्रमभयाय सतां नृसिंहे ॥ १९ ॥Verse textsaṁstunvato nipatitān śramaṇān ṛṣīṁś caśakraṁ ca vṛtra-vadhatas tamasi praviṣṭamdeva-striyo ’sura-gṛhe pihitā anāthājaghne ’surendram abhayāya satāṁ nṛsiṁheSynonymssaṁstunvataḥ—who were offering prayers;nipatitān—fallen (into the water in a cow’s hoofprint);śramaṇān—the ascetics;ṛṣīn—sages (the Vālakhilyas);ca—and;śakram—Indra;ca—and;vṛtra-vadhataḥ—from killing Vṛtrāsura;tamasi—in darkness;praviṣṭam—absorbed;deva-striyaḥ—the wives of the demigods;asura-gṛhe—in the palace of the demons;pihitāḥ—imprisoned;anāthāḥ—helpless;jaghne—He killed;asura-indram—the king of the demons, Hiraṇyakaśipu;abhayāya—for the sake of giving fearlessness;satām—to the saintly devotees;nṛsiṁhe—in the incarnation of Nṛsiṁha.TranslationThe Lord also delivered the tiny ascetic sages called the Vālakhilyas when they fell into the water in a cow’s hoofprint and Indra was laughing at them. The Lord then saved Indra when Indra was covered by darkness due to the sinful reaction for killing Vṛtrāsura. When the wives of the demigods were trapped in the palace of the demons without any shelter, the Lord saved them. In His incarnation as Nṛsiṁha, the Lord killed Hiraṇyakaśipu, the king of demons, to free the saintly devotees from fear. ŚB 11.4.19 Devanagariसंस्तुन्वतो निपतितान् श्रमणानृषींश्चशक्रं च वृत्रवधतस्तमसि प्रविष्टम् ।देवस्त्रियोऽसुरगृहे पिहिता अनाथाजघ्नेऽसुरेन्द्रमभयाय सतां नृसिंहे ॥ १९ ॥ संस्तुन्वतो निपतितान् श्रमणानृषींश्चशक्रं च वृत्रवधतस्तमसि प्रविष्टम् ।देवस्त्रियोऽसुरगृहे पिहिता अनाथाजघ्नेऽसुरेन्द्रमभयाय सतां नृसिंहे ॥ १९ ॥ संस्तुन्वतो निपतितान् श्रमणानृषींश्चशक्रं च वृत्रवधतस्तमसि प्रविष्टम् ।देवस्त्रियोऽसुरगृहे पिहिता अनाथाजघ्नेऽसुरेन्द्रमभयाय सतां नृसिंहे ॥ १९ ॥ Verse textsaṁstunvato nipatitān śramaṇān ṛṣīṁś caśakraṁ ca vṛtra-vadhatas tamasi praviṣṭamdeva-striyo ’sura-gṛhe pihitā anāthājaghne ’surendram abhayāya satāṁ nṛsiṁhe saṁstunvato nipatitān śramaṇān ṛṣīṁś",
+          "score": -1.3846381902694702
+        },
+        {
+          "id": "sb.sb\\12\\8\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\12\\8\\advanced-view\\index.html",
+          "verse": null,
+          "content": "द्वर्णपिशङ्गरोचिषाप्रांशू दधानौ विबुधर्षभार्चितौ ॥ ३४ ॥Verse texttau śukla-kṛṣṇau nava-kañja-locanaucatur-bhujau raurava-valkalāmbaraupavitra-pāṇī upavītakaṁ tri-vṛtkamaṇḍaluṁ daṇḍam ṛjuṁ ca vaiṇavampadmākṣa-mālām uta jantu-mārjanaṁvedaṁ ca sākṣāt tapa eva rūpiṇautapat-taḍid-varṇa-piśaṅga-rociṣāprāṁśū dadhānau vibudharṣabhārcitauSynonymstau—the two of Them;śukla-kṛṣṇau—one white and the other black;nava-kañja—like blooming lotus flowers;locanau—Their eyes;catuḥ-bhujau—having four arms;raurava—black deerskin;valkala—and bark;ambarau—as Their clothing;pavitra—most purifying;pāṇī—Their hands;upavītakam—sacred thread;tri-vṛt—threefold;kamaṇḍalum—waterpot;daṇḍam—staff;ṛjum—straight;ca—and;vaiṇavam—made of bamboo;padma-akṣa—of lotus seeds;mālām—prayer beads;uta—and;jantu-mārjanam—which purifies all living beings;vedam—theVedas(represented by bundles ofdarbhagrass);ca—and;sākṣāt—directly;tapaḥ—austerity;eva—indeed;rūpiṇau—personified;tapat—blazing;taḍit—lightning;varṇa—the color;piśaṅga—yellowish;rociṣā—with Their effulgence;prāṁśū—very tall;dadhānau—bearing;vibudha-ṛṣabha—by the chief of the demigods;arcitau—worshiped.TranslationOne of Them was of a whitish complexion, the other blackish, and They both had four arms. Their eyes resembled the petals of blooming lotuses, and They wore garments of black deerskin and bark, along with the three-stranded sacred thread. In Their hands, which were most purifying, They carried the mendicant’s waterpot, straight bamboo staff and lotus-seed prayer beads, as well as the all-purifying Vedas in the symbolic form of bundles of darbha grass. Their bearing was tall and Their yellow effulgence the color of radiant lightning. Appearing as austerity personified, They were being worshiped by the foremost demigods.Text 35Devanagariते वै भगवतो रूपे नरनारायणावृषी ।द‍ृष्ट्वोत्थायादरेणोच्चैर्ननामाङ्गेन दण्डवत् ॥ ३५ ॥Verse textte vai bhagavato rūpenara-nārāyaṇāv ṛṣīdṛṣṭvotthāyādareṇoccairnanāmāṅgena daṇḍa-vatSynonymste—They;vai—indeed;bhagavataḥ—of the Personality of Godhead;rūpe—the personal",
+          "score": -2.0274674892425537
+        },
+        {
+          "id": "sb.sb\\12\\9\\10\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\12\\9\\10\\index.html",
+          "verse": null,
+          "content": "aṇa;vāyuḥ—a wind;abhūt—arose;mahān—great. tasya—while he;ekadā—one day;bhṛgu-śreṣṭha—O best of the descendants of Bhṛgu;puṣpabhadrā-taṭe—on the bank of the river Puṣpabhadrā;muneḥ—the sage;upāsīnasya—was performing worship;sandhyāyām—at the juncture of the day;brahman—Obrāhmaṇa;vāyuḥ—a wind;abhūt—arose;mahān—great. tasya—while he; while he ekadā—one day; one day bhṛgu-śreṣṭha—O best of the descendants of Bhṛgu; O best of the descendants of Bhṛgu puṣpabhadrā-taṭe—on the bank of the river Puṣpabhadrā; on the bank of the river Puṣpabhadrā muneḥ—the sage; the sage upāsīnasya—was performing worship; was performing worship sandhyāyām—at the juncture of the day; at the juncture of the day brahman—Obrāhmaṇa; Obrāhmaṇa vāyuḥ—a wind; a wind abhūt—arose; mahān—great. TranslationO brāhmaṇa Śaunaka, best of the Bhṛgus, one day while Mārkaṇḍeya was performing his evening worship on the bank of the Puṣpabhadrā, a great wind suddenly arose. O brāhmaṇa Śaunaka, best of the Bhṛgus, one day while Mārkaṇḍeya was performing his evening worship on the bank of the Puṣpabhadrā, a great wind suddenly arose. O brāhmaṇa Śaunaka, best of the Bhṛgus, one day while Mārkaṇḍeya was performing his evening worship on the bank of the Puṣpabhadrā, a great wind suddenly arose. Texts 8-9Text 11",
+          "score": -1.9429117441177368
+        },
+        {
+          "id": "sb.sb\\12\\8\\40\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\12\\8\\40\\index.html",
+          "verse": null,
+          "content": "ŚB 12.8.40Devanagariश्रीमार्कण्डेय उवाचकिं वर्णये तव विभो यदुदीरितोऽसु:संस्पन्दते तमनु वाङ्‌मनइन्द्रियाणि ।स्पन्दन्ति वै तनुभृतामजशर्वयोश्चस्वस्याप्यथापि भजतामसि भावबन्धु: ॥ ४० ॥Verse textśrī-mārkaṇḍeya uvācakiṁ varṇaye tava vibho yad-udīrito ’suḥsaṁspandate tam anu vāṅ-mana-indriyāṇispandanti vai tanu-bhṛtām aja-śarvayoś casvasyāpy athāpi bhajatām asi bhāva-bandhuḥSynonymsśrī-mārkaṇḍeyaḥuvāca—Śrī Mārkaṇḍeya said;kim—what;varṇaye—shall I describe;tava—about You;vibho—O Almighty Lord;yat—by whom;udīritaḥ—moved;asuḥ—the vital air;saṁspandate—comes to life;tamanu—following it;vāk—the power of speech;manaḥ—the mind;indriyāṇi—and the senses;spandanti—begin to act;vai—indeed;tanu-bhṛtām—of all embodied living beings;aja-śarvayoḥ—of Lord Brahmā and Lord Śiva;ca—as well;svasya—of myself;api—also;athaapi—nevertheless;bhajatām—for those who are worshiping;asi—You become;bhāva-bandhuḥ—the intimate loving friend.TranslationŚrī Mārkaṇḍeya said: O Almighty Lord, how can I possibly describe You? You awaken the vital air, which then impels the mind, senses and power of speech to act. This is true for all ordinary conditioned souls and even for great demigods like Brahmā and Śiva. So it is certainly true for me. Nevertheless, You become the intimate friend of those who worship You. ŚB 12.8.40 Devanagariश्रीमार्कण्डेय उवाचकिं वर्णये तव विभो यदुदीरितोऽसु:संस्पन्दते तमनु वाङ्‌मनइन्द्रियाणि ।स्पन्दन्ति वै तनुभृतामजशर्वयोश्चस्वस्याप्यथापि भजतामसि भावबन्धु: ॥ ४० ॥ श्रीमार्कण्डेय उवाचकिं वर्णये तव विभो यदुदीरितोऽसु:संस्पन्दते तमनु वाङ्‌मनइन्द्रियाणि ।स्पन्दन्ति वै तनुभृतामजशर्वयोश्चस्वस्याप्यथापि भजतामसि भावबन्धु: ॥ ४० ॥ श्रीमार्कण्डेय उवाचकिं वर्णये तव विभो यदुदीरितोऽसु:संस्पन्दते तमनु वाङ्‌मनइन्द्रियाणि ।स्पन्दन्ति वै तनुभृतामजशर्वयोश्चस्वस्याप्यथापि भजतामसि भावबन्धु: ॥ ४० ॥ Verse textśrī-mārkaṇḍeya uvācakiṁ varṇaye tava vibho yad-udīrito ’suḥsaṁspandate tam anu vāṅ-mana-indriyāṇispandanti vai tanu-bhṛtām aja-śarvayoś casvasyāpy athāpi bhajatām asi bhāva-bandhuḥ śrī-mārkaṇḍeya uvācakiṁ varṇaye tava vibho yad-udīrito ’suḥsaṁspandate",
+          "score": -1.9554450511932373
+        }
+      ]
+    }
+  ]
+}

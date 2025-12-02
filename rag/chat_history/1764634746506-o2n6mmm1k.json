@@ -1,23 +1,349 @@
 {
-  "id": "1764634746506-o2n6mmm1k",
-  "title": "привет! что такое таттва?",
   "createdAt": "2025-12-02T00:19:06.506Z",
+  "id": "1764634746506-o2n6mmm1k",
   "messages": [
     {
-      "role": "user",
       "parts": [
         {
           "text": "привет! что такое таттва?"
         }
-      ]
+      ],
+      "role": "user"
     },
     {
-      "role": "model",
       "parts": [
         {
           "text": "❌ **Error**: {\"error\":{\"code\":400,\"message\":\"API key not valid. Please pass a valid API key.\",\"status\":\"INVALID_ARGUMENT\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_INVALID\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"API key not valid. Please pass a valid API key.\"}]}}"
         }
-      ]
+      ],
+      "role": "model"
+    },
+    {
+      "parts": [
+        {
+          "text": "что такое таттва?"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "agentSteps": [
+        {
+          "content": "The user is asking for the definition of \"tattva\". I should search the database for this term.",
+          "timestamp": 1764634775456,
+          "type": "thought"
+        },
+        {
+          "content": "The user is asking for the definition of \"tattva\". I should search the database for this term.",
+          "timestamp": 1764634775456,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"что такое таттва\"",
+          "timestamp": 1764634775456,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"что такое таттва\"",
+          "timestamp": 1764634775456,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634775778,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634775778,
+          "type": "observation"
+        },
+        {
+          "content": "The previous search did not yield results. I will try a broader search for \"таттвы\" (plural) and see if that provides any context or definitions.",
+          "timestamp": 1764634776793,
+          "type": "thought"
+        },
+        {
+          "content": "The previous search did not yield results. I will try a broader search for \"таттвы\" (plural) and see if that provides any context or definitions.",
+          "timestamp": 1764634776793,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"таттвы\"",
+          "timestamp": 1764634776793,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"таттвы\"",
+          "timestamp": 1764634776793,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634776818,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634776818,
+          "type": "observation"
+        },
+        {
+          "content": "I have not found any direct definitions of \"tattva\" or \"tattvas\" in the database. It's possible the term is not explicitly defined in the scriptures I have access to, or it might be a concept that is explained through context rather than a direct definition. Since I cannot find a direct answer, I will state that the information is not available in the current database.",
+          "timestamp": 1764634777825,
+          "type": "thought"
+        },
+        {
+          "content": "I have not found any direct definitions of \"tattva\" or \"tattvas\" in the database. It's possible the term is not explicitly defined in the scriptures I have access to, or it might be a concept that is explained through context rather than a direct definition. Since I cannot find a direct answer, I will state that the information is not available in the current database.",
+          "timestamp": 1764634777825,
+          "type": "thought"
+        }
+      ],
+      "parts": [
+        {
+          "text": "К сожалению, в доступной мне базе данных нет информации, определяющей понятие \"таттвы\"."
+        }
+      ],
+      "role": "model",
+      "sources": []
+    },
+    {
+      "parts": [
+        {
+          "text": "а что есть в  в доступной тебе базе данных ?"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "agentSteps": [
+        {
+          "content": "The user is asking what kind of information is available in my database. I should provide a general overview of the types of scriptures and topics I can access.",
+          "timestamp": 1764634809025,
+          "type": "thought"
+        },
+        {
+          "content": "The user is asking what kind of information is available in my database. I should provide a general overview of the types of scriptures and topics I can access.",
+          "timestamp": 1764634809025,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"available scriptures and topics\"",
+          "timestamp": 1764634809025,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"available scriptures and topics\"",
+          "timestamp": 1764634809025,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634809346,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634809346,
+          "type": "observation"
+        },
+        {
+          "content": "The previous search was too broad. I need to be more specific about the *types* of scriptures I have access to, rather than just \"available scriptures and topics.\" I should list the major religious and philosophical traditions represented in my database.",
+          "timestamp": 1764634810467,
+          "type": "thought"
+        },
+        {
+          "content": "The previous search was too broad. I need to be more specific about the *types* of scriptures I have access to, rather than just \"available scriptures and topics.\" I should list the major religious and philosophical traditions represented in my database.",
+          "timestamp": 1764634810467,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"scriptures from Hinduism, Buddhism, Jainism, Sikhism, and major world religions\"",
+          "timestamp": 1764634810467,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"scriptures from Hinduism, Buddhism, Jainism, Sikhism, and major world religions\"",
+          "timestamp": 1764634810467,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634810594,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634810594,
+          "type": "observation"
+        },
+        {
+          "content": "It seems I cannot directly list the *types* of scriptures or topics available. My primary function is to search for specific information within those scriptures when prompted. Since I cannot directly answer \"what is in the database,\" I should explain my capabilities in terms of *how* I can help the user find information within those scriptures, rather than listing the contents themselves. I will state that I can search for concepts, terms, stories, and teachings from various religious and philosophical traditions.",
+          "timestamp": 1764634813067,
+          "type": "thought"
+        },
+        {
+          "content": "It seems I cannot directly list the *types* of scriptures or topics available. My primary function is to search for specific information within those scriptures when prompted. Since I cannot directly answer \"what is in the database,\" I should explain my capabilities in terms of *how* I can help the user find information within those scriptures, rather than listing the contents themselves. I will state that I can search for concepts, terms, stories, and teachings from various religious and philosophical traditions.",
+          "timestamp": 1764634813067,
+          "type": "thought"
+        }
+      ],
+      "parts": [
+        {
+          "text": "Я могу искать информацию по различным религиозным и философским текстам, включая концепции, термины, истории и учения. Если у вас есть конкретные вопросы о каких-либо учениях или понятиях из священных писаний, пожалуйста, задавайте их, и я постараюсь найти ответ в своей базе данных."
+        }
+      ],
+      "role": "model",
+      "sources": []
+    },
+    {
+      "parts": [
+        {
+          "text": "Кто такой Кришна? дай ссылки на писания"
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "agentSteps": [
+        {
+          "content": "The user is asking for information about Krishna and wants references to scriptures. I should search the database for \"Krishna\" and related scriptures.",
+          "timestamp": 1764634845557,
+          "type": "thought"
+        },
+        {
+          "content": "The user is asking for information about Krishna and wants references to scriptures. I should search the database for \"Krishna\" and related scriptures.",
+          "timestamp": 1764634845557,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"Кто такой Кришна\"",
+          "timestamp": 1764634845557,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"Кто такой Кришна\"",
+          "timestamp": 1764634845557,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634846138,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634846138,
+          "type": "observation"
+        },
+        {
+          "content": "The previous search was too broad. I need to be more specific and look for scriptures that describe Krishna. I will try searching for \"Krishna\" in the context of Hindu scriptures.",
+          "timestamp": 1764634847328,
+          "type": "thought"
+        },
+        {
+          "content": "The previous search was too broad. I need to be more specific and look for scriptures that describe Krishna. I will try searching for \"Krishna\" in the context of Hindu scriptures.",
+          "timestamp": 1764634847328,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"Кришна в индуистских писаниях\"",
+          "timestamp": 1764634847328,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"Кришна в индуистских писаниях\"",
+          "timestamp": 1764634847328,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634847356,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634847356,
+          "type": "observation"
+        },
+        {
+          "content": "I am not finding direct definitions or descriptions of Krishna. I will try searching for specific scriptures that are known to feature Krishna prominently, such as the Bhagavad Gita and the Puranas.",
+          "timestamp": 1764634848515,
+          "type": "thought"
+        },
+        {
+          "content": "I am not finding direct definitions or descriptions of Krishna. I will try searching for specific scriptures that are known to feature Krishna prominently, such as the Bhagavad Gita and the Puranas.",
+          "timestamp": 1764634848515,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"Бхагавад-гита Кришна\"",
+          "timestamp": 1764634848515,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"Бхагавад-гита Кришна\"",
+          "timestamp": 1764634848515,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634848830,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634848830,
+          "type": "observation"
+        },
+        {
+          "content": "I am still not finding direct information about Krishna. It's possible my search terms are not precise enough for the database. I will try a more general search for \"Krishna\" and see if any related texts appear, even if not a direct definition.",
+          "timestamp": 1764634849717,
+          "type": "thought"
+        },
+        {
+          "content": "I am still not finding direct information about Krishna. It's possible my search terms are not precise enough for the database. I will try a more general search for \"Krishna\" and see if any related texts appear, even if not a direct definition.",
+          "timestamp": 1764634849717,
+          "type": "thought"
+        },
+        {
+          "content": "Searching for: \"Кришна\"",
+          "timestamp": 1764634849717,
+          "type": "action"
+        },
+        {
+          "content": "Searching for: \"Кришна\"",
+          "timestamp": 1764634849717,
+          "type": "action"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634849749,
+          "type": "observation"
+        },
+        {
+          "content": "Found 0 results.",
+          "timestamp": 1764634849749,
+          "type": "observation"
+        },
+        {
+          "content": "I have exhausted the direct search queries for \"Krishna\" and related scriptures without success. It seems the database does not contain specific information about Krishna or references to him in the scriptures it has access to. Therefore, I cannot provide the requested information or scripture links.",
+          "timestamp": 1764634850872,
+          "type": "thought"
+        },
+        {
+          "content": "I have exhausted the direct search queries for \"Krishna\" and related scriptures without success. It seems the database does not contain specific information about Krishna or references to him in the scriptures it has access to. Therefore, I cannot provide the requested information or scripture links.",
+          "timestamp": 1764634850872,
+          "type": "thought"
+        }
+      ],
+      "parts": [
+        {
+          "text": "К сожалению, в доступной мне базе данных нет информации о Кришне и ссылок на писания, в которых он упоминается."
+        }
+      ],
+      "role": "model",
+      "sources": []
     },
     {
       "role": "user",
@@ -31,320 +357,158 @@
       "role": "model",
       "parts": [
         {
-          "text": "К сожалению, в доступной мне базе данных нет информации, определяющей понятие \"таттвы\"."
+          "text": "В найденных текстах \"таттвы\" (tattva) упоминаются в контексте духовных истин и учений, связанных с Кришной и Господом Чайтаньей.\n\nВот как они используются:\n\n*   **\"Таттва\" как истина/сущность:** В текстах \"таттвы\" используются для обозначения различных аспектов духовной реальности. Например, упоминаются:\n    *   **Кришна-таттвы** (kṛṣṇa-tattva) - истина о Кришне.\n    *   **Радха-таттвы** (rādhā-tattva) - истина о Радхарани.\n    *   **Према-таттвы** (prema-tattva) - истина о божественной любви.\n    *   **Бхакти-таттвы** (bhakti-tattva) - истина о преданном служении.\n    *   **Раса-таттвы** (rasa-tattva) - истина о трансцендентальных вкусах (меллоу).\n    *   **Лила-таттвы** (līlā-tattva) - истина о божественных играх Господа.\n    *   **Бхава-таттвы** (bhāva-tattva) - эмоциональная истина.\n\n*   **Панча-таттвы** (pañca-tattva): Упоминается, что \"пять таттв\" (pañca-tattva) воплощаются вместе с Господом Чайтаньей.\n\n*   **\"Таттва\" в контексте единства и различия:** В одном из текстов встречается понятие \"бхедабхеда-таттвы\" (bhedābheda-tattva), которое описывает одновременное единство и различие, например, в отношении Господа Шивы (Рудра) к Вишну-таттве.\n\nТаким образом, \"таттвы\" в данном контексте относятся к фундаментальным истинам и категориям духовного знания, раскрывающим природу Бога, Его преданных и их взаимоотношения."
         }
       ],
       "agentSteps": [
         {
           "type": "thought",
-          "content": "The user is asking for the definition of \"tattva\". I should search the database for this term.",
-          "timestamp": 1764634775456
+          "content": "The user is asking about \"tattva\" again. My previous search indicated no information was found. I should try a broader search to see if any related concepts appear, or if there's a common misspelling or alternative term. I will search for \"tattva\" and \"tattvas\" to cover singular and plural forms.",
+          "timestamp": 1764701080064
         },
         {
           "type": "thought",
-          "content": "The user is asking for the definition of \"tattva\". I should search the database for this term.",
-          "timestamp": 1764634775456
+          "content": "The user is asking about \"tattva\" again. My previous search indicated no information was found. I should try a broader search to see if any related concepts appear, or if there's a common misspelling or alternative term. I will search for \"tattva\" and \"tattvas\" to cover singular and plural forms.",
+          "timestamp": 1764701080064
         },
         {
           "type": "action",
-          "content": "Searching for: \"что такое таттва\"",
-          "timestamp": 1764634775456
+          "content": "Searching for: \"tattva\"",
+          "timestamp": 1764701080064
         },
         {
           "type": "action",
-          "content": "Searching for: \"что такое таттва\"",
-          "timestamp": 1764634775456
+          "content": "Searching for: \"tattva\"",
+          "timestamp": 1764701080064
         },
         {
           "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634775778
+          "content": "Found 20 results.",
+          "timestamp": 1764701120178
         },
         {
           "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634775778
+          "content": "Found 20 results.",
+          "timestamp": 1764701120178
         },
         {
           "type": "thought",
-          "content": "The previous search did not yield results. I will try a broader search for \"таттвы\" (plural) and see if that provides any context or definitions.",
-          "timestamp": 1764634776793
+          "content": "Reaching time limit. Synthesizing available information...",
+          "timestamp": 1764701122383
         },
         {
           "type": "thought",
-          "content": "The previous search did not yield results. I will try a broader search for \"таттвы\" (plural) and see if that provides any context or definitions.",
-          "timestamp": 1764634776793
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"таттвы\"",
-          "timestamp": 1764634776793
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"таттвы\"",
-          "timestamp": 1764634776793
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634776818
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634776818
-        },
-        {
-          "type": "thought",
-          "content": "I have not found any direct definitions of \"tattva\" or \"tattvas\" in the database. It's possible the term is not explicitly defined in the scriptures I have access to, or it might be a concept that is explained through context rather than a direct definition. Since I cannot find a direct answer, I will state that the information is not available in the current database.",
-          "timestamp": 1764634777825
-        },
-        {
-          "type": "thought",
-          "content": "I have not found any direct definitions of \"tattva\" or \"tattvas\" in the database. It's possible the term is not explicitly defined in the scriptures I have access to, or it might be a concept that is explained through context rather than a direct definition. Since I cannot find a direct answer, I will state that the information is not available in the current database.",
-          "timestamp": 1764634777825
+          "content": "Reaching time limit. Synthesizing available information...",
+          "timestamp": 1764701122383
         }
       ],
-      "sources": []
-    },
-    {
-      "role": "user",
-      "parts": [
+      "sources": [
         {
-          "text": "а что есть в  в доступной тебе базе данных ?"
+          "id": "cc.cc\\madhya\\8\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\madhya\\8\\advanced-view\\index.html",
+          "verse": null,
+          "content": "’—catching; catching rāya—Rāmānanda Rāya; Rāmānanda Rāya kare—makes; nivedana—submission. submission TranslationThat evening, after discussing the topics of Kṛṣṇa for some time, Rāmānanda Rāya caught hold of the lotus feet of the Lord and spoke as follows. That evening, after discussing the topics of Kṛṣṇa for some time, Rāmānanda Rāya caught hold of the lotus feet of the Lord and spoke as follows. That evening, after discussing the topics of Kṛṣṇa for some time, Rāmānanda Rāya caught hold of the lotus feet of the Lord and spoke as follows. Text 263Bengali‘কৃষ্ণতত্ত্ব’, ‘রাধাতত্ত্ব’, ‘প্রেমতত্ত্বসার’ ।‘রসতত্ত্ব’ ‘লীলাতত্ত্ব’ বিবিধ প্রকার ॥ ২৬৩ ॥Verse text‘kṛṣṇa-tattva’, ‘rādhā-tattva’, ‘prema-tattva-sāra’‘rasa-tattva’ ‘līlā-tattva’ vividha prakāraSynonymskṛṣṇa-tattva—the truth about Kṛṣṇa;rādhā-tattva—the truth about Rādhā;prema-tattva-sāra—the essence of Their loving affairs;rasa-tattva—the truth about transcendental mellows;līlā-tattva—the truth about the pastimes of the Lord;vividhaprakāra—of different varieties.Translation“There is a variety of transcendental truths — the truth about Kṛṣṇa, the truth about Rādhārāṇī, the truth about Their loving affairs, the truth about transcendental humors, and the truth about the Lord’s pastimes. Text 263 Bengali‘কৃষ্ণতত্ত্ব’, ‘রাধাতত্ত্ব’, ‘প্রেমতত্ত্বসার’ ।‘রসতত্ত্ব’ ‘লীলাতত্ত্ব’ বিবিধ প্রকার ॥ ২৬৩ ॥ ‘কৃষ্ণতত্ত্ব’, ‘রাধাতত্ত্ব’, ‘প্রেমতত্ত্বসার’ ।‘রসতত্ত্ব’ ‘লীলাতত্ত্ব’ বিবিধ প্রকার ॥ ২৬৩ ॥ ‘কৃষ্ণতত্ত্ব’, ‘রাধাতত্ত্ব’, ‘প্রেমতত্ত্বসার’ ।‘রসতত্ত্ব’ ‘লীলাতত্ত্ব’ বিবিধ প্রকার ॥ ২৬৩ ॥ Verse text‘kṛṣṇa-tattva’, ‘rādhā-tattva’, ‘prema-tattva-sāra’‘rasa-tattva’ ‘līlā-tattva’ vividha prakāra ‘kṛṣṇa-tattva’, ‘rādhā-tattva’, ‘prema-tattva-sāra’‘rasa-tattva’ ‘līlā-tattva’ vividha prakāra ‘kṛṣṇa-tattva’, ‘rādhā-tattva’, ‘prema-tattva-sāra’‘rasa-tattva’ ‘līlā-tattva’ vividha prakāra Synonymskṛṣṇa-tattva—the truth about Kṛṣṇa;rādhā-tattva—the truth about Rādhā;prema-tattva-sāra—the essence of Their loving affairs;rasa-tattva—the truth about transcendental mellows;līlā-tattva—the",
+          "score": -0.9797073602676392
+        },
+        {
+          "id": "cc.cc\\adi\\7\\4\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\adi\\7\\4\\index.html",
+          "verse": null,
+          "content": "্ত্ব লঞা করেন সংকীর্তন রঙ্গে ॥ ৪ ॥ পঞ্চতত্ত্ব অবতীর্ণ চৈতন্যের সঙ্গে ।পঞ্চতত্ত্ব লঞা করেন সংকীর্তন রঙ্গে ॥ ৪ ॥ Verse textpañca-tattva avatīrṇa caitanyera saṅgepañca-tattva lañā karena saṅkīrtana raṅge pañca-tattva avatīrṇa caitanyera saṅgepañca-tattva lañā karena saṅkīrtana raṅge pañca-tattva avatīrṇa caitanyera saṅgepañca-tattva lañā karena saṅkīrtana raṅge Synonymspañca-tattva—these fivetattvas;avatīrṇa—advented;caitanyera—with Caitanya Mahāprabhu;saṅge—in company with;pañca-tattva—the same five subjects;lañā—taking with Himself;karena—He does;saṅkīrtana—thesaṅkīrtanamovement;raṅge—in great pleasure. pañca-tattva—these fivetattvas;avatīrṇa—advented;caitanyera—with Caitanya Mahāprabhu;saṅge—in company with;pañca-tattva—the same five subjects;lañā—taking with Himself;karena—He does;saṅkīrtana—thesaṅkīrtanamovement;raṅge—in great pleasure. pañca-tattva—these fivetattvas;avatīrṇa—advented;caitanyera—with Caitanya Mahāprabhu;saṅge—in company with;pañca-tattva—the same five subjects;lañā—taking with Himself;karena—He does;saṅkīrtana—thesaṅkīrtanamovement;raṅge—in great pleasure. pañca-tattva—these fivetattvas; these fivetattvas avatīrṇa—advented; advented caitanyera—with Caitanya Mahāprabhu; with Caitanya Mahāprabhu saṅge—in company with; in company with pañca-tattva—the same five subjects; the same five subjects lañā—taking with Himself; taking with Himself karena—He does; He does saṅkīrtana—thesaṅkīrtanamovement; thesaṅkīrtanamovement raṅge—in great pleasure. in great pleasure TranslationThese five tattvas incarnate with Lord Caitanya Mahāprabhu, and thus the Lord executes His saṅkīrtana movement with great pleasure. These five tattvas incarnate with Lord Caitanya Mahāprabhu, and thus the Lord executes His saṅkīrtana movement with great pleasure. These five tattvas incarnate with Lord Caitanya Mahāprabhu, and thus the Lord executes His saṅkīrtana movement with great pleasure. PurportInŚrīmad-Bhāgavatam(11.5.32)there is the following statement regarding Śrī Caitanya Mahāprabhu:kṛṣṇa-varṇaṁ",
+          "score": -0.06814036518335342
+        },
+        {
+          "id": "cc.cc\\madhya\\25\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\madhya\\25\\advanced-view\\index.html",
+          "verse": null,
+          "content": "the material body. Śrī Caitanya Mahāprabhu also wanted His mission spread all over the world.pṛthivīte āche yata nagarādi grāmasarvatra pracāra haibe mora nāma“In every town and village, the chanting of My name will be heard.” (Caitanya-bhāgavata, Antya4.126)Following in the footsteps of Śrī Caitanya Mahāprabhu, we are trying to broadcast His message throughout the world. By His mercy, people are taking this movement very seriously. Indeed, our books are extensively distributed in the Western countries, especially in America and Europe. Even the ecclesiastical orders in these countries are appreciating the value of the Kṛṣṇa consciousness movement and are ready to unite for the highest benefit of human society. The followers of Śrī Caitanya Mahāprabhu may therefore take this movement seriously and broadcast it throughout the world, from village to village and from town to town, just as Śrī Caitanya Mahāprabhu Himself did.Text 265Bengaliকৃষ্ণতত্ত্ব, ভক্তিতত্ত্ব, প্রেমতত্ত্ব সার ।ভাবতত্ত্ব, রসতত্ত্ব, লীলাতত্ত্ব আর ॥ ২৬৫ ॥Verse textkṛṣṇa-tattva, bhakti-tattva, prema-tattva sārabhāva-tattva, rasa-tattva, līlā-tattva āraSynonymskṛṣṇa-tattva—the truth of Kṛṣṇa;bhakti-tattva—the truth of devotional service;prema-tattva—the truth of ecstatic love of Godhead;sāra—the essence;bhāva-tattva—the emotional truth;rasa-tattva—the truth of transcendental mellows;līlā-tattva—the truth of the pastimes of the Lord;āra—also.TranslationKṛṣṇa consciousness means understanding the truth of Kṛṣṇa, the truth of devotional service, the truth of love of Godhead, the truth of emotional ecstasy, the truth of transcendental mellows and the truth of the pastimes of the Lord.Text 266Bengaliশ্রীভাগবত-তত্ত্বরস করিলা প্রচারে ।কৃষ্ণতুল্য ভাগবত, জানাইলা সংসারে ॥ ২৬৬ ॥Verse textśrī-bhāgavata-tattva-rasa karilā pracārekṛṣṇa-tulya bhāgavata, jānāilā saṁsāreSynonymsśrī-bhāgavata-tattva-rasa—the truth and transcendental taste ofŚrīmad-Bhāgavatam;karilāpracāre—Caitanya Mahāprabhu preached elaborately;kṛṣṇa-tulya—identical with",
+          "score": -0.4955326318740845
+        },
+        {
+          "id": "cc.cc\\madhya\\25\\265\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\madhya\\25\\265\\index.html",
+          "verse": null,
+          "content": "onal truth;rasa-tattva—the truth of transcendental mellows;līlā-tattva—the truth of the pastimes of the Lord;āra—also. kṛṣṇa-tattva—the truth of Kṛṣṇa;bhakti-tattva—the truth of devotional service;prema-tattva—the truth of ecstatic love of Godhead;sāra—the essence;bhāva-tattva—the emotional truth;rasa-tattva—the truth of transcendental mellows;līlā-tattva—the truth of the pastimes of the Lord;āra—also. kṛṣṇa-tattva—the truth of Kṛṣṇa; the truth of Kṛṣṇa bhakti-tattva—the truth of devotional service; the truth of devotional service prema-tattva—the truth of ecstatic love of Godhead; the truth of ecstatic love of Godhead sāra—the essence; the essence bhāva-tattva—the emotional truth; the emotional truth rasa-tattva—the truth of transcendental mellows; the truth of transcendental mellows līlā-tattva—the truth of the pastimes of the Lord; the truth of the pastimes of the Lord āra—also. TranslationKṛṣṇa consciousness means understanding the truth of Kṛṣṇa, the truth of devotional service, the truth of love of Godhead, the truth of emotional ecstasy, the truth of transcendental mellows and the truth of the pastimes of the Lord. Kṛṣṇa consciousness means understanding the truth of Kṛṣṇa, the truth of devotional service, the truth of love of Godhead, the truth of emotional ecstasy, the truth of transcendental mellows and the truth of the pastimes of the Lord. Kṛṣṇa consciousness means understanding the truth of Kṛṣṇa, the truth of devotional service, the truth of love of Godhead, the truth of emotional ecstasy, the truth of transcendental mellows and the truth of the pastimes of the Lord. Text 264Text 266",
+          "score": -0.46889084577560425
+        },
+        {
+          "id": "cc.cc\\madhya\\20\\advanced-view\\index.html.null",
+          "bookTitle": "cc",
+          "chapter": "cc\\madhya\\20\\advanced-view\\index.html",
+          "verse": null,
+          "content": "yā vikārī—transformed; transformed rudra—the form of Rudra; the form of Rudra bhinna-abhinnarūpa—having different types of forms; having different types of forms jīva-tattvanahe—still he is not calledjīva-tattva; still he is not calledjīva-tattva nahe—nor; kṛṣṇera—of Lord Kṛṣṇa; of Lord Kṛṣṇa svarūpa—personal form. personal form Translation“Rudra, Lord Śiva, has various forms, which are transformations brought about by association with māyā. Although Rudra is not on a level with the jīva-tattvas, he still cannot be considered a personal expansion of Lord Kṛṣṇa. “Rudra, Lord Śiva, has various forms, which are transformations brought about by association with māyā. Although Rudra is not on a level with the jīva-tattvas, he still cannot be considered a personal expansion of Lord Kṛṣṇa. “Rudra, Lord Śiva, has various forms, which are transformations brought about by association with māyā. Although Rudra is not on a level with the jīva-tattvas, he still cannot be considered a personal expansion of Lord Kṛṣṇa. PurportRudra is simultaneously one with and different from theviṣṇu-tattva.Due to his association withmāyā,he is different from theviṣṇu-tattva,but at the same time he is an expansion of Kṛṣṇa’s personal form. This situation is calledbhedābheda-tattvaoracintya-bhedābheda-tattva,simultaneously one and different. Rudra is simultaneously one with and different from theviṣṇu-tattva.Due to his association withmāyā,he is different from theviṣṇu-tattva,but at the same time he is an expansion of Kṛṣṇa’s personal form. This situation is calledbhedābheda-tattvaoracintya-bhedābheda-tattva,simultaneously one and different. Rudra is simultaneously one with and different from theviṣṇu-tattva.Due to his association withmāyā,he is different from theviṣṇu-tattva,but at the same time he is an expansion of Kṛṣṇa’s personal form. This situation is calledbhedābheda-tattvaoracintya-bhedābheda-tattva,simultaneously one and different. Text 309Bengaliদুগ্ধ যেন অম্লযোগে দধিরূপ ধরে ।দুগ্ধান্তর বস্তু নহে, দুগ্ধ হৈতে নারে ॥ ৩০৯ ॥Verse",
+          "score": -0.9616230130195618
+        },
+        {
+          "id": "sb.sb\\11\\3\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\3\\advanced-view\\index.html",
+          "verse": null,
+          "content": "n such cripple-minded people cross overmāyāin the easiest way possible, since by nature they are very lazy in spiritual matters?” According to Śrīla Śrīdhara Svāmī,sthūla-dhiyaḥindicates those who ignorantly identify themselves with the gross material body and who are therefore unable to analyze the subtle laws of nature by which the soul transmigrates in illusion. Śrīla Jīva Gosvāmī comments thatsthūla-dhiyaḥalso indicates so-called pious persons who execute pompous religious ceremonies for material sense gratification rather than trying to prepare themselves to go back home, back to Godhead, by engaging in the loving devotional service of the Lord. According to Śrīla Śrīdhara Svāmī,sthūla-dhiyaḥindicates those who ignorantly identify themselves with the gross material body and who are therefore unable to analyze the subtle laws of nature by which the soul transmigrates in illusion. Śrīla Jīva Gosvāmī comments thatsthūla-dhiyaḥalso indicates so-called pious persons who execute pompous religious ceremonies for material sense gratification rather than trying to prepare themselves to go back home, back to Godhead, by engaging in the loving devotional service of the Lord. According to Śrīla Viśvanātha Cakravartī Ṭhākura, King Nimi was already an advanced devotee of the Lord and therefore knew that one can cross over the illusory energy,māyā,by surrendering to the lotus feet of the Lord and pleasing Him by pure devotional service. Therefore the King was asking the question for the benefit of those who falsely consider themselves very much learned but in fact are addicted to materialistic fruitive activities, which increasingly entangle them in illusion. In this regard Śrīla Viśvanātha Cakravartī Ṭhākura has quoted from theAmara-kośadictionary to show thatakṛtātmabhiḥindicatesapūrṇatvam,or one whose life is empty. According to Śrīla Viśvanātha Cakravartī Ṭhākura, King Nimi was already an advanced devotee of the Lord and therefore knew that one can cross over the illusory energy,māyā,by surrendering to the lotus feet",
+          "score": -1.9082717895507812
+        },
+        {
+          "id": "sb.sb\\11\\22\\32\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\22\\32\\index.html",
+          "verse": null,
+          "content": "ame categories, since they belong to different potencies of the Supreme Lord. Thus the act of spiritually perceiving the Supreme Lord, His abode and one’s own self is an entirely antimaterial process realized within pure Kṛṣṇa consciousness. Text 31Text 33",
+          "score": -1.9560073614120483
+        },
+        {
+          "id": "sb.sb\\2\\9\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\2\\9\\advanced-view\\index.html",
+          "verse": null,
+          "content": "pañcarātrathat the transcendental world or Vaikuṇṭha atmosphere is enriched with transcendental qualities. These transcendental qualities, as revealed through the devotional service of the Lord, are distinct from the mundane qualities of ignorance, passion and goodness. Such qualities are not attainable by the nondevotee class of men. In thePadma Purāṇa, Uttara-khaṇḍa,it is stated that beyond the one-fourth part of God’s creation is the three-fourths manifestation. The marginal line between the material manifestation and the spiritual manifestation is the Virajā River, and beyond the Virajā, which is a transcendental current flowing from the perspiration of the body of the Lord, there is the three-fourths manifestation of God’s creation. This part is eternal, everlasting, without deterioration, and unlimited, and it contains the highest perfectional stage of living conditions. In theSāṅkhya-kaumudīit is stated that unalloyed goodness or transcendence is just opposite to the material modes. All living entities there are eternally associated without any break, and the Lord is the chief and prime entity. In theĀgama Purāṇasalso, the transcendental abode is described as follows: The associated members there are free to go everywhere within the creation of the Lord, and there is no limit to such creation, particularly in the region of the three-fourths magnitude. Since the nature of that region is unlimited, there is no history of such association, nor is there end of it.The conclusion may be drawn that because of the complete absence of the mundane qualities of ignorance and passion, there is no question of creation nor of annihilation. In the material world everything is created, and everything is annihilated, and the duration of life between the creation and annihilation is temporary. In the transcendental realm there is no creation and no destruction, and thus the duration of life is eternal unlimitedly. In other words, everything in the transcendental world is everlasting, full of knowledge and bliss without",
+          "score": -2.0683116912841797
+        },
+        {
+          "id": "sb.sb\\11\\20\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\20\\advanced-view\\index.html",
+          "verse": null,
+          "content": "uṇa—piety;doṣa—sin;bhidā—the difference between;dṛṣṭiḥ—seeing;nigamāt—from Vedic knowledge;te—Your;na—not;hi—indeed;svataḥ—automatically;nigamena—by theVedas;apavādaḥ—nullification;ca—also;bhidāyāḥ—of such distinction;iti—thus;ha—clearly;bhramaḥ—confusion.TranslationMy dear Lord, the distinction observed between piety and sin comes from Your own Vedic knowledge and does not arise by itself. If the same Vedic literature subsequently nullifies such distinction between piety and sin, there will certainly be confusion.PurportIn theBhagavad-gītā(15.15)Lord Kṛṣṇa states,vedaiś ca sarvair aham eva vedyaḥ:“By all theVedasI am to be known. Indeed, I am the compiler ofVedānta,and I know theVedaas it is.” Vedic knowledge emanates from the breathing of the Personality of Godhead; therefore, whatever Lord Kṛṣṇa speaks isVeda,or perfect knowledge. The Vedic literatures are full of descriptions of piety and sin, but Lord Kṛṣṇa’s statement that one should transcend piety and sin is also to be understood as Vedic knowledge. Śrī Uddhava has understood this point and therefore requests Lord Kṛṣṇa to clear up an apparent contradiction. Ultimately, the material world gives the living entities a chance to satisfy their perverted desires and at the same time gradually achieve the liberation of going back home, back to Godhead. Thus material piety must be considered a means and never an absolute end, since the material world itself is not absolute, being temporary and limited. The Personality of Godhead is Himself the reservoir of all virtue and goodness. Those persons and activities that please the Lord are to be considered virtuous, and those that displease Him are to be considered sinful. There cannot be any other permanent definition of these terms. If one becomes a mundane moralist, forgetting the Supreme Lord, one’s position is certainly imperfect, and one will not achieve the ultimate goal of piety, going back home, back to Godhead.",
+          "score": -2.4053006172180176
+        },
+        {
+          "id": "sb.sb\\8\\21\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\8\\21\\advanced-view\\index.html",
+          "verse": null,
+          "content": "e form of a bear also;bherī-śabdaiḥ—by sounding the bugle;manaḥ-javaḥ—in mental ecstasy;vijayam—victory;dikṣu—in all directions;sarvāsu—everywhere;mahā-utsavam—festival;aghoṣayat—declared.TranslationJāmbavān, king of the bears, also joined in the ceremony. Sounding his bugle in all directions, he declared a great festival for Lord Vāmanadeva’s victory.Text 9Devanagariमहीं सर्वां हृतां द‍ृष्ट्वा त्रिपदव्याजयाच्ञया ।ऊचु: स्वभर्तुरसुरा दीक्षितस्यात्यमर्षिता: ॥ ९ ॥Verse textmahīṁ sarvāṁ hṛtāṁ dṛṣṭvātripada-vyāja-yācñayāūcuḥ sva-bhartur asurādīkṣitasyātyamarṣitāḥSynonymsmahīm—land;sarvām—all;hṛtām—lost;dṛṣṭvā—after seeing;tri-pada-vyāja-yācñayā—by simply asking three steps of land;ūcuḥ—said;sva-bhartuḥ—of their master;asurāḥ—the demons;dīkṣitasya—of Bali Mahārāja, who was so determined in the sacrifice;ati—very much;amarṣitāḥ—for whom the function was unbearable.TranslationWhen the demoniac followers of Mahārāja Bali saw that their master, who had been determined in performing sacrifice, had lost all his possessions to Vāmanadeva, who had taken them away on the plea of begging three paces of land, they were very angry and spoke as follows.Text 10Devanagariन वायं ब्रह्मबन्धुर्विष्णुर्मायाविनां वर: ।द्विजरूपप्रतिच्छन्नो देवकार्यं चिकीर्षति ॥ १० ॥Verse textna vāyaṁ brahma-bandhurviṣṇur māyāvināṁ varaḥdvija-rūpa-praticchannodeva-kāryaṁ cikīrṣatiSynonymsna—not;vā—either;ayam—this;brahma-bandhuḥ—Vāmanadeva, in the form of abrāhmaṇa;viṣṇuḥ—He is Lord Viṣṇu Himself;māyāvinām—of all cheaters;varaḥ—the greatest;dvija-rūpa—by assuming the form of abrāhmaṇa;praticchannaḥ—is disguised for the purpose of cheating;deva-kāryam—the interest of the demigods;cikīrṣati—He is trying for.Translation“This Vāmana is certainly not a brāhmaṇa but the best of cheaters, Lord Viṣṇu. Assuming the form of a brāhmaṇa, He has covered His own form, and thus He is working for the interests of the demigods.Text 11Devanagariअनेन याचमानेन शत्रुणा वटुरूपिणा ।सर्वस्वं नो हृतं भर्तुर्न्यस्तदण्डस्य बर्हिषि ॥ ११ ॥Verse textanena yācamānenaśatruṇā",
+          "score": -2.0722219944000244
+        },
+        {
+          "id": "sb.sb\\11\\21\\28\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\21\\28\\index.html",
+          "verse": null,
+          "content": "t of life. Religion means the law of God. The Lord’s final order, or law, is that every conditioned soul surrender unto Him, learn to serve and love Him, and thus go back home, back to Godhead. This is the process of Kṛṣṇa consciousness. Text 27Texts 29-30",
+          "score": -2.2380239963531494
+        },
+        {
+          "id": "sb.sb\\4\\29\\advanced-view\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\4\\29\\advanced-view\\index.html",
+          "verse": null,
+          "content": "other simply in labor (śūdra). These four classes of men are already there according to nature, but it is the government’s duty to see that all four of these classes follow the principles of theirvarṇasmethodically. This is calledabhirakṣaṇa,or protection.It is significant that when Mahārāja Prācīnabarhi was convinced of the goal of life through the instructions of Nārada, he did not wait even a moment to see his sons return, but left immediately. There were many things to be done upon the return of his sons, but he simply left them a message. He knew what his prime duty was. He simply left instructions for his sons and went off for the purpose of spiritual advancement. This is the system of Vedic civilization.Śrīdhara Svāmī informs us that Kapilāśrama is located at the confluence of the Ganges and the Bay of Bengal, a place known now as Gaṅgā-sāgara. This place is still famous as a place of pilgrimage, and many millions of people gather there every year on the day of Makara-saṅkrānti and take bath. It is called Kapilāśrama because of Lord Kapila’s living there to perform His austerities and penances. Lord Kapila propounded the Sāṅkhya system of philosophy. Text 81 Devanagariप्राचीनबर्ही राजर्षि: प्रजासर्गाभिरक्षणे ।आदिश्य पुत्रानगमत्तपसे कपिलाश्रमम् ॥ ८१ ॥ प्राचीनबर्ही राजर्षि: प्रजासर्गाभिरक्षणे ।आदिश्य पुत्रानगमत्तपसे कपिलाश्रमम् ॥ ८१ ॥ प्राचीनबर्ही राजर्षि: प्रजासर्गाभिरक्षणे ।आदिश्य पुत्रानगमत्तपसे कपिलाश्रमम् ॥ ८१ ॥ Verse textprācīnabarhī rājarṣiḥprajā-sargābhirakṣaṇeādiśya putrān agamattapase kapilāśramam prācīnabarhī rājarṣiḥprajā-sargābhirakṣaṇeādiśya putrān agamattapase kapilāśramam prācīnabarhī rājarṣiḥprajā-sargābhirakṣaṇeādiśya putrān agamattapase kapilāśramam Synonymsprācīnabarhiḥ—King Prācīnabarhi;rāja-ṛṣiḥ—the saintly King;prajā-sarga—the mass of citizens;abhirakṣaṇe—to protect;ādiśya—after ordering;putrān—his sons;agamat—departed;tapase—for undergoing austerities;kapila-āśramam—to the holy place known as Kapilāśrama.",
+          "score": -2.1730074882507324
+        },
+        {
+          "id": "sb.sb\\11\\21\\29-30\\index.html.null",
+          "bookTitle": "sb",
+          "chapter": "sb\\11\\21\\29-30\\index.html",
+          "verse": null,
+          "content": "ŚB 11.21.29-30Devanagariते मे मतमविज्ञाय परोक्षं विषयात्मका: ।हिंसायां यदि राग: स्याद् यज्ञ एव न चोदना ॥ २९ ॥हिंसाविहारा ह्यालब्धै: पशुभि: स्वसुखेच्छया ।यजन्ते देवता यज्ञै: पितृभूतपतीन् खला: ॥ ३० ॥Verse textte me matam avijñāyaparokṣaṁ viṣayātmakāḥhiṁsāyāṁ yadi rāgaḥ syādyajña eva na codanāhiṁsā-vihārā hy ālabdhaiḥpaśubhiḥ sva-sukhecchayāyajante devatā yajñaiḥpitṛ-bhūta-patīn khalāḥSynonymste—they;me—My;matam—conclusion;avijñāya—without understanding;parokṣam—confidential;viṣaya-ātmakāḥ—absorbed in sense gratification;hiṁsāyām—to violence;yadi—if;rāgaḥ—attachment;syāt—may be;yajñe—in the sacrificial prescriptions;eva—certainly;na—there is not;codanā—encouragement;hiṁsā-vihārāḥ—those who take pleasure in violence;hi—indeed;ālabdhaiḥ—which have been slaughtered;paśubhiḥ—by means of the animals;sva-sukha—for their own happiness;icchayā—with the desire;yajante—they worship;devatāḥ—the demigods;yajñaiḥ—by sacrificial rituals;pitṛ—the forefathers;bhūta-patīn—and the leaders among the ghostly spirits;khalāḥ—cruel persons.TranslationThose who are sworn to sense gratification cannot understand the confidential conclusion of Vedic knowledge as explained by Me. Taking pleasure in violence, they cruelly slaughter innocent animals in sacrifice for their own sense gratification and thus worship demigods, forefathers and leaders among ghostly creatures. Such passion for violence, however, is never encouraged within the process of Vedic sacrifice.PurportThe Vedic scriptures sanction occasional animal sacrifice to satisfy cruel, low-class men who cannot live without the taste of flesh and blood. Such concessions, however, are restricted by rigorous obligatory rituals and are meant to gradually discourage animal killing, just as the exorbitant cost of a liquor license restricts the number of retail outlets selling alcoholic beverages. But unscrupulous persons misconstrue such restrictive sanctions and declare that Vedic sacrifice is meant for killing animals in order to enjoy sense gratification.",
+          "score": -2.253553867340088
         }
       ]
-    },
-    {
-      "role": "model",
-      "parts": [
-        {
-          "text": "Я могу искать информацию по различным религиозным и философским текстам, включая концепции, термины, истории и учения. Если у вас есть конкретные вопросы о каких-либо учениях или понятиях из священных писаний, пожалуйста, задавайте их, и я постараюсь найти ответ в своей базе данных."
-        }
-      ],
-      "agentSteps": [
-        {
-          "type": "thought",
-          "content": "The user is asking what kind of information is available in my database. I should provide a general overview of the types of scriptures and topics I can access.",
-          "timestamp": 1764634809025
-        },
-        {
-          "type": "thought",
-          "content": "The user is asking what kind of information is available in my database. I should provide a general overview of the types of scriptures and topics I can access.",
-          "timestamp": 1764634809025
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"available scriptures and topics\"",
-          "timestamp": 1764634809025
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"available scriptures and topics\"",
-          "timestamp": 1764634809025
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634809346
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634809346
-        },
-        {
-          "type": "thought",
-          "content": "The previous search was too broad. I need to be more specific about the *types* of scriptures I have access to, rather than just \"available scriptures and topics.\" I should list the major religious and philosophical traditions represented in my database.",
-          "timestamp": 1764634810467
-        },
-        {
-          "type": "thought",
-          "content": "The previous search was too broad. I need to be more specific about the *types* of scriptures I have access to, rather than just \"available scriptures and topics.\" I should list the major religious and philosophical traditions represented in my database.",
-          "timestamp": 1764634810467
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"scriptures from Hinduism, Buddhism, Jainism, Sikhism, and major world religions\"",
-          "timestamp": 1764634810467
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"scriptures from Hinduism, Buddhism, Jainism, Sikhism, and major world religions\"",
-          "timestamp": 1764634810467
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634810594
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634810594
-        },
-        {
-          "type": "thought",
-          "content": "It seems I cannot directly list the *types* of scriptures or topics available. My primary function is to search for specific information within those scriptures when prompted. Since I cannot directly answer \"what is in the database,\" I should explain my capabilities in terms of *how* I can help the user find information within those scriptures, rather than listing the contents themselves. I will state that I can search for concepts, terms, stories, and teachings from various religious and philosophical traditions.",
-          "timestamp": 1764634813067
-        },
-        {
-          "type": "thought",
-          "content": "It seems I cannot directly list the *types* of scriptures or topics available. My primary function is to search for specific information within those scriptures when prompted. Since I cannot directly answer \"what is in the database,\" I should explain my capabilities in terms of *how* I can help the user find information within those scriptures, rather than listing the contents themselves. I will state that I can search for concepts, terms, stories, and teachings from various religious and philosophical traditions.",
-          "timestamp": 1764634813067
-        }
-      ],
-      "sources": []
-    },
-    {
-      "role": "user",
-      "parts": [
-        {
-          "text": "Кто такой Кришна? дай ссылки на писания"
-        }
-      ]
-    },
-    {
-      "role": "model",
-      "parts": [
-        {
-          "text": "К сожалению, в доступной мне базе данных нет информации о Кришне и ссылок на писания, в которых он упоминается."
-        }
-      ],
-      "agentSteps": [
-        {
-          "type": "thought",
-          "content": "The user is asking for information about Krishna and wants references to scriptures. I should search the database for \"Krishna\" and related scriptures.",
-          "timestamp": 1764634845557
-        },
-        {
-          "type": "thought",
-          "content": "The user is asking for information about Krishna and wants references to scriptures. I should search the database for \"Krishna\" and related scriptures.",
-          "timestamp": 1764634845557
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Кто такой Кришна\"",
-          "timestamp": 1764634845557
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Кто такой Кришна\"",
-          "timestamp": 1764634845557
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634846138
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634846138
-        },
-        {
-          "type": "thought",
-          "content": "The previous search was too broad. I need to be more specific and look for scriptures that describe Krishna. I will try searching for \"Krishna\" in the context of Hindu scriptures.",
-          "timestamp": 1764634847328
-        },
-        {
-          "type": "thought",
-          "content": "The previous search was too broad. I need to be more specific and look for scriptures that describe Krishna. I will try searching for \"Krishna\" in the context of Hindu scriptures.",
-          "timestamp": 1764634847328
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Кришна в индуистских писаниях\"",
-          "timestamp": 1764634847328
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Кришна в индуистских писаниях\"",
-          "timestamp": 1764634847328
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634847356
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634847356
-        },
-        {
-          "type": "thought",
-          "content": "I am not finding direct definitions or descriptions of Krishna. I will try searching for specific scriptures that are known to feature Krishna prominently, such as the Bhagavad Gita and the Puranas.",
-          "timestamp": 1764634848515
-        },
-        {
-          "type": "thought",
-          "content": "I am not finding direct definitions or descriptions of Krishna. I will try searching for specific scriptures that are known to feature Krishna prominently, such as the Bhagavad Gita and the Puranas.",
-          "timestamp": 1764634848515
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Бхагавад-гита Кришна\"",
-          "timestamp": 1764634848515
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Бхагавад-гита Кришна\"",
-          "timestamp": 1764634848515
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634848830
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634848830
-        },
-        {
-          "type": "thought",
-          "content": "I am still not finding direct information about Krishna. It's possible my search terms are not precise enough for the database. I will try a more general search for \"Krishna\" and see if any related texts appear, even if not a direct definition.",
-          "timestamp": 1764634849717
-        },
-        {
-          "type": "thought",
-          "content": "I am still not finding direct information about Krishna. It's possible my search terms are not precise enough for the database. I will try a more general search for \"Krishna\" and see if any related texts appear, even if not a direct definition.",
-          "timestamp": 1764634849717
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Кришна\"",
-          "timestamp": 1764634849717
-        },
-        {
-          "type": "action",
-          "content": "Searching for: \"Кришна\"",
-          "timestamp": 1764634849717
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634849749
-        },
-        {
-          "type": "observation",
-          "content": "Found 0 results.",
-          "timestamp": 1764634849749
-        },
-        {
-          "type": "thought",
-          "content": "I have exhausted the direct search queries for \"Krishna\" and related scriptures without success. It seems the database does not contain specific information about Krishna or references to him in the scriptures it has access to. Therefore, I cannot provide the requested information or scripture links.",
-          "timestamp": 1764634850872
-        },
-        {
-          "type": "thought",
-          "content": "I have exhausted the direct search queries for \"Krishna\" and related scriptures without success. It seems the database does not contain specific information about Krishna or references to him in the scriptures it has access to. Therefore, I cannot provide the requested information or scripture links.",
-          "timestamp": 1764634850872
-        }
-      ],
-      "sources": []
     }
-  ]
+  ],
+  "title": "привет! что такое таттва?"
 }
