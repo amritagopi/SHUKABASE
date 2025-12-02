@@ -160,3 +160,4 @@ test-results/
 books/
 
 rag/*.pkl
+shukabase_data.zip

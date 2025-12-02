@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Shukabase AI...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            overflow: hidden;
+            display: flex;
+            justify_content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        .container {
+            position: relative;
+            width: 600px;
+            /* Adjust based on your image size */
+            height: 600px;
+        }
+
+        .parrot-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .status-box {
+            position: absolute;
+            /* Coordinates for the white box - adjusted visually */
+            bottom: 15%;
+            left: 28%;
+            width: 44%;
+            height: 15%;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+
+            /* Debug border - remove later */
+            /* border: 1px solid red; */
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            /* Slate-700 */
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 90%;
+        }
+
+        .progress-bar {
+            width: 60%;
+            height: 4px;
+            background-color: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #ea580c);
+            /* Amber to Orange */
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: loading 2s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="splash.png" alt="Loading..." class="parrot-img">
+        <div class="status-box">
+            <div class="status-text" id="status-message">Starting up...</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Listen for status updates from the backend
+        window.__TAURI__ = window.__TAURI__ || {};
+
+        // Mock for browser testing
+        if (!window.__TAURI__.event) {
+            let steps = [
+                "Checking system...",
+                "Loading knowledge base...",
+                "Waking up the parrot...",
+                "Almost there..."
+            ];
+            let i = 0;
+            setInterval(() => {
+                document.getElementById('status-message').innerText = steps[i % steps.length];
+                i++;
+            }, 1500);
+        } else {
+            // Real Tauri event listener
+            const { listen } = window.__TAURI__.event;
+            listen('splash-update', (event) => {
+                document.getElementById('status-message').innerText = event.payload;
+            });
+        }
+    </script>
+</body>
+
+</html>
