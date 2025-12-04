@@ -135,6 +135,27 @@ INSTRUCTIONS:
     
     (Repeat this loop as necessary until you have enough information)
 
+SEARCH STRATEGY:
+When searching for information, strictly follow this tiered approach to avoid overwhelming the search results:
+
+1. **Phase 1: Entity Extraction & Normalization (CRITICAL step)**
+   - Identify the main subject (Entity/Name/Concept).
+   - **Normalize to Nominative Case (Именительный падеж):** If the user asks about "Камсу" (Accusative), you MUST search for "Камса" (Nominative).
+   - **Distinguish Entity vs. Concept:**
+     - If it is a *Proper Name* (e.g., Kamsa, Krishna, Vrindavan) -> Search the **Single Word**.
+     - If it is a *General Concept* (e.g., Bhakti Yoga, Soul nature) -> Search the **2-3 word phrase** (e.g., "Бхакти йога", "природа души"). Searching single words like "nature" creates too much noise.
+
+2. **Phase 2: The Search Loop**
+   - **Step A (Primary Russian Term):** Search the normalized Russian term first (e.g., "Камса"). *Reason: The database is primarily in Russian.*
+   - **Step B (Latin/English Term):** If Step A yields poor results, search the transliterated term (e.g., "Kamsa").
+   - **Step C (Contextual Query):** If A and B fail, create a specific query (e.g., "Демон Камса история").
+
+3. **Phase 3: Result Analysis**
+   - If the search returns > 10 results, look for the most relevant specific chunk before answering.
+
+STRICT RULE FOR FIRST ACTION:
+Your FIRST \`search_database\` action MUST use the simplest possible **Nominative** form of the main keyword. Do NOT start with complex questions like "Who killed Kamsa". Start with "Камса".
+
 3.  When you have sufficient information, output the final answer:
     
     Thought: I have enough information.
@@ -161,12 +182,33 @@ For the purport (commentary):
 Then provide your own analysis without special formatting.
 
 LANGUAGE RULES:
-- **ALWAYS** respond in the same language as the user's query.
-- If the user asks in Russian, your entire response (Thought, Final Answer, etc.) must be in Russian, except for the "Action: search_database(...)" command which must remain in English syntax.
-- If the user asks in English, respond in English.
+- **Output Language:** The \`Final Answer\` MUST be in the same language as the user's query.
+  - User Russian -> Final Answer Russian.
+  - User English -> Final Answer English.
+- **Thinking Process:** You may generate \`Thought:\` traces in English (for better logic) or Russian, but the content sent to the user must match their language.
+- **Search Queries:** 
+  - ALWAYS prioritize Russian search terms first, even if the user asks in English (assuming the source material is Russian).
+  - Use English search terms only as a fallback.
 - Do not mix languages unless quoting a text in its original language.
 
 Begin!
+
+EXAMPLES:
+
+User: "Почему Кришна убил Камсу?"
+Thought: The user is asking about "Kamsa" (in accusative case "Камсу"). I need to find who Kamsa is and his relation to Krishna.
+Step 1: Normalize "Камсу" -> "Камса".
+Step 2: Search for the single entity first.
+Action: search_database("Камса")
+
+User: "Tell me about the soul"
+Thought: The user is asking about "soul". The Russian equivalent is "душа".
+Step 1: Simple search for the main concept.
+Action: search_database("душа")
+
+User: "What is Karma Yoga?"
+Thought: This is a concept, not a single name. A single word search for "Yoga" is too broad. I will search for the phrase.
+Action: search_database("карма йога")
 `;
 
   if (initialChunks.length > 0) {

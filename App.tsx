@@ -417,6 +417,27 @@ const App: React.FC = () => {
 
     const handleCitationClick = (citation: string) => {
         console.log('Citation clicked:', citation);
+
+        // Скроллим к источнику в сайдбаре
+        setHighlightedSourceId(citation);
+
+        // Переключаемся на вкладку контекста если не там
+        if (sidebarMode !== 'context') {
+            setSidebarMode('context');
+        }
+
+        // Открываем сайдбар если закрыт
+        if (!sidebarOpen) {
+            setSidebarOpen(true);
+        }
+
+        // Скроллим к элементу через небольшую задержку
+        setTimeout(() => {
+            const element = document.getElementById(`source-${citation}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
     };
 
     return (
