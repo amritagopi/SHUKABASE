@@ -395,6 +395,7 @@ class RAGEngine:
                     'chapter': meta.get('chapter'), 
                     'verse': None, 
                     'chunk_idx': meta.get('chunk_idx'),
+                    'html_path': meta.get('html_path'),
                     'source': 'bm25'
                 })
             
@@ -452,6 +453,7 @@ class RAGEngine:
                     'chapter': chapter, 
                     'verse': None, 
                     'chunk_idx': chunk_idx,
+                    'html_path': meta.get('html_path'),
                     'source': 'vector'
                 })
                 
@@ -462,6 +464,107 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"Ошибка при поиске по вектору ({language}): {e}", exc_info=True)
             return []
+
+    def _detect_verse_reference(self, query: str) -> Dict[str, Any]:
+        """
+        Пытается определить, является ли запрос ссылкой на стих.
+        Возвращает {'book': 'bg', 'chapter': '2', 'verse': '13'} или None.
+        """
+        query = query.lower().strip()
+        
+        # Карта сокращений
+        book_map = {
+            'bg': 'bg', 'бг': 'bg', 'gita': 'bg', 'гита': 'bg', 'bhagavad': 'bg', 'bhagavad gita': 'bg', 'бхагавад гита': 'bg',
+            'sb': 'sb', 'шб': 'sb', 'bhagavatam': 'sb', 'бхагаватам': 'sb', 'srimad bhagavatam': 'sb', 'шримад бхагаватам': 'sb',
+            'cc': 'cc', 'чч': 'cc', 'caitanya': 'cc', 'чайтанья': 'cc', 'caitanya caritamrta': 'cc', 'чайтанья чаритамрита': 'cc',
+            'iso': 'iso', 'ишо': 'iso', 'isopanisad': 'iso', 'sri isopanisad': 'iso', 'шри ишопанишад': 'iso',
+            'nod': 'nod', 'нп': 'nod', 'nectar of devotion': 'nod',
+            'noi': 'noi', 'нн': 'noi', 'nectar of instruction': 'noi'
+        }
+        
+        # Паттерн: (book) (chapter).(verse) или (book) (chapter) (verse)
+        # Пример: Бг 2.13, SB 1.1.1, CC Adi 1.1, Bhagavad Gita 2.13
+        
+        # 1. Простой паттерн: Book Chapter.Verse
+        # Разрешаем пробелы в названии книги (например, Bhagavad Gita)
+        match = re.search(r'([a-zа-я\s]+?)\.?\s*(\d+)[. :](\d+)', query)
+        if match:
+            book_raw, chapter, verse = match.groups()
+            book_key = book_raw.strip()
+            if book_key in book_map:
+                return {'book': book_map[book_key], 'chapter': chapter, 'verse': verse}
+        
+        # 2. Паттерн для SB: 1.1.1 (Canto.Chapter.Verse)
+        match_sb = re.search(r'([a-zа-я\s]+?)\.?\s*(\d+)\.(\d+)\.(\d+)', query)
+        if match_sb:
+            book_raw, canto, chapter, verse = match_sb.groups()
+            book_key = book_raw.strip()
+            if book_key in book_map:
+                return {'book': book_map[book_key], 'chapter': f"{canto}.{chapter}", 'verse': verse}
+
+        return None
+
+    def _find_verse_in_metadata(self, ref: Dict[str, Any], language: str) -> List[Dict[str, Any]]:
+        """Ищет конкретный стих в метаданных."""
+        results = []
+        metadata_list = self.metadata.get(language, [])
+        
+        target_book = ref['book']
+        target_chapter = ref['chapter'] # Может быть "2" или "1.1"
+        target_verse = ref['verse']
+        
+        logger.info(f"🎯 Ищу стих: Book={target_book}, Chapter={target_chapter}, Verse={target_verse}")
+        
+        for idx, meta in enumerate(metadata_list):
+            if meta.get('book') == target_book:
+                # Сравнение глав. В метаданных может быть "2" или "02".
+                meta_chapter = str(meta.get('chapter', ''))
+                
+                # Нормализация глав (убираем ведущие нули для сравнения)
+                def normalize_chapter(ch):
+                    return '.'.join([p.lstrip('0') for p in str(ch).split('.')])
+                
+                if normalize_chapter(meta_chapter) == normalize_chapter(target_chapter):
+                    
+                    text = self._get_text_from_meta(meta, language)
+                    
+                    # Эвристика: стих обычно начинается с номера или содержит его в начале
+                    # Проверяем, есть ли номер стиха в начале текста (или в первых 20 символах)
+                    # TEXT-13 ... или 13. ...
+                    
+                    # Очищаем текст от маркеров типа TEXT 13
+                    clean_text = text.lower()
+                    
+                    # Ищем точное совпадение номера стиха
+                    # Варианты: "13.", "text 13", "текст 13"
+                    is_match = False
+                    
+                    if f"text {target_verse}" in clean_text[:50]:
+                        is_match = True
+                    elif f"текст {target_verse}" in clean_text[:50]:
+                        is_match = True
+                    elif clean_text.strip().startswith(f"{target_verse}."):
+                        is_match = True
+                    # Для диапазона стихов (например 13-14)
+                    elif f"{target_verse}-" in clean_text[:20]:
+                        is_match = True
+                        
+                    if is_match:
+                        logger.info(f"✅ Найден точный стих в индексе {idx}")
+                        results.append({
+                            'index': int(idx),
+                            'distance': 0.0,
+                            'score': 100.0, # Максимальный скор
+                            'text': text,
+                            'book': target_book, 
+                            'chapter': meta_chapter, 
+                            'verse': target_verse, 
+                            'chunk_idx': meta.get('chunk_idx'),
+                            'html_path': meta.get('html_path'),
+                            'source': 'exact_verse'
+                        })
+        
+        return results
 
     def search(
         self, 
@@ -478,6 +581,21 @@ class RAGEngine:
             return {'success': False, 'error': f'Индекс для языка {language} не загружен.'}
 
         try:
+            # 0. Проверка на точный стих
+            verse_ref = self._detect_verse_reference(query)
+            exact_results = []
+            if verse_ref:
+                exact_results = self._find_verse_in_metadata(verse_ref, language)
+                if exact_results:
+                    logger.info(f"🎉 Найдены точные совпадения стихов: {len(exact_results)}")
+                    return {
+                        'success': True,
+                        'results': exact_results,
+                        'query': query,
+                        'search_type': 'exact_verse_reference',
+                        'count': len(exact_results)
+                    }
+
             # 1. Расширение запроса
             query_variants = [query]
             if expand_query:
@@ -495,9 +613,7 @@ class RAGEngine:
             all_results = []
             for idx, emb in enumerate(variant_embeddings):
                 vector_results = self._search_by_vector(emb, language, top_k * 2, vector_distance_threshold)
-                logger.info(f"   🔎 Вариант '{query_variants[idx]}': найдено {len(vector_results)} результатов")
-                for res in vector_results:
-                     logger.info(f"      - Score: {res['score']:.4f}, Text preview: {res['text'][:50]}...")
+                # logger.info(f"   🔎 Вариант '{query_variants[idx]}': найдено {len(vector_results)} результатов")
                 all_results.extend(vector_results)
 
             # 4. Удаление дубликатов и отбор лучших для векторного поиска
@@ -513,30 +629,38 @@ class RAGEngine:
             # 5. Keyword Search (BM25)
             keyword_results = []
             if language in self.bm25_indices:
-                logger.info(f"   📚 Запуск BM25 поиска для '{query}'...")
+                # logger.info(f"   📚 Запуск BM25 поиска для '{query}'...")
                 keyword_results = self._search_by_keyword(query, language, top_k * 2)
-                logger.info(f"      - Найдено {len(keyword_results)} результатов по ключевым словам")
+                # logger.info(f"      - Найдено {len(keyword_results)} результатов по ключевым словам")
 
             # 6. Hybrid Fusion (RRF - Reciprocal Rank Fusion)
             # RRF score = 1 / (k + rank)
             k_rrf = 60
             combined_scores = {}
             
+            # Добавляем точные результаты с максимальным весом
+            for res in exact_results:
+                idx = res['index']
+                combined_scores[idx] = {'data': res, 'rrf_score': 100.0} # Super high score
+
             # Process Vector Results
             for rank, res in enumerate(top_vector_results):
                 idx = res['index']
                 if idx not in combined_scores:
                     combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
-                combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
-                combined_scores[idx]['data']['vector_rank'] = rank + 1
+                # Если это не точный результат, добавляем RRF
+                if combined_scores[idx]['rrf_score'] < 50.0:
+                    combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                    combined_scores[idx]['data']['vector_rank'] = rank + 1
                 
             # Process Keyword Results
             for rank, res in enumerate(keyword_results):
                 idx = res['index']
                 if idx not in combined_scores:
                     combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
-                combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
-                combined_scores[idx]['data']['keyword_rank'] = rank + 1
+                if combined_scores[idx]['rrf_score'] < 50.0:
+                    combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                    combined_scores[idx]['data']['keyword_rank'] = rank + 1
 
             # Sort by RRF score
             hybrid_results = sorted(combined_scores.values(), key=lambda x: x['rrf_score'], reverse=True)
@@ -551,15 +675,30 @@ class RAGEngine:
             logger.info(f"   🤝 Гибридный поиск: объединено {len(final_candidates)} результатов")
 
             # 7. Переранжирование (Re-ranking)
+            # Не делаем реранкинг для точных совпадений (score > 50)
             if use_reranking and self.reranker.model:
-                docs_to_rerank = [r['text'] for r in final_candidates]
-                reranked_tuples = self.reranker.rerank(query, docs_to_rerank, top_k)
+                docs_to_rerank = []
+                indices_to_rerank = []
                 
                 final_results = []
-                for original_idx, score, text in reranked_tuples:
-                    original_result = final_candidates[original_idx]
-                    original_result['final_score'] = float(score)
-                    final_results.append(original_result)
+                
+                for i, res in enumerate(final_candidates):
+                    if res['score'] > 50.0:
+                        # Это точное совпадение, оставляем как есть на первом месте
+                        res['final_score'] = 1.0
+                        final_results.append(res)
+                    else:
+                        docs_to_rerank.append(res['text'])
+                        indices_to_rerank.append(i)
+                
+                if docs_to_rerank:
+                    reranked_tuples = self.reranker.rerank(query, docs_to_rerank, len(docs_to_rerank))
+                    
+                    for original_idx_in_subset, score, text in reranked_tuples:
+                        original_idx = indices_to_rerank[original_idx_in_subset]
+                        original_result = final_candidates[original_idx]
+                        original_result['final_score'] = float(score)
+                        final_results.append(original_result)
             else:
                 final_results = final_candidates
 
@@ -573,3 +712,66 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"❌ Критическая ошибка при поиске: {e}", exc_info=True)
             return {'success': False, 'error': str(e), 'query': query}
+
+    def keyword_search(self, query: str, language: str = 'en', case_sensitive: bool = False) -> Dict[str, Any]:
+        """
+        Простой поиск по ключевым словам (точное совпадение).
+        Возвращает ВСЕ результаты без ограничения.
+        
+        Args:
+            query: Поисковый запрос
+            language: Язык ('en' или 'ru')
+            case_sensitive: Учитывать регистр (по умолчанию False)
+        
+        Returns:
+            Dict с результатами поиска
+        """
+        import re
+        
+        logger.info(f"🔍 Keyword search: '{query}' (language={language}, case_sensitive={case_sensitive})")
+        
+        if language not in self.languages:
+            logger.error(f"Язык {language} не поддерживается")
+            return {'success': False, 'error': f'Language {language} not supported'}
+        
+        metadata = self.metadata[language]
+        
+        # Подготовка поискового запроса
+        search_query = query if case_sensitive else query.lower()
+        
+        results = []
+        
+        # Поиск по всем чанкам
+        for item in metadata:
+            text = self._get_text_from_meta(item, language)
+            search_text = text if case_sensitive else text.lower()
+            
+            # Проверяем наличие точного совпадения
+            if search_query in search_text:
+                # Подсчитываем количество вхождений для сортировки
+                occurrences = search_text.count(search_query)
+                
+                results.append({
+                    'text': text,
+                    'book': item.get('book', 'Unknown'),
+                    'chapter': item.get('chapter', ''),
+                    'verse': item.get('verse', ''),
+                    'chunk_idx': item.get('chunk_idx', 0),
+                    'page_number': item.get('page_number'),
+                    'html_path': item.get('html_path'),
+                    'occurrences': occurrences,
+                    'score': min(1.0, occurrences / 10.0)  # Простой score на основе количества вхождений
+                })
+        
+        # Сортировка по количеству вхождений (больше вхождений = выше в списке)
+        results.sort(key=lambda x: x['occurrences'], reverse=True)
+        
+        logger.info(f"✅ Keyword search found {len(results)} results")
+        
+        return {
+            'success': True,
+            'results': results,
+            'query': query,
+            'total_results': len(results),
+            'language': language
+        }

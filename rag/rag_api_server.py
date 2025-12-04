@@ -224,6 +224,34 @@ def search():
         logger.error(f"❌ Ошибка в эндпоинте /api/search: {e}", exc_info=True)
         return jsonify({'success': False, 'error': 'Внутренняя ошибка сервера'}), 500
 
+@app.route('/api/keyword_search', methods=['POST'])
+def keyword_search():
+    """Простой поиск по ключевым словам (точное совпадение)"""
+    try:
+        data = request.json
+        query = data.get('query', '').strip()
+        language = data.get('language', 'en')
+        case_sensitive = data.get('case_sensitive', False)
+        
+        logger.info(f"📥 Keyword search request: query='{query}', lang='{language}'")
+
+        if not query:
+            return jsonify({'success': False, 'error': 'Пустой запрос'}), 400
+        if language not in rag_engine_instance.languages:
+            return jsonify({'success': False, 'error': f'Язык {language} не поддерживается'}), 400
+
+        search_results = rag_engine_instance.keyword_search(
+            query=query,
+            language=language,
+            case_sensitive=case_sensitive
+        )
+        
+        return jsonify(search_results), 200
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка в эндпоинте /api/keyword_search: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Внутренняя ошибка сервера'}), 500
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     if rag_engine_instance:

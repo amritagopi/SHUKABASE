@@ -119,7 +119,7 @@ const App: React.FC = () => {
         // Optimistic update
         const updatedConversation: Conversation = activeConversation
             ? { ...activeConversation, messages: [...activeConversation.messages, newUserMsg], lastModified: Date.now() }
-            : { id: Date.now().toString(), title: userMsgContent.slice(0, 30) + '...', messages: [newUserMsg], created: Date.now(), lastModified: Date.now() };
+            : { id: Date.now().toString(), title: userMsgContent.slice(0, 30) + '...', messages: [newUserMsg], createdAt: new Date().toISOString(), lastModified: Date.now() };
 
         setActiveConversation(updatedConversation);
 

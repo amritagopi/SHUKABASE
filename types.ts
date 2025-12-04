@@ -6,6 +6,7 @@ export interface SourceChunk {
   pageNumber?: number; // Keep for backward compatibility
   content: string;
   score: number;
+  sourceUrl?: string;
 }
 
 export interface AgentStep {
@@ -16,7 +17,8 @@ export interface AgentStep {
 
 export interface Message {
   role: 'user' | 'model';
-  parts: { text: string }[];
+  content: string; // UI friendly content
+  parts: { text: string }[]; // Gemini API friendly content
   timestamp?: number;
   relatedChunkIds?: string[];
   // Добавляем это поле, чтобы хранить полные данные о стихах
@@ -37,6 +39,7 @@ export interface ConversationHeader {
   id: string;
   title: string;
   createdAt: string;
+  lastModified?: number;
 }
 
 export interface Conversation extends ConversationHeader {

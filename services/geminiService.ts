@@ -94,7 +94,8 @@ export const searchScriptures = async (query: string, settings: AppSettings): Pr
       chapter: item.chapter,
       verse: item.verse,
       content: item.text,
-      score: item.final_score || item.score || 0
+      score: item.final_score || item.score || 0,
+      sourceUrl: item.html_path
     }));
   } catch (err: any) {
     console.error("Retrieval error", err);
@@ -142,6 +143,28 @@ INSTRUCTIONS:
 4.  If the initial search results are not relevant, refine your search query and try again.
 5.  Always cite sources using [[ID]] format when providing the Final Answer.
 6.  If you have performed many searches and still haven't found the perfect answer, synthesize the best possible answer from what you HAVE found. Do not give up.
+
+FORMATTING RULES:
+When citing verses, use the following special blocks for better readability:
+
+For the verse text:
+**📖 [Book] [Chapter].[Verse]**
+> [Devanagari text if available]
+> *[Transliteration if available]*
+>
+> "[Translation]"
+
+For the purport (commentary):
+**💬 Purport by Srila Prabhupada:**
+> [Key parts of the purport...]
+
+Then provide your own analysis without special formatting.
+
+LANGUAGE RULES:
+- **ALWAYS** respond in the same language as the user's query.
+- If the user asks in Russian, your entire response (Thought, Final Answer, etc.) must be in Russian, except for the "Action: search_database(...)" command which must remain in English syntax.
+- If the user asks in English, respond in English.
+- Do not mix languages unless quoting a text in its original language.
 
 Begin!
 `;
