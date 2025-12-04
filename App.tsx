@@ -124,10 +124,6 @@ const App: React.FC = () => {
         setActiveConversation(updatedConversation);
 
         try {
-            // Determine language for the prompt
-            const hasCyrillic = /[а-яА-ЯёЁ]/.test(userMsgContent);
-            // const userLanguage = hasCyrillic ? 'ru' : 'en'; // Unused
-
             let collectedSources: SourceChunk[] = [];
 
             const answer = await generateRAGResponse(
@@ -195,15 +191,221 @@ const App: React.FC = () => {
         }
     };
 
-    const handleReadFull = (chunk: SourceChunk) => {
-        setFullTextContent(chunk.content);
-        setFullTextTitle(chunk.bookTitle + (chunk.chapter && chunk.verse ? ` - Chapter ${chunk.chapter}, Verse ${chunk.verse}` : chunk.pageNumber ? ` - Page ${chunk.pageNumber}` : ''));
-        setCurrentHtmlPath(chunk.sourceUrl || '');
-        setFullTextModalOpen(true);
+    // --- restored Logic from Old Version ---
+
+    const loadFullText = async (path: string, title?: string) => {
+        try {
+            console.log("Loading full text from:", path);
+            let response = await fetch(path);
+            console.log("Fetch response status:", response.status);
+
+            if (!response.ok) {
+                let fallbackPath = '';
+                if (path.includes('/books/en/')) {
+                    fallbackPath = path.replace('/books/en/', '/books/ru/');
+                } else if (path.includes('/books/ru/')) {
+                    fallbackPath = path.replace('/books/ru/', '/books/en/');
+                }
+
+                if (fallbackPath) {
+                    console.log("Primary path failed. Trying fallback path:", fallbackPath);
+                    const fallbackResponse = await fetch(fallbackPath);
+                    if (fallbackResponse.ok) {
+                        response = fallbackResponse;
+                        path = fallbackPath;
+                    }
+                }
+            }
+
+            if (!response.ok) {
+                throw new Error(`Failed to load: ${response.statusText}`);
+            }
+
+            const htmlContent = await response.text();
+            console.log("Loaded content length:", htmlContent.length);
+
+            let contentToDisplay = htmlContent;
+
+            const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+            if (bodyMatch) {
+                contentToDisplay = bodyMatch[1];
+            } else {
+                const mainMatch = htmlContent.match(/<main[^>]*>([\s\S]*)<\/main>/i);
+                if (mainMatch) {
+                    contentToDisplay = mainMatch[1];
+                }
+            }
+
+            contentToDisplay = contentToDisplay.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
+
+            let displayTitle = title || '';
+            if (!displayTitle) {
+                const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
+                if (titleMatch) {
+                    displayTitle = titleMatch[1].replace(/<[^>]+>/g, '');
+                }
+            }
+
+            setFullTextContent(contentToDisplay);
+            setFullTextTitle(displayTitle || 'Text View');
+            setCurrentHtmlPath(path);
+            setFullTextModalOpen(true);
+        } catch (error) {
+            console.error('Error loading full text:', error);
+            // Fallback to simple content display if fetch fails, like in the new version
+            setFullTextContent("Could not load full chapter text. Here is the excerpt: " + (title || ""));
+            setFullTextTitle("Error Loading Full Text");
+            setFullTextModalOpen(true);
+        }
     };
 
-    const handleModalClick = (e: React.MouseEvent) => {
+    const handleReadFull = async (chunk: SourceChunk) => {
+        console.log("handleReadFull called with chunk:", chunk);
+        const lang = settings.language || 'en';
+        const bookMap: Record<string, string> = {
+            'Srimad-Bhagavatam': 'sb',
+            'Bhagavad-gita As It Is': 'bg',
+            'Sri Caitanya-caritamrta': 'cc',
+            'Nectar of Devotion': 'nod',
+            'Nectar of Instruction': 'noi',
+            'Teachings of Lord Caitanya': 'tqk',
+            'Sri Isopanisad': 'iso',
+            'Light of the Bhagavata': 'lob',
+            'Perfect Questions, Perfect Answers': 'pop',
+            'Path of Perfection': 'pop',
+            'Science of Self Realization': 'sc',
+            'Life Comes from Life': 'lcfl',
+            'Krishna Book': 'kb',
+            'Raja-Vidya': 'rv',
+            'Beyond Birth and Death': 'bbd',
+            'Civilization and Transcendence': 'ct',
+            'Krsna Consciousness The Matchless Gift': 'mg',
+            'Easy Journey to Other Planets': 'ej',
+            'On the Way to Krsna': 'owk',
+            'Perfection of Yoga': 'poy',
+            'Spiritual Yoga': 'sy',
+            'Transcendental Teachings of Prahlad Maharaja': 'ttpm',
+            'sb': 'sb',
+            'bg': 'bg',
+            'cc': 'cc',
+            'nod': 'nod',
+            'noi': 'noi',
+            'tqk': 'tqk',
+            'iso': 'iso',
+            'lob': 'lob',
+            'pop': 'pop',
+            'sc': 'sc',
+            'rv': 'rv',
+            'bbd': 'bbd',
+            'owk': 'owk',
+            'poy': 'poy',
+            'spl': 'spl'
+        };
+
+        let bookFolder = bookMap[chunk.bookTitle] || null;
+        let chapterPath = '';
+
+        if (chunk.chapter && typeof chunk.chapter === 'string' && (chunk.chapter.includes('/') || chunk.chapter.includes('\\'))) {
+            const normalizedPath = chunk.chapter.replace(/\\/g, '/');
+            chapterPath = `/books/${lang}/${normalizedPath}`;
+        } else if (bookFolder) {
+            if (chunk.verse) {
+                chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter}/${chunk.verse}/index.html`;
+            } else {
+                chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
+            }
+        } else {
+            if (!bookFolder) {
+                for (const [title, folder] of Object.entries(bookMap)) {
+                    if (chunk.bookTitle.includes(title) || title.includes(chunk.bookTitle)) {
+                        bookFolder = folder;
+                        break;
+                    }
+                }
+            }
+
+            if (bookFolder) {
+                if (chunk.verse) {
+                    chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter}/${chunk.verse}/index.html`;
+                } else {
+                    chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
+                }
+            } else {
+                // If we absolutely can't find the file path, fall back to showing the snippet content
+                // This is a safety net so the button at least does *something*
+                setFullTextContent(chunk.content);
+                setFullTextTitle(chunk.bookTitle);
+                setFullTextModalOpen(true);
+                return;
+            }
+        }
+
+        console.log("Constructed chapterPath:", chapterPath);
+
+        const niceBookTitle = getBookTitle(chunk.bookTitle);
+        let niceChapter = chunk.chapter;
+        let niceVerse = chunk.verse;
+
+        // Parsing logic for complex paths (like CC)
+        if (typeof chunk.chapter === 'string' && (chunk.chapter.includes('/') || chunk.chapter.includes('\\'))) {
+            const parts = chunk.chapter.replace(/\\/g, '/').split('/');
+            if (parts.length >= 2) {
+                const numbers = parts.filter(p => /^\d+$/.test(p));
+                if (numbers.length >= 2) {
+                    niceChapter = numbers[numbers.length - 2];
+                    niceVerse = numbers[numbers.length - 1];
+                } else if (parts.length >= 3) {
+                    if (parts.some(p => ['adi', 'madhya', 'antya'].includes(p.toLowerCase()))) {
+                        const lila = parts.find(p => ['adi', 'madhya', 'antya'].includes(p.toLowerCase()));
+                        const lilaTitle = lila ? lila.charAt(0).toUpperCase() + lila.slice(1) + '-lila' : '';
+                        const chapterNum = parts.find(p => /^\d+$/.test(p));
+                        const verseNum = parts.reverse().find(p => /^\d+$/.test(p));
+                        if (chapterNum && verseNum) {
+                            niceChapter = `${lilaTitle} ${chapterNum}`;
+                            niceVerse = verseNum;
+                        }
+                    }
+                }
+            }
+        }
+
+        const titleSuffix = niceVerse
+            ? `${niceChapter ? niceChapter + '.' : ''}${niceVerse}`
+            : (niceChapter ? `Chapter ${niceChapter}` : '');
+
+        await loadFullText(chapterPath, `${niceBookTitle} ${titleSuffix}`);
+    };
+
+    const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // Stop propagation first so clicking the text doesn't close the modal
         e.stopPropagation();
+
+        // Handle link navigation within the modal (Restored logic)
+        const target = e.target as HTMLElement;
+        const anchor = target.closest('a');
+
+        if (anchor && anchor.href) {
+            const href = anchor.getAttribute('href');
+            if (href && !href.startsWith('http') && !href.startsWith('#')) {
+                e.preventDefault();
+
+                const currentDir = currentHtmlPath.substring(0, currentHtmlPath.lastIndexOf('/'));
+                const parts = currentDir.split('/');
+                const relativeParts = href.split('/');
+
+                for (const part of relativeParts) {
+                    if (part === '.') continue;
+                    if (part === '..') {
+                        parts.pop();
+                    } else {
+                        parts.push(part);
+                    }
+                }
+
+                const newPath = parts.join('/');
+                loadFullText(newPath);
+            }
+        }
     };
 
     const toggleLanguage = () => {
@@ -504,9 +706,19 @@ const App: React.FC = () => {
                         </div>
                         <div
                             className="flex-1 overflow-y-auto p-8 prose prose-invert prose-slate max-w-none custom-scrollbar"
-                            dangerouslySetInnerHTML={{ __html: fullTextContent }}
                             onClick={handleModalClick}
-                        />
+                        >
+                            {fullTextContent ? (
+                                <div dangerouslySetInnerHTML={{ __html: fullTextContent }} />
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-slate-500">
+                                    <div className="animate-pulse flex flex-col items-center">
+                                        <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                        <p>Loading ancient wisdom...</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
