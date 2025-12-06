@@ -10,6 +10,23 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/logo512.png" />
   <title>SHUKABASE</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    window.process = { env: {} };
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.error("Global Error:", message, error);
+      const root = document.getElementById('root');
+      if (root) {
+        root.innerHTML = `
+          <div style="color: #ff5555; background: #0f172a; padding: 20px; font-family: monospace; height: 100vh; overflow: auto;">
+            <h1 style="font-size: 24px; margin-bottom: 20px;">Startup Error</h1>
+            <p style="margin-bottom: 10px; color: #fff;">${message}</p>
+            <p style="color: #888; font-size: 12px;">${source}:${lineno}</p>
+            <pre style="background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 20px; overflow-x: auto;">${error ? error.stack : 'No stack trace'}</pre>
+          </div>
+        `;
+      }
+    };
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -63,18 +80,6 @@
       line-height: 1.6;
     }
   </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
-  }
-}
-</script>
-  <link rel="stylesheet" href="/index.css">
 </head>
 
 <body>

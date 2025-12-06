@@ -190,12 +190,14 @@ class RAGEngine:
         load_dotenv()
         api_key = os.environ.get('GEMINI_API_KEY')
         if not api_key:
-            raise ValueError("Переменная окружения GEMINI_API_KEY не найдена.")
+            logger.warning("⚠️ Переменная окружения GEMINI_API_KEY не найдена. RAG будет работать в ограниченном режиме.")
+            return
+
         try:
             genai.configure(api_key=api_key)
             logger.info("✅ Ключ Gemini API успешно сконфигурирован.")
         except Exception as e:
-            raise RuntimeError(f"❌ Ошибка при конфигурации Gemini API: {e}")
+            logger.error(f"❌ Ошибка при конфигурации Gemini API: {e}")
 
     def _load_language_data(self, language: str):
         """Загружает индекс, метаданные и чанки для указанного языка."""
@@ -302,8 +304,16 @@ class RAGEngine:
                 except Exception as e:
                     logger.error(f"❌ Ошибка при построении BM25: {e}")
 
-    def _get_embedding(self, texts: List[str]) -> np.ndarray:
+    def _get_embedding(self, texts: List[str], api_key: str = None) -> np.ndarray:
         """Получает эмбеддинги для списка текстов с помощью Gemini API."""
+        if api_key:
+            try:
+                masked_key = f"{api_key[:4]}...{api_key[-4:]}" if len(api_key) > 8 else "***"
+                logger.info(f"🔑 Using dynamic API key: {masked_key}")
+                genai.configure(api_key=api_key)
+            except Exception as e:
+                logger.error(f"Error configuring API key: {e}")
+
         try:
             if len(texts) == 1:
                 result = genai.embed_content(
@@ -575,7 +585,8 @@ class RAGEngine:
         top_k: int = 5, 
         use_reranking: bool = True,
         expand_query: bool = True,
-        vector_distance_threshold: float = None
+        vector_distance_threshold: float = None,
+        api_key: str = None
     ) -> Dict[str, Any]:
         """
         Основной метод поиска.
@@ -611,7 +622,7 @@ class RAGEngine:
             logger.info(f"   📋 Варианты запроса: {query_variants}")
 
             # 2. Получение эмбеддингов
-            variant_embeddings = self._get_embedding(query_variants)
+            variant_embeddings = self._get_embedding(query_variants, api_key=api_key)
             
             # 3. Векторный поиск
             all_vector_results = []
@@ -692,27 +703,34 @@ class RAGEngine:
 
             # 7. Переранжирование (Re-ranking)
             if use_reranking and self.reranker.model:
-                docs_to_rerank = []
-                indices_to_rerank = []
-                final_results = []
-                
-                for i, res in enumerate(final_candidates):
-                    # Пропускаем явные 100% совпадения (Exact Verse)
-                    if res['score'] > 50.0:
-                        res['final_score'] = 1.0
-                        final_results.append(res)
-                    else:
-                        docs_to_rerank.append(res['text'])
-                        indices_to_rerank.append(i)
-                
-                if docs_to_rerank:
-                    reranked_tuples = self.reranker.rerank(query, docs_to_rerank, len(docs_to_rerank))
+                try:
+                    docs_to_rerank = []
+                    indices_to_rerank = []
+                    final_results = []
                     
-                    for original_idx_in_subset, score, text in reranked_tuples:
-                        original_idx = indices_to_rerank[original_idx_in_subset]
-                        original_result = final_candidates[original_idx]
-                        original_result['final_score'] = float(score)
-                        final_results.append(original_result)
+                    for i, res in enumerate(final_candidates):
+                        if res['score'] > 50.0:
+                            res['final_score'] = 1.0
+                            final_results.append(res)
+                        else:
+                            docs_to_rerank.append(res['text'])
+                            indices_to_rerank.append(i)
+                    
+                    if docs_to_rerank:
+                        reranked_tuples = self.reranker.rerank(query, docs_to_rerank, len(docs_to_rerank))
+                        
+                        for original_idx_in_subset, score, text in reranked_tuples:
+                            original_idx = indices_to_rerank[original_idx_in_subset]
+                            original_result = final_candidates[original_idx]
+                            original_result['final_score'] = float(score)
+                            final_results.append(original_result)
+                    else:
+                        # If nothing to rerank (all exact matches), just copy
+                        final_results.extend([res for res in final_candidates if 'final_score' not in res])
+
+                except Exception as e:
+                    logger.error(f"❌ Re-ranking failed (using standard results): {e}")
+                    final_results = final_candidates
             else:
                 final_results = final_candidates
 

@@ -161,3 +161,6 @@ books/
 
 rag/*.pkl
 shukabase_data.zip
+build/
+split_archives/
+src-tauri/rag_api_server.exe

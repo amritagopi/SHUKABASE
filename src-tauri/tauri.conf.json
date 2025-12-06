@@ -17,18 +17,8 @@
         "height": 800,
         "resizable": true,
         "fullscreen": false,
-        "visible": false,
+        "visible": true,
         "center": true
-      },
-      {
-        "width": 600,
-        "height": 600,
-        "decorations": false,
-        "url": "splash.html",
-        "label": "splash",
-        "center": true,
-        "transparent": true,
-        "alwaysOnTop": true
       }
     ],
     "security": {
@@ -47,6 +37,15 @@
     ],
     "resources": [
       "rag_api_server.exe"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "icons/installer_header.bmp",
+        "sidebarImage": "icons/installer_sidebar.bmp",
+        "installMode": "currentUser",
+        "displayLanguageSelector": true
+      }
+    }
   }
 }

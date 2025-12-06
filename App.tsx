@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkles, Server, X, Search } from 'lucide-react';
+import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkles, Server, X, Search, Download } from 'lucide-react';
 import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader } from './types';
 import { generateRAGResponse, getConversations, getConversation, saveConversation, searchScriptures } from './services/geminiService';
 import { ParsedContent } from './utils/citationParser';
@@ -7,19 +7,169 @@ import ConversationHistory from './ConversationHistory';
 import { TRANSLATIONS } from './translations';
 
 const DEFAULT_SETTINGS: AppSettings = {
-    apiKey: process.env.API_KEY || '',
+    apiKey: localStorage.getItem('shukabase_api_key') || '',
     backendUrl: 'http://localhost:5000/api/search',
     useMockData: false,
     model: 'gemini-2.5-flash-lite',
-    language: 'en',
+    language: localStorage.getItem('shukabase_language') === 'ru' ? 'ru' : 'en',
+};
+
+// --- Setup Wizard Component ---
+const SetupScreen = ({ onComplete }: { onComplete: () => void }) => {
+    const [step, setStep] = useState<'lang' | 'download'>('lang');
+    const [progress, setProgress] = useState(0);
+    const [status, setStatus] = useState('idle');
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (step === 'download') {
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch('http://localhost:5000/api/setup/status');
+                    const data = await res.json();
+                    if (data.setup_state) {
+                        setProgress(data.setup_state.progress);
+                        setStatus(data.setup_state.status);
+                        if (data.setup_state.status === 'completed') {
+                            clearInterval(interval);
+                            setTimeout(onComplete, 1000);
+                        } else if (data.setup_state.status === 'error') {
+                            setError(data.setup_state.error);
+                            clearInterval(interval);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                }
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [step, onComplete]);
+
+    const startDownload = async (lang: string) => {
+        try {
+            setStep('download');
+            await fetch('http://localhost:5000/api/setup/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: lang })
+            });
+        } catch (e) {
+            setError("Failed to start download");
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center justify-center h-screen bg-[#0f1117] text-white p-8 relative overflow-hidden">
+            <div className="absolute inset-0 -z-10 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full animate-pulse"
+                    style={{ background: 'radial-gradient(circle, rgba(88, 28, 135, 0.2) 0%, rgba(88, 28, 135, 0) 60%)' }}></div>
+                <div className="absolute bottom-[-500px] right-[-500px] w-[1200px] h-[1200px] animate-pulse"
+                    style={{ background: 'radial-gradient(circle, rgba(180, 83, 9, 0.15) 0%, rgba(180, 83, 9, 0) 60%)', animationDelay: '2s' }}></div>
+            </div>
+
+            <div className="max-w-md w-full glass-panel rounded-xl p-8 shadow-2xl border border-slate-700/50 relative z-10">
+                <div className="text-center mb-8">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-amber-500/20 to-purple-600/20 rounded-full flex items-center justify-center border border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                        <img src="/parrot.png" alt="Shuka" className="w-16 h-16 object-contain" />
+                    </div>
+                    <h1 className="text-3xl font-bold glow-text-amber mb-2">
+                        Shukabase AI
+                    </h1>
+                    <p className="text-slate-400 text-sm">First Run Setup</p>
+                </div>
+
+                {step === 'lang' ? (
+                    <div className="space-y-4">
+                        <p className="text-center text-slate-300 mb-6 text-sm">
+                            Please select your preferred language pack to download the knowledge base.
+                        </p>
+
+                        <div className="grid grid-cols-1 gap-3">
+                            <button
+                                onClick={() => startDownload('all')}
+                                className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
+                            >
+                                <Globe className="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform" />
+                                <span>Multilingual (RU + EN)</span>
+                            </button>
+                        </div>
+
+                        <p className="text-[10px] text-center text-slate-500 mt-4">
+                            Size: ~500MB. Requires internet connection.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        <div className="text-center">
+                            <h3 className="text-lg font-semibold mb-2 text-slate-200">
+                                {status === 'extracting' ? 'Extracting Files...' :
+                                    status === 'initializing' ? 'Initializing Engine...' :
+                                        'Downloading Knowledge Base...'}
+                            </h3>
+                            <p className="text-slate-500 text-xs">Please wait, this may take a few minutes.</p>
+                        </div>
+
+                        <div className="relative pt-1">
+                            <div className="flex mb-2 items-center justify-between">
+                                <div>
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500">
+                                        Progress
+                                    </span>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-[10px] font-bold text-amber-500">
+                                        {progress}%
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-slate-800">
+                                <div
+                                    style={{ width: `${progress}%` }}
+                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-amber-500 to-orange-600 transition-all duration-500"
+                                ></div>
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-900/20 border border-red-500/30 text-red-200 p-4 rounded-lg text-sm text-center">
+                                <p className="mb-2">Error: {error}</p>
+                                <button
+                                    onClick={() => setStep('lang')}
+                                    className="text-xs text-red-400 hover:text-red-300 underline"
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 };
 
 const App: React.FC = () => {
+    const [appMode, setAppMode] = useState<'loading' | 'setup' | 'chat'>('loading');
     const [conversations, setConversations] = useState<ConversationHeader[]>([]);
     const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+    const [settings, setSettings] = useState<AppSettings>(() => {
+        const savedLang = localStorage.getItem('shukabase_language');
+        return { ...DEFAULT_SETTINGS, language: savedLang === 'ru' ? 'ru' : 'en' };
+    });
+
+    // Auto-save language settings
+    // Auto-save settings
+    useEffect(() => {
+        if (settings.language) {
+            localStorage.setItem('shukabase_language', settings.language);
+        }
+        if (settings.apiKey) {
+            localStorage.setItem('shukabase_api_key', settings.apiKey);
+        }
+    }, [settings]);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [currentSources, setCurrentSources] = useState<SourceChunk[]>([]);
     const [highlightedSourceId, setHighlightedSourceId] = useState<string | null>(null);
@@ -35,6 +185,33 @@ const App: React.FC = () => {
     const [manualSearchQuery, setManualSearchQuery] = useState('');
     const [manualSearchResults, setManualSearchResults] = useState<SourceChunk[]>([]);
     const [manualSearchLoading, setManualSearchLoading] = useState(false);
+    const [connectionError, setConnectionError] = useState<string | null>(null);
+
+    // Initial Check for Setup
+    useEffect(() => {
+        let attempts = 0;
+        const maxAttempts = 30; // 30 seconds timeout
+
+        const checkStatus = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/setup/status');
+                const data = await res.json();
+                if (data.installed) {
+                    setAppMode('chat');
+                } else {
+                    setAppMode('setup');
+                }
+            } catch (e) {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    setConnectionError("Backend failed to start. Please check logs.");
+                    return;
+                }
+                setTimeout(checkStatus, 1000);
+            }
+        };
+        checkStatus();
+    }, []);
 
     // Helper for translations
     const t = (key: keyof typeof TRANSLATIONS.en) => {
@@ -54,17 +231,19 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        const loadConversations = async () => {
-            try {
-                const convos = await getConversations();
-                setConversations(convos);
-            } catch (error) {
-                console.error("Failed to load conversations", error);
-                setConversations([]);
-            }
-        };
-        loadConversations();
-    }, []);
+        if (appMode === 'chat') {
+            const loadConversations = async () => {
+                try {
+                    const convos = await getConversations();
+                    setConversations(convos);
+                } catch (error) {
+                    console.error("Failed to load conversations", error);
+                    setConversations([]);
+                }
+            };
+            loadConversations();
+        }
+    }, [appMode]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,7 +258,6 @@ const App: React.FC = () => {
             const convo = await getConversation(id);
             if (convo) {
                 setActiveConversation(convo);
-                // Update sources from the last message
                 const lastModelMessage = [...convo.messages].reverse().find(m => m.role === 'model' && m.sources && m.sources.length > 0);
                 if (lastModelMessage && lastModelMessage.sources) {
                     setCurrentSources(lastModelMessage.sources);
@@ -101,6 +279,28 @@ const App: React.FC = () => {
     };
 
     const isSendingRef = useRef(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const handleStop = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
+        setLoading(false);
+        isSendingRef.current = false;
+
+        // Remove the loading message or show it as cancelled?
+        // For now, we will leave the last added message as is, 
+        // effectively user will see where it stopped. 
+        // We might want to add a system message saying "Generation stopped."
+        if (activeConversation) {
+            const stoppedMsg: Message = { role: 'model', content: "🛑 Generation stopped by user.", parts: [{ text: "🛑 Generation stopped by user." }], timestamp: Date.now() };
+            setActiveConversation({
+                ...activeConversation,
+                messages: [...activeConversation.messages, stoppedMsg]
+            });
+        }
+    };
 
     const handleSend = async () => {
         if (!input.trim() || loading || isSendingRef.current) return;
@@ -116,7 +316,6 @@ const App: React.FC = () => {
 
         const newUserMsg: Message = { role: 'user', content: userMsgContent, parts: [{ text: userMsgContent }], timestamp: Date.now() };
 
-        // Optimistic update
         const updatedConversation: Conversation = activeConversation
             ? { ...activeConversation, messages: [...activeConversation.messages, newUserMsg], lastModified: Date.now() }
             : { id: Date.now().toString(), title: userMsgContent.slice(0, 30) + '...', messages: [newUserMsg], createdAt: new Date().toISOString(), lastModified: Date.now() };
@@ -126,18 +325,22 @@ const App: React.FC = () => {
         try {
             let collectedSources: SourceChunk[] = [];
 
+            // Setup AbortController
+            const abortController = new AbortController();
+            abortControllerRef.current = abortController;
+
             const answer = await generateRAGResponse(
                 userMsgContent,
-                [], // initialChunks
+                [],
                 settings,
                 updatedConversation.messages,
-                undefined, // onStep
+                undefined,
                 (chunks) => {
                     collectedSources = [...collectedSources, ...chunks];
-                }
+                },
+                abortController.signal
             );
 
-            // Deduplicate sources based on ID
             const uniqueSources = Array.from(new Map(collectedSources.map(s => [s.id, s])).values());
 
             const newModelMsg: Message = {
@@ -164,7 +367,12 @@ const App: React.FC = () => {
             const convos = await getConversations();
             setConversations(convos);
 
-        } catch (error) {
+        } catch (error: any) {
+            if (error.message === "Aborted by user") {
+                console.log("Generation aborted");
+                // Already handled in handleStop
+                return;
+            }
             console.error("Error generating response:", error);
             const errorMsg: Message = { role: 'model', content: "Sorry, I encountered an error. Please check your API key and settings.", parts: [{ text: "Sorry, I encountered an error. Please check your API key and settings." }], timestamp: Date.now() };
             setActiveConversation({
@@ -174,6 +382,7 @@ const App: React.FC = () => {
         } finally {
             setLoading(false);
             isSendingRef.current = false;
+            abortControllerRef.current = null;
         }
     };
 
@@ -191,14 +400,9 @@ const App: React.FC = () => {
         }
     };
 
-    // --- restored Logic from Old Version ---
-
     const loadFullText = async (path: string, title?: string) => {
         try {
-            console.log("Loading full text from:", path);
             let response = await fetch(path);
-            console.log("Fetch response status:", response.status);
-
             if (!response.ok) {
                 let fallbackPath = '';
                 if (path.includes('/books/en/')) {
@@ -208,7 +412,6 @@ const App: React.FC = () => {
                 }
 
                 if (fallbackPath) {
-                    console.log("Primary path failed. Trying fallback path:", fallbackPath);
                     const fallbackResponse = await fetch(fallbackPath);
                     if (fallbackResponse.ok) {
                         response = fallbackResponse;
@@ -217,33 +420,22 @@ const App: React.FC = () => {
                 }
             }
 
-            if (!response.ok) {
-                throw new Error(`Failed to load: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`Failed to load: ${response.statusText}`);
 
             const htmlContent = await response.text();
-            console.log("Loaded content length:", htmlContent.length);
-
             let contentToDisplay = htmlContent;
-
             const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-            if (bodyMatch) {
-                contentToDisplay = bodyMatch[1];
-            } else {
+            if (bodyMatch) contentToDisplay = bodyMatch[1];
+            else {
                 const mainMatch = htmlContent.match(/<main[^>]*>([\s\S]*)<\/main>/i);
-                if (mainMatch) {
-                    contentToDisplay = mainMatch[1];
-                }
+                if (mainMatch) contentToDisplay = mainMatch[1];
             }
-
             contentToDisplay = contentToDisplay.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
 
             let displayTitle = title || '';
             if (!displayTitle) {
                 const titleMatch = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
-                if (titleMatch) {
-                    displayTitle = titleMatch[1].replace(/<[^>]+>/g, '');
-                }
+                if (titleMatch) displayTitle = titleMatch[1].replace(/<[^>]+>/g, '');
             }
 
             setFullTextContent(contentToDisplay);
@@ -251,8 +443,6 @@ const App: React.FC = () => {
             setCurrentHtmlPath(path);
             setFullTextModalOpen(true);
         } catch (error) {
-            console.error('Error loading full text:', error);
-            // Fallback to simple content display if fetch fails, like in the new version
             setFullTextContent("Could not load full chapter text. Here is the excerpt: " + (title || ""));
             setFullTextTitle("Error Loading Full Text");
             setFullTextModalOpen(true);
@@ -260,46 +450,18 @@ const App: React.FC = () => {
     };
 
     const handleReadFull = async (chunk: SourceChunk) => {
-        console.log("handleReadFull called with chunk:", chunk);
         const lang = settings.language || 'en';
         const bookMap: Record<string, string> = {
-            'Srimad-Bhagavatam': 'sb',
-            'Bhagavad-gita As It Is': 'bg',
-            'Sri Caitanya-caritamrta': 'cc',
-            'Nectar of Devotion': 'nod',
-            'Nectar of Instruction': 'noi',
-            'Teachings of Lord Caitanya': 'tqk',
-            'Sri Isopanisad': 'iso',
-            'Light of the Bhagavata': 'lob',
-            'Perfect Questions, Perfect Answers': 'pop',
-            'Path of Perfection': 'pop',
-            'Science of Self Realization': 'sc',
-            'Life Comes from Life': 'lcfl',
-            'Krishna Book': 'kb',
-            'Raja-Vidya': 'rv',
-            'Beyond Birth and Death': 'bbd',
-            'Civilization and Transcendence': 'ct',
-            'Krsna Consciousness The Matchless Gift': 'mg',
-            'Easy Journey to Other Planets': 'ej',
-            'On the Way to Krsna': 'owk',
-            'Perfection of Yoga': 'poy',
-            'Spiritual Yoga': 'sy',
-            'Transcendental Teachings of Prahlad Maharaja': 'ttpm',
-            'sb': 'sb',
-            'bg': 'bg',
-            'cc': 'cc',
-            'nod': 'nod',
-            'noi': 'noi',
-            'tqk': 'tqk',
-            'iso': 'iso',
-            'lob': 'lob',
-            'pop': 'pop',
-            'sc': 'sc',
-            'rv': 'rv',
-            'bbd': 'bbd',
-            'owk': 'owk',
-            'poy': 'poy',
-            'spl': 'spl'
+            'Srimad-Bhagavatam': 'sb', 'Bhagavad-gita As It Is': 'bg', 'Sri Caitanya-caritamrta': 'cc',
+            'Nectar of Devotion': 'nod', 'Nectar of Instruction': 'noi', 'Teachings of Lord Caitanya': 'tqk',
+            'Sri Isopanisad': 'iso', 'Light of the Bhagavata': 'lob', 'Perfect Questions, Perfect Answers': 'pop',
+            'Path of Perfection': 'pop', 'Science of Self Realization': 'sc', 'Life Comes from Life': 'lcfl',
+            'Krishna Book': 'kb', 'Raja-Vidya': 'rv', 'Beyond Birth and Death': 'bbd',
+            'Civilization and Transcendence': 'ct', 'Krsna Consciousness The Matchless Gift': 'mg',
+            'Easy Journey to Other Planets': 'ej', 'On the Way to Krsna': 'owk', 'Perfection of Yoga': 'poy',
+            'Spiritual Yoga': 'sy', 'Transcendental Teachings of Prahlad Maharaja': 'ttpm',
+            'sb': 'sb', 'bg': 'bg', 'cc': 'cc', 'nod': 'nod', 'noi': 'noi', 'tqk': 'tqk', 'iso': 'iso',
+            'lob': 'lob', 'pop': 'pop', 'sc': 'sc', 'rv': 'rv', 'bbd': 'bbd', 'owk': 'owk', 'poy': 'poy', 'spl': 'spl'
         };
 
         let bookFolder = bookMap[chunk.bookTitle] || null;
@@ -323,7 +485,6 @@ const App: React.FC = () => {
                     }
                 }
             }
-
             if (bookFolder) {
                 if (chunk.verse) {
                     chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter}/${chunk.verse}/index.html`;
@@ -331,8 +492,6 @@ const App: React.FC = () => {
                     chapterPath = `/books/${lang}/${bookFolder}/${chunk.chapter || 1}/index.html`;
                 }
             } else {
-                // If we absolutely can't find the file path, fall back to showing the snippet content
-                // This is a safety net so the button at least does *something*
                 setFullTextContent(chunk.content);
                 setFullTextTitle(chunk.bookTitle);
                 setFullTextModalOpen(true);
@@ -340,13 +499,10 @@ const App: React.FC = () => {
             }
         }
 
-        console.log("Constructed chapterPath:", chapterPath);
-
         const niceBookTitle = getBookTitle(chunk.bookTitle);
         let niceChapter = chunk.chapter;
         let niceVerse = chunk.verse;
 
-        // Parsing logic for complex paths (like CC)
         if (typeof chunk.chapter === 'string' && (chunk.chapter.includes('/') || chunk.chapter.includes('\\'))) {
             const parts = chunk.chapter.replace(/\\/g, '/').split('/');
             if (parts.length >= 2) {
@@ -354,91 +510,80 @@ const App: React.FC = () => {
                 if (numbers.length >= 2) {
                     niceChapter = numbers[numbers.length - 2];
                     niceVerse = numbers[numbers.length - 1];
-                } else if (parts.length >= 3) {
-                    if (parts.some(p => ['adi', 'madhya', 'antya'].includes(p.toLowerCase()))) {
-                        const lila = parts.find(p => ['adi', 'madhya', 'antya'].includes(p.toLowerCase()));
-                        const lilaTitle = lila ? lila.charAt(0).toUpperCase() + lila.slice(1) + '-lila' : '';
-                        const chapterNum = parts.find(p => /^\d+$/.test(p));
-                        const verseNum = parts.reverse().find(p => /^\d+$/.test(p));
-                        if (chapterNum && verseNum) {
-                            niceChapter = `${lilaTitle} ${chapterNum}`;
-                            niceVerse = verseNum;
-                        }
-                    }
                 }
             }
         }
 
-        const titleSuffix = niceVerse
-            ? `${niceChapter ? niceChapter + '.' : ''}${niceVerse}`
-            : (niceChapter ? `Chapter ${niceChapter}` : '');
-
+        const titleSuffix = niceVerse ? `${niceChapter ? niceChapter + '.' : ''}${niceVerse}` : (niceChapter ? `Chapter ${niceChapter}` : '');
         await loadFullText(chapterPath, `${niceBookTitle} ${titleSuffix}`);
     };
 
     const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        // Stop propagation first so clicking the text doesn't close the modal
         e.stopPropagation();
-
-        // Handle link navigation within the modal (Restored logic)
         const target = e.target as HTMLElement;
         const anchor = target.closest('a');
-
         if (anchor && anchor.href) {
             const href = anchor.getAttribute('href');
             if (href && !href.startsWith('http') && !href.startsWith('#')) {
                 e.preventDefault();
-
                 const currentDir = currentHtmlPath.substring(0, currentHtmlPath.lastIndexOf('/'));
                 const parts = currentDir.split('/');
                 const relativeParts = href.split('/');
-
                 for (const part of relativeParts) {
                     if (part === '.') continue;
-                    if (part === '..') {
-                        parts.pop();
-                    } else {
-                        parts.push(part);
-                    }
+                    if (part === '..') parts.pop();
+                    else parts.push(part);
                 }
-
-                const newPath = parts.join('/');
-                loadFullText(newPath);
+                loadFullText(parts.join('/'));
             }
         }
     };
 
     const toggleLanguage = () => {
-        setSettings(prev => ({
-            ...prev,
-            language: prev.language === 'en' ? 'ru' : 'en'
-        }));
+        setSettings(prev => ({ ...prev, language: prev.language === 'en' ? 'ru' : 'en' }));
     };
 
     const handleCitationClick = (citation: string) => {
-        console.log('Citation clicked:', citation);
-
-        // Скроллим к источнику в сайдбаре
         setHighlightedSourceId(citation);
-
-        // Переключаемся на вкладку контекста если не там
-        if (sidebarMode !== 'context') {
-            setSidebarMode('context');
-        }
-
-        // Открываем сайдбар если закрыт
-        if (!sidebarOpen) {
-            setSidebarOpen(true);
-        }
-
-        // Скроллим к элементу через небольшую задержку
+        if (sidebarMode !== 'context') setSidebarMode('context');
+        if (!sidebarOpen) setSidebarOpen(true);
         setTimeout(() => {
             const element = document.getElementById(`source-${citation}`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
     };
+
+    if (appMode === 'loading') {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-[#0f1117] text-white p-4 text-center">
+                {connectionError ? (
+                    <div className="max-w-md bg-red-900/20 border border-red-500/50 p-6 rounded-xl animate-fade-in">
+                        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                        <h2 className="text-xl font-bold text-red-200 mb-2">Connection Error</h2>
+                        <p className="text-slate-400 mb-6">{connectionError}</p>
+                        <p className="text-xs text-slate-500 mb-6">
+                            The backend server is not responding. This might be due to missing dependencies or a crash on startup.
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-white font-medium transition-colors shadow-lg shadow-red-900/20"
+                        >
+                            Retry Connection
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mb-4"></div>
+                        <p className="text-slate-400 animate-pulse">Starting Shukabase Server...</p>
+                    </>
+                )}
+            </div>
+        );
+    }
+
+    if (appMode === 'setup') {
+        return <SetupScreen onComplete={() => setAppMode('chat')} />;
+    }
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-purple-900/10 via-transparent to-orange-900/10">
@@ -447,14 +592,7 @@ const App: React.FC = () => {
                     style={{ background: 'radial-gradient(circle, rgba(88, 28, 135, 0.2) 0%, rgba(88, 28, 135, 0) 60%)' }}></div>
                 <div className="absolute bottom-[-500px] right-[-500px] w-[1200px] h-[1200px] animate-pulse"
                     style={{ background: 'radial-gradient(circle, rgba(180, 83, 9, 0.15) 0%, rgba(180, 83, 9, 0) 60%)', animationDelay: '2s' }}></div>
-                <div className="absolute top-[12%] right-[25%] w-[350px] h-[350px] opacity-90 animate-float z-0 pointer-events-none">
-                    <img
-                        src="/parrot.png"
-                        alt="Shuka"
-                        className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(0,0,0,0.4)]"
-                        style={{ transform: 'rotate(-5deg)' }}
-                    />
-                </div>
+
             </div>
 
             <ConversationHistory
@@ -519,7 +657,7 @@ const App: React.FC = () => {
                                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
                                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                                <span className="ml-2 tracking-widest uppercase text-xs opacity-80">Thinking</span>
+                                <span className="ml-2 tracking-widest uppercase text-xs opacity-80">{t('agentThinking')}</span>
                             </div>
                         </div>
                     )}
@@ -547,18 +685,29 @@ const App: React.FC = () => {
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                            onKeyDown={(e) => e.key === 'Enter' && !loading && handleSend()}
                             placeholder={t('inputPlaceholder')}
                             className="relative w-full bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 rounded-xl pl-4 pr-12 py-3.5 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all shadow-lg"
                             disabled={loading}
                         />
-                        <button
-                            onClick={handleSend}
-                            disabled={!input.trim() || loading}
-                            className="absolute right-2 top-2 p-1.5 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20"
-                        >
-                            <Send size={18} />
-                        </button>
+
+                        {loading ? (
+                            <button
+                                onClick={handleStop}
+                                className="absolute right-2 top-2 p-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-lg transition-all shadow-lg shadow-red-900/20"
+                                title="Stop generation"
+                            >
+                                <X size={18} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSend}
+                                disabled={!input.trim()}
+                                className="absolute right-2 top-2 p-1.5 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20"
+                            >
+                                <Send size={18} />
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -711,15 +860,7 @@ const App: React.FC = () => {
                         <div className="p-6 border-b border-slate-700/50 flex justify-between items-center bg-slate-900/30">
                             <h3 className="font-bold text-lg text-slate-100 glow-text-amber">{fullTextTitle}</h3>
                             <div className="flex items-center gap-2">
-                                <a
-                                    href={currentHtmlPath}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 text-slate-400 hover:text-amber-500 transition-colors"
-                                    title="Open in new tab"
-                                >
-                                    <Globe size={20} />
-                                </a>
+
                                 <button onClick={() => setFullTextModalOpen(false)} className="text-slate-400 hover:text-white transition-colors hover:rotate-90 duration-200">
                                     <X size={24} />
                                 </button>

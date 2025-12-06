@@ -8,13 +8,13 @@ use std::os::windows::process::CommandExt;
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 struct AppState {
-    python_process: Mutex<Option<Child>>,
+    _python_process: Mutex<Option<Child>>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   let state = AppState {
-      python_process: Mutex::new(None),
+      _python_process: Mutex::new(None),
   };
 
   tauri::Builder::default()
@@ -34,7 +34,11 @@ pub fn run() {
       thread::spawn(move || {
           let (cmd, args, cwd) = if cfg!(debug_assertions) {
               // DEV MODE: python rag/rag_api_server.py
-              let cwd = std::env::current_dir().unwrap();
+              let mut cwd = std::env::current_dir().unwrap();
+              // If running from src-tauri, move up to project root
+              if cwd.ends_with("src-tauri") {
+                  cwd.pop();
+              }
               let script = cwd.join("rag").join("rag_api_server.py");
               ("python".to_string(), vec![script.to_string_lossy().to_string()], cwd)
           } else {
@@ -52,6 +56,7 @@ pub fn run() {
           command.args(&args);
           command.current_dir(&cwd);
           command.stdout(Stdio::piped());
+          command.stderr(Stdio::piped()); // Capture stderr too
           
           // Скрываем окно консоли в Windows
           #[cfg(target_os = "windows")]
@@ -61,44 +66,38 @@ pub fn run() {
               Ok(mut child) => {
                   println!("✅ Backend started (PID: {})", child.id());
                   
-                  // Читаем stdout в реальном времени
-                  if let Some(stdout) = child.stdout.take() {
-                      let reader = BufReader::new(stdout);
-                      
+                  let stdout = child.stdout.take().expect("Failed to capture stdout");
+                  let stderr = child.stderr.take().expect("Failed to capture stderr");
+
+                  // Spawn a thread to read stderr and print it (for debugging)
+                  thread::spawn(move || {
+                      let reader = BufReader::new(stderr);
                       for line in reader.lines() {
                           if let Ok(line) = line {
-                              println!("[BACKEND]: {}", line);
-                              
-                              // Обработка статусов для Splash Screen
-                              if line.contains("STATUS: DOWNLOADING_DATA") {
-                                  let _ = app_handle.emit("splash-update", "Downloading knowledge base... (this may take a while)");
-                              } else if line.contains("STATUS: EXTRACTING_DATA") {
-                                  let _ = app_handle.emit("splash-update", "Extracting ancient wisdom...");
-                              } else if line.contains("STATUS: INITIALIZING_ENGINE") {
-                                  let _ = app_handle.emit("splash-update", "Initializing AI engine...");
-                              } else if line.contains("STATUS: READY") {
-                                  // Сервер готов!
-                                  println!("🎉 Backend is READY! Switching windows...");
-                                  
-                                  // Закрываем splash
-                                  if let Some(splash) = app_handle.get_webview_window("splash") {
-                                      let _ = splash.close();
-                                  }
-                                  
-                                  // Показываем main
-                                  if let Some(main) = app_handle.get_webview_window("main") {
-                                      let _ = main.show();
-                                      let _ = main.set_focus();
-                                  }
-                              }
+                               eprintln!("[BACKEND_ERR]: {}", line);
+                          }
+                      }
+                  });
+
+                  let reader = BufReader::new(stdout);
+                  let mut server_ready = false;
+                      
+                  for line in reader.lines() {
+                      if let Ok(line) = line {
+                          println!("[BACKEND]: {}", line);
+                          
+                          if line.contains("STATUS: SERVER_STARTED") {
+                              println!("🎉 Backend started!");
+                              server_ready = true;
                           }
                       }
                   }
-                  
-                  // Сохраняем процесс в стейт (если нужно убить потом)
-                  // Но так как мы забрали stdout, child уже частично "consumed", 
-                  // поэтому просто оставим его работать. 
-                  // В реальном приложении лучше использовать Arc/Mutex для child, но тут упростим.
+
+                  // If we exit the loop, the stdout stream ended, meaning the process likely died.
+                  if !server_ready {
+                      println!("❌ Backend process exited unexpectedly!");
+                      let _ = app_handle.emit("splash-update", "Error: Backend process exited unexpectedly. Check logs.");
+                  }
               }
               Err(e) => {
                   eprintln!("❌ Failed to start backend: {}", e);
@@ -109,7 +108,7 @@ pub fn run() {
 
       Ok(())
     })
-    .on_window_event(|window, event| {
+    .on_window_event(|_window, event| {
         if let tauri::WindowEvent::Destroyed = event {
             // В идеале тут нужно убивать процесс, но так как мы отпустили child в thread,
             // ОС сама убьет его, если это дочерний процесс (обычно).

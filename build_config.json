@@ -1,0 +1,34 @@
+{
+    "builds": {
+        "multilingual": {
+            "data_archive_id": "1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0",
+            "installer_name": "SHUKABASE_Multilingual",
+            "description": "Full version with Russian and English knowledge base",
+            "ram_requirement": "16 GB",
+            "languages": [
+                "ru",
+                "en"
+            ]
+        },
+        "ru": {
+            "data_archive_id": "1kLZ3e0x2i2ivaPZgKSL1NChmxZh5adKG",
+            "installer_name": "SHUKABASE_RU",
+            "description": "Russian-only version",
+            "ram_requirement": "8 GB",
+            "languages": [
+                "ru"
+            ],
+            "nsis_language": "Russian"
+        },
+        "en": {
+            "data_archive_id": "1QkEi1D5SisVwJTGSpje_qNyIGnt6eTT4",
+            "installer_name": "SHUKABASE_EN",
+            "description": "English-only version",
+            "ram_requirement": "8 GB",
+            "languages": [
+                "en"
+            ]
+        }
+    },
+    "default_build": "multilingual"
+}

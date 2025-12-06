@@ -77,7 +77,8 @@ export const searchScriptures = async (query: string, settings: AppSettings): Pr
       body: JSON.stringify({
         query: query,
         language: lang,
-        top_k: 20
+        top_k: 20,
+        api_key: settings.apiKey
       })
     });
 
@@ -109,7 +110,8 @@ export const generateRAGResponse = async (
   settings: AppSettings,
   chatHistory: { role: string; parts: { text: string }[] }[] = [],
   onStep?: (step: AgentStep) => void,
-  onSourcesFound?: (chunks: SourceChunk[]) => void
+  onSourcesFound?: (chunks: SourceChunk[]) => void,
+  signal?: AbortSignal
 ) => {
   if (!settings.apiKey) {
     throw new Error("API Key is missing. Please check settings.");
@@ -227,6 +229,10 @@ Action: search_database("карма йога")
     currentStep++;
     console.log(`--- Agent Step ${currentStep} ---`);
 
+    if (signal?.aborted) {
+      throw new Error("Aborted by user");
+    }
+
     const messages = [
       ...chatHistory.map(msg => ({ role: msg.role, parts: msg.parts })),
       { role: 'user', parts: [{ text: userQuery }] },
@@ -243,6 +249,10 @@ Action: search_database("карма йога")
           stopSequences: ["Observation:"],
         }
       });
+
+      if (signal?.aborted) {
+        throw new Error("Aborted by user");
+      }
 
       const responseText = result.text || "";
       console.log("Agent Response:", responseText);

@@ -9,14 +9,13 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       host: '0.0.0.0',
       watch: {
-        ignored: ['**/public/books/**']
+        ignored: ['**/public/books/**', '**/src-tauri/**', '**/.git/**', '**/node_modules/**']
       }
     },
-    plugins: [react()],
     optimizeDeps: {
-      entries: ['index.html'],
-      disabled: false
+      entries: ['index.html', 'src/**/*.{ts,tsx}']
     },
+    plugins: [react()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

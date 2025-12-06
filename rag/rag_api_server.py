@@ -4,7 +4,7 @@
 🔎 REST API ДЛЯ RAG ПОИСКА
 
 Этот сервер предоставляет API для поиска, используя централизованный RAGEngine.
-При первом запуске он автоматически скачивает необходимые данные (индексы), если их нет.
+Поддерживает "Мастер настройки" для первого запуска.
 
 Запуск:
     python rag/rag_api_server.py
@@ -19,31 +19,31 @@ import json
 import shutil
 import zipfile
 import requests
+import threading
+import time
 from pathlib import Path
 
 # Добавляем корень проекта в sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from rag.rag_engine import RAGEngine
+try:
+    from rag.rag_engine import RAGEngine
+except ImportError:
+    # Fallback for bundled environment where rag_engine might be at root
+    # or the package naming is different due to PyInstaller flattening
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from rag_engine import RAGEngine
 
 # --- Константы ---
 APP_NAME = "Shukabase"
-DATA_ARCHIVE_ID = "1noqtdfABCV4xpVhlfmO4SlridrfQPkiO" # ID файла на Google Drive
-REQUIRED_FILES = [
-    "faiss_index_en.bin", "faiss_index_ru.bin",
-    "faiss_metadata_en.json", "faiss_metadata_ru.json",
-    "chunked_scriptures_en.json", "chunked_scriptures_ru.json",
-    "bm25_index_en.pkl", "bm25_index_ru.pkl"
-]
+
+# ID архива данных
+DATA_ARCHIVE_ID = os.environ.get("SHUKABASE_DATA_ID", "1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0")
 
 # Определяем путь к данным
 if getattr(sys, 'frozen', False):
-    # Если запущено как exe (PyInstaller)
-    # Используем AppData/Local/Shukabase/rag_data
     base_path = os.path.join(os.getenv('LOCALAPPDATA'), APP_NAME)
 else:
-    # Если запущено как скрипт (Dev)
-    # Используем локальную папку rag
     base_path = os.path.dirname(os.path.abspath(__file__))
 
 DATA_DIR = os.path.join(base_path, "rag_data") if getattr(sys, 'frozen', False) else base_path
@@ -71,126 +71,204 @@ app = Flask(__name__)
 CORS(app)
 rag_engine_instance = None
 
+# Состояние процесса установки
+setup_state = {
+    "is_downloading": False,
+    "progress": 0,
+    "status": "idle", # idle, downloading, extracting, completed, error
+    "error": None,
+    "current_file": ""
+}
+
 # --- Функции для скачивания данных ---
 
-def download_file_from_google_drive(id, destination):
-    """Скачивает файл с Google Drive с поддержкой больших файлов."""
-    URL = "https://docs.google.com/uc?export=download"
+# --- Функции для скачивания данных (Улучшенные) ---
 
+# --- Ссылки на данные (GitHub Releases) ---
+DATA_URLS = {
+    'all': "https://github.com/amritagopi/shukabase-install-data/releases/download/data/shukabase_data_multilingual.zip",
+    'ru': "https://github.com/amritagopi/shukabase-install-data/releases/download/data/shukabase_data_ru.zip",
+    'en': "https://github.com/amritagopi/shukabase-install-data/releases/download/data/shukabase_data_en.zip"
+}
+
+# --- Функции для скачивания данных ---
+
+def download_file_direct(url, destination):
     session = requests.Session()
-
-    response = session.get(URL, params={'id': id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    save_response_content(response, destination)
-
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
-    return None
-
-def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
-    total_size = 0
+    logger.info(f"Downloading from: {url}")
     
-    logger.info(f"⬇️ Начало скачивания в {destination}...")
+    try:
+        response = session.get(url, stream=True, timeout=30)
+        response.raise_for_status() # Check for HTTP errors
+        
+        CHUNK_SIZE = 32768
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        # Если сервер не отдает размер, используем примерный (500MB)
+        if total_size == 0:
+            total_size = 500 * 1024 * 1024 
+        
+        with open(destination, "wb") as f:
+            for chunk in response.iter_content(CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    # Обновляем прогресс (0-80% выделяем на скачивание)
+                    progress = min(80, int((downloaded / total_size) * 80))
+                    setup_state["progress"] = progress
+                    setup_state["status"] = "downloading"
+                    
+        logger.info("Download saved successfully.")
+        
+    except Exception as e:
+        logger.error(f"❌ Download error: {e}")
+        raise e
+
+def background_download_task(language_mode):
+    global setup_state
+    setup_state["is_downloading"] = True
+    setup_state["status"] = "downloading"
+    setup_state["progress"] = 0
+    setup_state["error"] = None
     
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
-            if chunk: # filter out keep-alive new chunks
-                f.write(chunk)
-                total_size += len(chunk)
-                # Можно добавить логирование прогресса, но не слишком часто
-                if total_size % (10 * 1024 * 1024) == 0: # Каждые 10 МБ
-                    print(f"Downloading... {total_size / (1024*1024):.1f} MB", flush=True)
+    try:
+        if not os.path.exists(DATA_DIR):
+            os.makedirs(DATA_DIR, exist_ok=True)
 
-    logger.info(f"✅ Скачивание завершено. Размер: {total_size / (1024*1024):.2f} MB")
-
-def ensure_data_exists():
-    """Проверяет наличие данных и скачивает их при необходимости."""
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR, exist_ok=True)
-
-    missing_files = [f for f in REQUIRED_FILES if not os.path.exists(os.path.join(DATA_DIR, f))]
-
-    if missing_files:
-        logger.info(f"⚠️ Отсутствуют файлы данных: {missing_files}")
-        logger.info("⏳ Начинаю автоматическое скачивание базы знаний...")
-        
-        # Сообщаем пользователю через stdout (Tauri может это читать)
-        print("STATUS: DOWNLOADING_DATA", flush=True)
-        
         zip_path = os.path.join(DATA_DIR, "shukabase_data.zip")
         
-        try:
-            download_file_from_google_drive(DATA_ARCHIVE_ID, zip_path)
-            
-            print("STATUS: EXTRACTING_DATA", flush=True)
-            logger.info("📦 Распаковка архива...")
-            
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                # Распаковываем прямо в DATA_DIR
-                # В архиве файлы могут быть в папке rag/ или в корне. 
-                # Проверим структуру
-                file_list = zip_ref.namelist()
-                is_nested = any(f.startswith('rag/') for f in file_list)
-                
-                zip_ref.extractall(DATA_DIR)
-                
-                # Если файлы были в папке rag/, переместим их в корень DATA_DIR
-                if is_nested:
-                    nested_dir = os.path.join(DATA_DIR, 'rag')
-                    if os.path.exists(nested_dir):
-                        for item in os.listdir(nested_dir):
-                            s = os.path.join(nested_dir, item)
-                            d = os.path.join(DATA_DIR, item)
-                            if os.path.exists(d):
-                                if os.path.isdir(d):
-                                    shutil.rmtree(d)
-                                else:
-                                    os.remove(d)
-                            shutil.move(s, d)
-                        os.rmdir(nested_dir)
+        # Выбираем URL
+        download_url = DATA_URLS.get(language_mode, DATA_URLS['all'])
+        
+        logger.info(f"Starting download for mode: {language_mode} from {download_url}")
+        
+        download_file_direct(download_url, zip_path)
+        
+        # Проверка целостности архива ПЕРЕД извлечением
+        if not zipfile.is_zipfile(zip_path):
+             with open(zip_path, 'rb') as f:
+                 head = f.read(200)
+             logger.error(f"File is not a valid ZIP. Header: {head}")
+             setup_state["error"] = "Downloaded file is corrupted or not a zip file. Check logs."
+             setup_state["status"] = "error"
+             setup_state["is_downloading"] = False
+             return
 
-            logger.info("✅ Данные успешно распакованы.")
+        setup_state["status"] = "extracting"
+        setup_state["progress"] = 85
+        
+        logger.info("Extracting archive...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(DATA_DIR)
             
-            # Удаляем архив
-            os.remove(zip_path)
+            # Smart Flattening: Find where the key file is
+            found_root = None
+            for root, dirs, files in os.walk(DATA_DIR):
+                if any(f.startswith('faiss_index_') for f in files):
+                    found_root = root
+                    break
             
-        except Exception as e:
-            logger.critical(f"❌ Ошибка при скачивании/распаковке данных: {e}", exc_info=True)
-            print(f"ERROR: DATA_DOWNLOAD_FAILED: {e}", flush=True)
-            sys.exit(1)
-    else:
-        logger.info("✅ Все файлы данных на месте.")
+            if found_root and found_root != DATA_DIR:
+                logger.info(f"Found data in nested folder: {found_root}. Moving to {DATA_DIR}...")
+                for item in os.listdir(found_root):
+                    s = os.path.join(found_root, item)
+                    d = os.path.join(DATA_DIR, item)
+                    if os.path.exists(d):
+                        if os.path.isdir(d):
+                            shutil.rmtree(d)
+                        else:
+                            os.remove(d)
+                    shutil.move(s, d)
+                # Cleanup empty dirs
+                try:
+                    shutil.rmtree(found_root)
+                except:
+                    pass
+
+        os.remove(zip_path)
+        
+        setup_state["progress"] = 95
+        setup_state["status"] = "initializing"
+        
+        # Инициализируем движок
+        # Важно: это может занять время, поэтому делаем это здесь
+        if initialize_engine():
+            setup_state["progress"] = 100
+            setup_state["status"] = "completed"
+        else:
+            setup_state["status"] = "error"
+            setup_state["error"] = "Initialization failed. Check logs for missing files."
+            
+        setup_state["is_downloading"] = False
+        
+    except Exception as e:
+        logger.error(f"Setup failed: {e}", exc_info=True)
+        setup_state["status"] = "error"
+        setup_state["error"] = str(e)
+        setup_state["is_downloading"] = False
 
 # --- Инициализация ---
 def initialize_engine():
-    """Инициализирует RAGEngine."""
     global rag_engine_instance
-    if rag_engine_instance is None:
-        logger.info("🧠 Инициализация RAGEngine...")
-        print("STATUS: INITIALIZING_ENGINE", flush=True)
-        try:
-            # Передаем DATA_DIR как base_dir
-            rag_engine_instance = RAGEngine(languages=['ru', 'en'], base_dir=DATA_DIR)
-            logger.info("✅ RAGEngine успешно инициализирован.")
-            print("STATUS: READY", flush=True)
-        except Exception as e:
-            logger.critical(f"❌ Не удалось инициализировать RAGEngine: {e}", exc_info=True)
-            rag_engine_instance = None 
+    try:
+        # Проверяем наличие основных файлов
+        required = ["faiss_index", "chunked_scriptures"] # Check partial names
+        present_files = os.listdir(DATA_DIR) if os.path.exists(DATA_DIR) else []
+        logger.info(f"Files in DATA_DIR: {present_files}")
+        
+        # Determine strict requirements based on what we see (multilingual vs single)
+        # But minimally we need at least one index and one json
+        has_index = any(f.startswith("faiss_index") for f in present_files)
+        has_json = any(f.startswith("chunked_scriptures") for f in present_files)
+        
+        if not (has_index and has_json):
+            logger.warning(f"Missing essential files. Present: {present_files}")
+            return False
 
-# --- Эндпоинты API ---
+        logger.info("🧠 Initializing RAGEngine...")
+        rag_engine_instance = RAGEngine(languages=['ru', 'en'], base_dir=DATA_DIR)
+        logger.info("✅ RAGEngine initialized successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize RAGEngine: {e}", exc_info=True)
+        return False
+
+# --- API Endpoints ---
+
+@app.route('/api/setup/status', methods=['GET'])
+def get_setup_status():
+    is_installed = False
+    if os.path.exists(DATA_DIR):
+        # Простая проверка наличия ключевых файлов
+        # Проверяем наличие любого индекса, а не только ru
+        if any(f.startswith("faiss_index") for f in os.listdir(DATA_DIR)):
+            is_installed = True
+            
+    return jsonify({
+        "installed": is_installed,
+        "engine_ready": rag_engine_instance is not None,
+        "setup_state": setup_state
+    })
+
+@app.route('/api/setup/download', methods=['POST'])
+def start_download():
+    if setup_state["is_downloading"]:
+        return jsonify({"error": "Download already in progress"}), 400
+        
+    lang = request.json.get('language', 'all')
+    thread = threading.Thread(target=background_download_task, args=(lang,))
+    thread.start()
+    
+    return jsonify({"success": True, "message": "Download started"})
 
 @app.route('/api/search', methods=['POST'])
 def search():
     if rag_engine_instance is None:
-        return jsonify({'success': False, 'error': 'RAG Engine не инициализирован.'}), 503
+        # Пытаемся инициализировать, если вдруг файлы появились
+        if not initialize_engine():
+            return jsonify({'success': False, 'error': 'Knowledge base not loaded. Please complete setup.'}), 503
 
     try:
         data = request.json
@@ -198,82 +276,32 @@ def search():
         language = data.get('language', 'ru')
         top_k = int(data.get('top_k', 10))
         
-        logger.info(f"📥 Поисковый запрос: query='{query}', lang='{language}', top_k={top_k}")
-
         if not query:
-            return jsonify({'success': False, 'error': 'Пустой запрос'}), 400
-        if language not in rag_engine_instance.languages:
-            return jsonify({'success': False, 'error': f'Язык {language} не поддерживается'}), 400
+            return jsonify({'success': False, 'error': 'Empty query'}), 400
 
-        use_reranking = data.get('use_reranking', True)
-        expand_query = data.get('expand_query', True)
-        vector_distance_threshold = data.get('vector_distance_threshold', None)
-        
         search_results = rag_engine_instance.search(
             query=query,
             language=language,
             top_k=top_k,
-            use_reranking=use_reranking,
-            expand_query=expand_query,
-            vector_distance_threshold=vector_distance_threshold
+            api_key=data.get('api_key') # Pass API key from request
         )
-        
         return jsonify(search_results), 200
-
     except Exception as e:
-        logger.error(f"❌ Ошибка в эндпоинте /api/search: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Внутренняя ошибка сервера'}), 500
-
-@app.route('/api/keyword_search', methods=['POST'])
-def keyword_search():
-    """Простой поиск по ключевым словам (точное совпадение)"""
-    try:
-        data = request.json
-        query = data.get('query', '').strip()
-        language = data.get('language', 'en')
-        case_sensitive = data.get('case_sensitive', False)
-        
-        logger.info(f"📥 Keyword search request: query='{query}', lang='{language}'")
-
-        if not query:
-            return jsonify({'success': False, 'error': 'Пустой запрос'}), 400
-        if language not in rag_engine_instance.languages:
-            return jsonify({'success': False, 'error': f'Язык {language} не поддерживается'}), 400
-
-        search_results = rag_engine_instance.keyword_search(
-            query=query,
-            language=language,
-            case_sensitive=case_sensitive
-        )
-        
-        return jsonify(search_results), 200
-
-    except Exception as e:
-        logger.error(f"❌ Ошибка в эндпоинте /api/keyword_search: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Внутренняя ошибка сервера'}), 500
+        logger.error(f"Search error: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    if rag_engine_instance:
-        status = {
-            'status': 'healthy',
-            'engine_status': 'initialized',
-            'loaded_languages': list(rag_engine_instance.indices.keys())
-        }
-        return jsonify(status), 200
-    else:
-        status = {
-            'status': 'unhealthy',
-            'engine_status': 'not_initialized',
-            'error': 'RAGEngine failed to initialize. Check logs.'
-        }
-        return jsonify(status), 503
+    return jsonify({
+        'status': 'healthy',
+        'engine_initialized': rag_engine_instance is not None
+    }), 200
 
+# --- Остальные эндпоинты (conversations) без изменений ---
 @app.route('/api/conversations', methods=['GET'])
 def get_conversations():
     if not os.path.exists(CHAT_HISTORY_DIR):
         return jsonify([])
-
     conversations = []
     try:
         for filename in os.listdir(CHAT_HISTORY_DIR):
@@ -287,85 +315,54 @@ def get_conversations():
                             'title': data.get('title'),
                             'createdAt': data.get('createdAt')
                         })
-                except (json.JSONDecodeError, IOError) as e:
-                    logger.warning(f"Could not read or parse conversation file {filename}: {e}")
-        
+                except Exception:
+                    pass
         conversations.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
         return jsonify(conversations)
-
     except Exception as e:
-        logger.error(f"Error listing conversations: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Could not list conversations'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/conversations/<string:conversation_id>', methods=['GET'])
 def get_conversation_by_id(conversation_id):
     filepath = os.path.join(CHAT_HISTORY_DIR, f"{conversation_id}.json")
     if not os.path.exists(filepath):
-        return jsonify({'success': False, 'error': 'Conversation not found'}), 404
-
+        return jsonify({'error': 'Not found'}), 404
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return jsonify(data)
+            return jsonify(json.load(f))
     except Exception as e:
-        logger.error(f"Error reading conversation {conversation_id}: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Could not read conversation file'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/conversations', methods=['POST'])
 def save_conversation():
     try:
         data = request.json
         conversation_id = data.get('id')
-        if not conversation_id:
-            return jsonify({'success': False, 'error': 'Conversation ID is required'}), 400
-
         if not os.path.exists(CHAT_HISTORY_DIR):
             os.makedirs(CHAT_HISTORY_DIR, exist_ok=True)
-
         filepath = os.path.join(CHAT_HISTORY_DIR, f"{conversation_id}.json")
-        
-        if 'title' not in data or 'createdAt' not in data or 'messages' not in data:
-            return jsonify({'success': False, 'error': 'Missing required conversation fields'}), 400
-
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-            
-        logger.info(f"💾 Conversation '{conversation_id}' saved successfully.")
         return jsonify({'success': True, 'id': conversation_id})
-
     except Exception as e:
-        logger.error(f"Error saving conversation: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Could not save conversation'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/conversations/<string:conversation_id>', methods=['DELETE'])
 def delete_conversation(conversation_id):
     filepath = os.path.join(CHAT_HISTORY_DIR, f"{conversation_id}.json")
-    if not os.path.exists(filepath):
-        return jsonify({'success': False, 'error': 'Conversation not found'}), 404
-
-    try:
+    if os.path.exists(filepath):
         os.remove(filepath)
-        logger.info(f"🗑️ Conversation '{conversation_id}' deleted successfully.")
         return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"Error deleting conversation {conversation_id}: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Could not delete conversation file'}), 500
+    return jsonify({'error': 'Not found'}), 404
 
-
-# --- Запуск сервера ---
 if __name__ == '__main__':
     logger.info("="*80)
-    logger.info(f"🚀 Запуск сервера Shukabase AI. Data dir: {DATA_DIR}")
+    logger.info(f"🚀 Shukabase AI Server Starting. Data dir: {DATA_DIR}")
     
-    # 1. Проверяем и скачиваем данные
-    ensure_data_exists()
+    # ВАЖНО: Выводим этот статус, чтобы Rust понял, что сервер жив
+    print("STATUS: SERVER_STARTED", flush=True)
+
+    # Инициализируем в фоне, чтобы не задерживать старт сервера и сплэша
+    threading.Thread(target=initialize_engine, daemon=True).start()
     
-    # 2. Инициализируем движок
-    initialize_engine()
-    
-    if rag_engine_instance:
-        logger.info("✅ Сервер готов к работе на http://localhost:5000")
-        app.run(host='0.0.0.0', port=5000, debug=False)
-    else:
-        logger.critical("❌ Ошибка запуска сервера.")
-        sys.exit(1)
+    app.run(host='0.0.0.0', port=5000, debug=False)
