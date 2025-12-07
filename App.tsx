@@ -4,6 +4,7 @@ import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader } f
 import { generateRAGResponse, getConversations, getConversation, saveConversation, searchScriptures } from './services/geminiService';
 import { ParsedContent } from './utils/citationParser';
 import ConversationHistory from './ConversationHistory';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { TRANSLATIONS } from './translations';
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -943,7 +944,14 @@ const App: React.FC = () => {
                                 <div className="flex flex-col items-center gap-2 text-xs text-slate-400">
                                     <p>{t('createdWithLove')}</p>
                                     <button
-                                        onClick={() => window.open('https://boosty.to/amritagopi', '_blank')}
+                                        onClick={async () => {
+                                            try {
+                                                await openUrl('https://boosty.to/amritagopi');
+                                            } catch (e) {
+                                                console.error('Failed to open link with Tauri, trying window.open:', e);
+                                                window.open('https://boosty.to/amritagopi', '_blank');
+                                            }
+                                        }}
                                         className="relative group transition-transform hover:scale-110 active:scale-95 p-2 mt-1"
                                         title="Support on Boosty"
                                     >
@@ -966,9 +974,9 @@ const App: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div >
             )}
-        </div>
+        </div >
     );
 };
 

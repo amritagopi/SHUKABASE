@@ -28,6 +28,8 @@ pub fn run() {
         )?;
       }
 
+      app.handle().plugin(tauri_plugin_opener::init())?;
+
       let app_handle = app.handle().clone();
       
       // Запускаем Python сервер в отдельном потоке
