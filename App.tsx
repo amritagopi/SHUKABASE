@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkles, Server, X, Search, Download } from 'lucide-react';
+import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkles, Server, X, Search, Download, Heart } from 'lucide-react';
 import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader } from './types';
 import { generateRAGResponse, getConversations, getConversation, saveConversation, searchScriptures } from './services/geminiService';
 import { ParsedContent } from './utils/citationParser';
@@ -934,6 +934,26 @@ const App: React.FC = () => {
                                     <option value="gemini-2.0-flash-lite-preview-02-05">Gemini 2.0 Flash Lite Preview</option>
                                 </select>
                                 <p className="text-xs text-slate-500">Select a different model if you hit rate limits.</p>
+                            </div>
+
+                            <div className="pt-6 border-t border-slate-700/50 text-center space-y-3">
+                                <p className="text-sm text-cyan-200/80 font-medium leading-relaxed">
+                                    {t('settingsFooterText')}
+                                </p>
+                                <div className="flex flex-col items-center gap-2 text-xs text-slate-400">
+                                    <p>{t('createdWithLove')}</p>
+                                    <button
+                                        onClick={() => window.open('https://boosty.to/amritagopi', '_blank')}
+                                        className="relative group transition-transform hover:scale-110 active:scale-95 p-2 mt-1"
+                                        title="Support on Boosty"
+                                    >
+                                        <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        <Heart
+                                            className="w-8 h-8 text-rose-400 fill-rose-500/10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(251,113,133,0.8)] group-hover:fill-rose-500/30 transition-all duration-300"
+                                            strokeWidth={1.5}
+                                        />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="pt-4 flex justify-end">

@@ -164,7 +164,7 @@ Your FIRST \`search_database\` action MUST use the simplest possible **Nominativ
     Final Answer: <Your comprehensive, detailed response citing the sources found>
 
 4.  If the initial search results are not relevant, refine your search query and try again.
-5.  Always cite sources using [[ID]] format when providing the Final Answer.
+5.  Always cite sources using [[ID]] format (double brackets) when providing the Final Answer. Do NOT use [ID:...] or (ID:...).
 6.  If you have performed many searches and still haven't found the perfect answer, synthesize the best possible answer from what you HAVE found. Do not give up.
 
 FORMATTING RULES:
@@ -221,7 +221,7 @@ Action: search_database("карма йога")
 `;
 
   if (initialChunks.length > 0) {
-    const formattedContext = initialChunks.map(c => `[ID:${c.id}] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
+    const formattedContext = initialChunks.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
     scratchpad += `Observation: Found initial relevant verses:\n${formattedContext}\n\n`;
   }
 
@@ -288,7 +288,7 @@ Action: search_database("карма йога")
           if (results.length === 0) {
             observation = "\nObservation: No relevant verses found for this query.\n\n";
           } else {
-            const formatted = results.map(c => `[ID:${c.id}] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
+            const formatted = results.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
             observation = `\nObservation: Found the following verses:\n${formatted}\n\n`;
           }
 

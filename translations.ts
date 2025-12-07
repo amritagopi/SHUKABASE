@@ -42,6 +42,8 @@ export const TRANSLATIONS = {
         citation: "ref",
         jumpToSource: "Jump to source",
         rateLimitHint: "Select a different model if you hit rate limits.",
+        settingsFooterText: "SHUKABASE is my gift to everyone studying shastras and interested in Krishna consciousness.",
+        createdWithLove: "Created with love for lecturers, students, and bhakti practitioners. To support the author - click the heart",
         books: {
             "sb": "Srimad-Bhagavatam",
             "bg": "Bhagavad-gita As It Is",
@@ -108,6 +110,8 @@ export const TRANSLATIONS = {
         citation: "цитата",
         jumpToSource: "Перейти к источнику",
         rateLimitHint: "Выберите другую модель, если достигнуты лимиты запросов.",
+        settingsFooterText: "SHUKABASE — мой подарок всем, кто изучает шастры и интересуется сознанием Кришны.",
+        createdWithLove: "Создано с любовью для лекторов, учеников и практикующих бхакти. Чтобы поддержать автора - нажмите на сердечко",
         books: {
             "sb": "Шримад-Бхагаватам",
             "bg": "Бхагавад-гита как она есть",
