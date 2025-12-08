@@ -17,45 +17,57 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             build_variant: en
+            data_id: 1QkEi1D5SisVwJTGSpje_qNyIGnt6eTT4
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             build_variant: ru
+            data_id: 1kLZ3e0x2i2ivaPZgKSL1NChmxZh5adKG
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            build_variant: multilingual
+            build_variant: all
+            data_id: 1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0
           
           # macOS x64 builds (all 3 language variants)
           - os: macos-latest
             target: x86_64-apple-darwin
             build_variant: en
+            data_id: 1QkEi1D5SisVwJTGSpje_qNyIGnt6eTT4
           - os: macos-latest
             target: x86_64-apple-darwin
             build_variant: ru
+            data_id: 1kLZ3e0x2i2ivaPZgKSL1NChmxZh5adKG
           - os: macos-latest
             target: x86_64-apple-darwin
-            build_variant: multilingual
+            build_variant: all
+            data_id: 1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0
           
           # macOS ARM64 builds (all 3 language variants)
           - os: macos-latest
             target: aarch64-apple-darwin
             build_variant: en
+            data_id: 1QkEi1D5SisVwJTGSpje_qNyIGnt6eTT4
           - os: macos-latest
             target: aarch64-apple-darwin
             build_variant: ru
+            data_id: 1kLZ3e0x2i2ivaPZgKSL1NChmxZh5adKG
           - os: macos-latest
             target: aarch64-apple-darwin
-            build_variant: multilingual
+            build_variant: all
+            data_id: 1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0
           
           # Linux builds (all 3 language variants)
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             build_variant: en
+            data_id: 1QkEi1D5SisVwJTGSpje_qNyIGnt6eTT4
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             build_variant: ru
+            data_id: 1kLZ3e0x2i2ivaPZgKSL1NChmxZh5adKG
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            build_variant: multilingual
+            build_variant: all
+            data_id: 1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0
 
     runs-on: ${{ matrix.os }}
 
@@ -88,43 +100,14 @@ jobs:
       - name: Build frontend (${{ matrix.build_variant }})
         run: npm run build
 
-      - name: Prepare build (${{ matrix.build_variant }})
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            # Set environment variables for Windows
-            echo "SHUKABASE_LANG=${{ matrix.build_variant }}" >> $GITHUB_ENV
-          else
-            export SHUKABASE_LANG=${{ matrix.build_variant }}
-          fi
-
-      - name: Build Tauri app (Windows - ${{ matrix.build_variant }})
-        if: runner.os == 'Windows'
+      - name: Build Tauri app (${{ matrix.build_variant }} - ${{ matrix.target }})
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           SHUKABASE_LANG: ${{ matrix.build_variant }}
+          SHUKABASE_DATA_ID: ${{ matrix.data_id }}
         run: |
-          cd src-tauri
-          cargo tauri build --target ${{ matrix.target }}
-
-      - name: Build Tauri app (macOS - ${{ matrix.build_variant }})
-        if: runner.os == 'macOS'
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          SHUKABASE_LANG: ${{ matrix.build_variant }}
-        run: |
-          cd src-tauri
-          cargo tauri build --target ${{ matrix.target }}
-
-      - name: Build Tauri app (Linux - ${{ matrix.build_variant }})
-        if: runner.os == 'Linux'
-        env:
-          SHUKABASE_LANG: ${{ matrix.build_variant }}
-        run: |
-          cd src-tauri
-          cargo tauri build --target ${{ matrix.target }}
+          npm run tauri:build -- --target ${{ matrix.target }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
