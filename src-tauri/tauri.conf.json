@@ -45,6 +45,9 @@
         "sidebarImage": "icons/installer_sidebar.bmp",
         "installMode": "currentUser",
         "displayLanguageSelector": true
+              ,
+      "signingIdentity": null,
+      "certificateThumbprint": null
       }
     }
   }
