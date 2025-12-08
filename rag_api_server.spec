@@ -44,7 +44,7 @@ datas += collect_data_files('transformers')
 datas += collect_data_files('rank_bm25')
 
 a = Analysis(
-    ['rag\\rag_api_server.py'],
+    ['rag/rag_api_server.py'],
     pathex=[],
     binaries=[],
     datas=datas,
