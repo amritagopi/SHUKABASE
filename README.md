@@ -38,6 +38,17 @@ Powered by **RAG (Retrieval-Augmented Generation)** technology, Shukabase allows
 - **⚡ Performance First**: Built with **Rust** and **Tauri** for a lightweight, blazing-fast experience.
 - **🔄 Auto-Updates**: The app keeps itself up-to-date automatically.
 
+## 💻 System Requirements
+
+**Minimum / Comfortable:**
+- **OS**: Windows 10/11, macOS, Linux
+- **CPU**: 2 Cores
+- **RAM**: 8 GB
+- **Disk Space**: ~1 GB
+
+*The application is optimized for performance and has been tested to run smoothly on virtual machines with these specifications.*
+
+
 ## 🛠️ Installation
 
 ### For Users
