@@ -165,7 +165,7 @@ build/
 split_archives/
 src-tauri/rag_api_server.exe
 лог с VM.txt
-public/background.mp4
+
 builds/SHUKABASE_EN_0.1.0_x64-setup.exe
 builds/SHUKABASE_Multi_0.1.0_x64-setup.exe
 builds/SHUKABASE_RU_0.1.0_x64-setup.exe
@@ -177,3 +177,21 @@ signed_build.bat
 builds/SHUKABASE_EN_SIGNED_0.1.0_x64-setup.exe
 builds/SHUKABASE_Multi_SIGNED_0.1.0_x64-setup.exe
 builds/SHUKABASE_RU_SIGNED_0.1.0_x64-setup.exe
+
+# Strict exclusions for user data
+rag/chat_history/
+chat_history/
+rag_data/
+*.pkl
+*.bin
+*.json
+!package.json
+!tsconfig.json
+!src-tauri/tauri.conf.json
+!src-tauri/capabilities/default.json
+!embeddings_metadata_*.json
+!rag/faiss_metadata_*.json
+!rag/parsed_scriptures_*.json
+!rag/chunked_scriptures_*.json
+!rag/embeddings_metadata_*.json
+!rag/faiss_metadata_*.json
