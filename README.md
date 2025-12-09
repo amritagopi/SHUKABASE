@@ -13,7 +13,7 @@
   [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%20v2-orange)](https://v2.tauri.app/)
   [![Powered by Gemini](https://img.shields.io/badge/AI-Gemini%202.0-8E75B2)](https://deepmind.google/technologies/gemini/)
 
-  [📥 Download Latest Release](https://github.com/amritagopi/shukabase-gemini/releases/latest) • [💬 Report a Bug](https://github.com/amritagopi/shukabase-gemini/issues)
+  [🇷🇺 Читать на русском](README_RU.md) • [📥 Download Latest Release](https://github.com/amritagopi/shukabase-gemini/releases/latest) • [💬 Report a Bug](https://github.com/amritagopi/shukabase-gemini/issues)
 
 </div>
 
