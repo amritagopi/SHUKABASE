@@ -21,7 +21,7 @@
 
 ## 📖 About
 
-**Shukabase AI** is a cutting-edge desktop application designed to bridge the gap between ancient wisdom and modern technology. It serves as your personal research assistant for studying the Bhaktivedanta Vedabase (Bhagavad-gita, Srimad-Bhagavatam, Caitanya-caritamrta, and more).
+**Shukabase AI** is a cutting-edge desktop application designed to bridge the gap between ancient wisdom and modern technology. It serves as your personal research assistant for studying the Srila Prabhupada's books (Bhagavad-gita, Srimad-Bhagavatam, Caitanya-caritamrta, and more).
 
 Powered by **RAG (Retrieval-Augmented Generation)** technology, Shukabase allows you to ask complex questions in natural language and receive accurate, citation-backed answers directly from the scriptures.
 
