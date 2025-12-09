@@ -1,13 +1,13 @@
 flask
 flask-cors
 python-dotenv
-# sentence-transformers
-# huggingface_hub
-# safetensors
-# tokenizers
-# nltk
-# transformers
-# torch
+sentence-transformers
+huggingface_hub
+safetensors
+tokenizers
+nltk
+transformers
+torch
 google-generativeai
 faiss-cpu
 rank_bm25
