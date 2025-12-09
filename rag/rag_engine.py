@@ -118,7 +118,12 @@ class RerankerModel:
     
     def __init__(self, model_name: str = "jinaai/jina-reranker-v2-base-multilingual"):
         logger.info(f"Загружаю модель re-ranking: {model_name}")
+        self.model = None
+        self.tokenizer = None
+        self.device = "cpu"
+        
         try:
+            # Сначала пробуем загрузить, если есть интернет или кэш
             self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
             self.model = AutoModelForSequenceClassification.from_pretrained(
                 model_name, trust_remote_code=True, torch_dtype=torch.float32
@@ -128,7 +133,8 @@ class RerankerModel:
             self.model.eval()
             logger.info(f"✅ Модель re-ranking загружена (device: {self.device})")
         except Exception as e:
-            logger.error(f"❌ Ошибка загрузки модели re-ranking: {e}")
+            logger.warning(f"⚠️ Не удалось загрузить модель re-ranking (Jina): {e}")
+            logger.warning("⚠️ RAG будет работать без фазы переранжирования (только векторный поиск). Это нормально для оффлайн режима.")
             self.model = None
     
     def rerank(self, query: str, documents: List[str], top_k: int = 5) -> List[Tuple[int, float, str]]:

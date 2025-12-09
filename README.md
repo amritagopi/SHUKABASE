@@ -44,7 +44,7 @@ Powered by **RAG (Retrieval-Augmented Generation)** technology, Shukabase allows
 - **OS**: Windows 10/11, macOS, Linux
 - **CPU**: 2 Cores
 - **RAM**: 8 GB
-- **Disk Space**: ~1 GB
+- **Disk Space**: ~3 GB
 
 *The application is optimized for performance and has been tested to run smoothly on virtual machines with these specifications.*
 
