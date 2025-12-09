@@ -367,9 +367,18 @@ const App: React.FC = () => {
 
     const handleSend = async () => {
         if (!input.trim() || loading || isSendingRef.current) return;
-        if (!settings.apiKey) {
-            setIsSettingsOpen(true);
-            return;
+        // Check API key based on provider
+        if (settings.provider === 'openrouter') {
+            if (!settings.openrouterApiKey) {
+                setIsSettingsOpen(true);
+                return;
+            }
+        } else {
+            // Default to google validation
+            if (!settings.apiKey) {
+                setIsSettingsOpen(true);
+                return;
+            }
         }
 
         const userMsgContent = input;
