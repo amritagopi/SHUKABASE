@@ -11,7 +11,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     apiKey: localStorage.getItem('shukabase_api_key') || '',
     backendUrl: 'http://localhost:5000/api/search',
     useMockData: false,
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.0-flash-exp',
     language: localStorage.getItem('shukabase_language') === 'ru' ? 'ru' : 'en',
     provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
