@@ -23,36 +23,20 @@ import threading
 import time
 from pathlib import Path
 
-# Добавляем корень проекта в sys.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-try:
-    from rag.rag_engine import RAGEngine
-except ImportError:
-    # Fallback for bundled environment where rag_engine might be at root
-    # or the package naming is different due to PyInstaller flattening
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    from rag_engine import RAGEngine
-
-# --- Константы ---
+# --- Настройка логгирования (СРАЗУ) ---
+# Определяем путь к логам до всего остального
 APP_NAME = "Shukabase"
-
-# ID архива данных
-DATA_ARCHIVE_ID = os.environ.get("SHUKABASE_DATA_ID", "1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0")
-
-# Определяем путь к данным
 if getattr(sys, 'frozen', False):
     base_path = os.path.join(os.getenv('LOCALAPPDATA'), APP_NAME)
 else:
     base_path = os.path.dirname(os.path.abspath(__file__))
 
-DATA_DIR = os.path.join(base_path, "rag_data") if getattr(sys, 'frozen', False) else base_path
-CHAT_HISTORY_DIR = os.path.join(base_path, "chat_history")
-
-# --- Настройка логгирования ---
 log_dir = os.path.join(base_path, "logs")
 if not os.path.exists(log_dir):
-    os.makedirs(log_dir, exist_ok=True)
+    try:
+        os.makedirs(log_dir, exist_ok=True)
+    except:
+        pass # Если не можем создать, пишем в stderr
 
 log_file = os.path.join(log_dir, "rag_api_server.log")
 
@@ -60,11 +44,34 @@ logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
     handlers=[
-        logging.FileHandler(log_file, encoding='utf-8'),
+        logging.FileHandler(log_file, encoding='utf-8', mode='a'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
+
+# --- Добавляем корень проекта в sys.path ---
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    # ⚠️ КРИТИЧЕСКИЙ ИМПОРТ ⚠️
+    try:
+        from rag.rag_engine import RAGEngine
+    except ImportError:
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        from rag_engine import RAGEngine
+except Exception as e:
+    logger.critical(f"🔥 FATAL IMPORT ERROR: {e}", exc_info=True)
+    # Пытаемся продолжить чтобы сервер запустился и отдал лог, но без движка
+    RAGEngine = None 
+
+# --- Константы ---
+
+# ID архива данных
+DATA_ARCHIVE_ID = os.environ.get("SHUKABASE_DATA_ID", "1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0")
+
+DATA_DIR = os.path.join(base_path, "rag_data") if getattr(sys, 'frozen', False) else base_path
+CHAT_HISTORY_DIR = os.path.join(base_path, "chat_history")
 
 # --- Глобальные переменные ---
 app = Flask(__name__)
