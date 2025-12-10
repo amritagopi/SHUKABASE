@@ -230,6 +230,40 @@ const App: React.FC = () => {
     // OpenRouter State
     const [openRouterModels, setOpenRouterModels] = useState<any[]>([]);
     const [isLoadingModels, setIsLoadingModels] = useState(false);
+    const [agentThought, setAgentThought] = useState('');
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (loading) {
+            const thoughts = settings.language === 'ru'
+                ? [
+                    "Анализирую ваш вопрос...",
+                    "Ищу мудрость в Ведах...",
+                    "Сверяюсь со Шримад-Бхагаватам...",
+                    "Просматриваю комментарии Шрилы Прабхупады...",
+                    "Формулирую лучший ответ...",
+                    "Почти готово..."
+                ]
+                : [
+                    "Analyzing your question...",
+                    "Searching Vedic wisdom...",
+                    "Consulting Srimad-Bhagavatam...",
+                    "Reviewing Srila Prabhupada's purports...",
+                    "Formulating the best answer...",
+                    "Almost ready..."
+                ];
+
+            let index = 0;
+            setAgentThought(thoughts[0]);
+            interval = setInterval(() => {
+                index = (index + 1) % thoughts.length;
+                setAgentThought(thoughts[index]);
+            }, 2500);
+        } else {
+            setAgentThought('');
+        }
+        return () => clearInterval(interval);
+    }, [loading, settings.language]);
 
     const fetchOpenRouterModels = async () => {
         setIsLoadingModels(true);
@@ -794,6 +828,11 @@ const App: React.FC = () => {
                                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                                 <span className="ml-2 tracking-widest uppercase text-xs opacity-80">{t('agentThinking')}</span>
                             </div>
+                            {agentThought && (
+                                <p className="mt-4 text-xs text-cyan-500/70 font-mono animate-pulse text-center max-w-xs transition-opacity duration-500">
+                                    {agentThought}
+                                </p>
+                            )}
                         </div>
                     )}
                     {!activeConversation && !loading && (
