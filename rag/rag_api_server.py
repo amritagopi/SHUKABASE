@@ -27,7 +27,10 @@ from pathlib import Path
 # Определяем путь к логам до всего остального
 APP_NAME = "Shukabase"
 if getattr(sys, 'frozen', False):
-    base_path = os.path.join(os.getenv('LOCALAPPDATA'), APP_NAME)
+    local_app_data = os.getenv('LOCALAPPDATA')
+    if not local_app_data:
+         local_app_data = os.path.join(os.path.expanduser("~"), ".shukabase")
+    base_path = os.path.join(local_app_data, APP_NAME)
 else:
     base_path = os.path.dirname(os.path.abspath(__file__))
 
