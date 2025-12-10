@@ -47,10 +47,16 @@ pub fn run() {
               let script = cwd.join("rag").join("rag_api_server.py");
               ("python".to_string(), vec![script.to_string_lossy().to_string()], cwd)
           } else {
-              // PROD MODE: rag_api_server.exe
+              // PROD MODE: rag_api_server executable
               // Используем механизм ресурсов Tauri для поиска файла
-              let server_exe = app_handle.path().resolve("rag_api_server.exe", tauri::path::BaseDirectory::Resource)
-                  .expect("failed to resolve resource rag_api_server.exe");
+              let bin_name = if cfg!(target_os = "windows") {
+                  "rag_api_server.exe"
+              } else {
+                  "rag_api_server"
+              };
+
+              let server_exe = app_handle.path().resolve(bin_name, tauri::path::BaseDirectory::Resource)
+                  .expect("failed to resolve resource rag_api_server");
               let cwd = server_exe.parent().unwrap().to_path_buf();
               (server_exe.to_string_lossy().to_string(), vec![], cwd)
           };
