@@ -22,16 +22,30 @@ pub fn run() {
   tauri::Builder::default()
     .manage(state)
     .setup(|app| {
-      if cfg!(debug_assertions) {
-        app.handle().plugin(
+      // 1. Initialize Logger (Always active for diagnostics)
+      // We ignore errors here because if logging fails, we can't do much, but we don't want to crash.
+      let _ = app.handle().plugin(
           tauri_plugin_log::Builder::default()
             .level(log::LevelFilter::Info)
             .build(),
-        )?;
+      );
+
+      // 2. Initialize Opener (Safe init)
+      if let Err(e) = app.handle().plugin(tauri_plugin_opener::init()) {
+          log::error!("Failed to initialize opener plugin: {}", e);
       }
 
-      app.handle().plugin(tauri_plugin_opener::init())?;
-      app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+      // 3. Initialize Updater (Safe init - unexpected config shouldn't kill app)
+      match tauri_plugin_updater::Builder::new().build() {
+          Ok(updater_plugin) => {
+              if let Err(e) = app.handle().plugin(updater_plugin) {
+                  log::error!("Failed to register updater plugin: {}", e);
+              }
+          }
+          Err(e) => {
+              log::error!("Failed to build updater plugin: {}", e);
+          }
+      }
 
       let app_handle = app.handle().clone();
       
@@ -55,13 +69,21 @@ pub fn run() {
                   "rag_api_server"
               };
 
-              let server_exe = app_handle.path().resolve(bin_name, tauri::path::BaseDirectory::Resource)
-                  .expect("failed to resolve resource rag_api_server");
-              let cwd = server_exe.parent().unwrap().to_path_buf();
-              (server_exe.to_string_lossy().to_string(), vec![], cwd)
+              // Safely resolve resource to avoid panic
+              match app_handle.path().resolve(bin_name, tauri::path::BaseDirectory::Resource) {
+                  Ok(path) => {
+                      let cwd = path.parent().unwrap().to_path_buf();
+                      (path.to_string_lossy().to_string(), vec![], cwd)
+                  },
+                  Err(e) => {
+                      log::error!("CRITICAL: Failed to resolve backend binary '{}': {}", bin_name, e);
+                      return; // Exit thread, don't crash app
+                  }
+              }
           };
 
           println!("🚀 Starting Backend: {} in {:?}", cmd, cwd);
+          log::info!("🚀 Starting Backend: {} in {:?}", cmd, cwd);
 
           let mut command = Command::new(&cmd);
           command.args(&args);
@@ -76,6 +98,7 @@ pub fn run() {
           match command.spawn() {
               Ok(mut child) => {
                   println!("✅ Backend started (PID: {})", child.id());
+                  log::info!("✅ Backend started (PID: {})", child.id());
                   
                   let stdout = child.stdout.take().expect("Failed to capture stdout");
                   let stderr = child.stderr.take().expect("Failed to capture stderr");
@@ -86,6 +109,7 @@ pub fn run() {
                       for line in reader.lines() {
                           if let Ok(line) = line {
                                eprintln!("[BACKEND_ERR]: {}", line);
+                               log::error!("[BACKEND_ERR]: {}", line);
                           }
                       }
                   });
@@ -96,6 +120,7 @@ pub fn run() {
                   for line in reader.lines() {
                       if let Ok(line) = line {
                           println!("[BACKEND]: {}", line);
+                          log::info!("[BACKEND]: {}", line);
                           
                           if line.contains("STATUS: SERVER_STARTED") {
                               println!("🎉 Backend started!");
@@ -107,11 +132,13 @@ pub fn run() {
                   // If we exit the loop, the stdout stream ended, meaning the process likely died.
                   if !server_ready {
                       println!("❌ Backend process exited unexpectedly!");
+                      log::error!("❌ Backend process exited unexpectedly!");
                       let _ = app_handle.emit("splash-update", "Error: Backend process exited unexpectedly. Check logs.");
                   }
               }
               Err(e) => {
                   eprintln!("❌ Failed to start backend: {}", e);
+                  log::error!("❌ Failed to start backend: {}", e);
                   let _ = app_handle.emit("splash-update", format!("Error: {}", e));
               }
           }
