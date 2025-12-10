@@ -28,7 +28,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/amritagopi/shukabase-ai/releases/latest/download/latest.json"
+        "https://github.com/amritagopi/shukabase-gemini/releases/latest/download/latest.json"
       ]
     }
   },
