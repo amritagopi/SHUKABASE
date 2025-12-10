@@ -55,12 +55,14 @@ jobs:
         run: |
           pyinstaller --clean rag_api_server.spec
           copy dist\rag_api_server.exe src-tauri\rag_api_server.exe
+          echo dummy > src-tauri\rag_api_server
 
       - name: Build Python Backend (macOS/Linux)
         if: runner.os != 'Windows'
         run: |
           pyinstaller --clean rag_api_server.spec
-          mv dist/rag_api_server src-tauri/rag_api_server.exe
+          mv dist/rag_api_server src-tauri/rag_api_server
+          touch src-tauri/rag_api_server.exe
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
