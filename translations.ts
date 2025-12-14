@@ -73,7 +73,12 @@ export const TRANSLATIONS = {
             "ej": "Easy Journey to Other Planets",
             "lob": "Light of the Bhagavata",
             "spl": "Prabhupada Lilamrta"
-        }
+        },
+        commandDeck: "Command Deck",
+        selectProtocol: "SELECT PROTOCOL",
+        backToList: "Back to List",
+        activateProtocol: "Activate Protocol",
+        openAiTools: "AI Tools Studio"
     },
     ru: {
         appTitle: "SHUKABASE",
@@ -149,6 +154,11 @@ export const TRANSLATIONS = {
             "ej": "Легкое путешествие на другие планеты",
             "lob": "Свет Бхагаваты",
             "spl": "Прабхупада-лиламрита"
-        }
+        },
+        commandDeck: "Командная Панель",
+        selectProtocol: "ВЫБЕРИТЕ ПРОТОКОЛ",
+        backToList: "Назад к списку",
+        activateProtocol: "Активировать Протокол",
+        openAiTools: "Студия AI Инструментов"
     }
 };

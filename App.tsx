@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkles, Server, X, Search, Download, Heart } from 'lucide-react';
+import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkles, Server, X, Search, Download, Heart, ArrowRight } from 'lucide-react';
 import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader, AgentStep } from './types';
 import { generateRAGResponse, getConversations, getConversation, saveConversation, searchScriptures } from './services/geminiService';
 import { ParsedContent } from './utils/citationParser';
@@ -370,13 +370,7 @@ const App: React.FC = () => {
         }
     }, [appMode]);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [activeConversation?.messages, loading]);
 
     const handleSelectConversation = async (id: string) => {
         try {
@@ -427,8 +421,10 @@ const App: React.FC = () => {
         }
     };
 
-    const handleSend = async () => {
-        if (!input.trim() || loading || isSendingRef.current) return;
+    const handleSend = async (manualContent?: string, forceNewChat: boolean = false) => {
+        const contentToSend = manualContent || input;
+        if (!contentToSend.trim() || loading || isSendingRef.current) return;
+
         // Check API key based on provider
         if (settings.provider === 'openrouter') {
             if (!settings.openrouterApiKey) {
@@ -443,7 +439,7 @@ const App: React.FC = () => {
             }
         }
 
-        const userMsgContent = input;
+        const userMsgContent = contentToSend;
         setInput('');
         setLoading(true);
         isSendingRef.current = true;
@@ -452,8 +448,10 @@ const App: React.FC = () => {
 
         setAgentSteps([]); // Clear previous steps
 
-        const updatedConversation: Conversation = activeConversation
-            ? { ...activeConversation, messages: [...activeConversation.messages, newUserMsg], lastModified: Date.now() }
+        const shouldStartNew = forceNewChat || !activeConversation;
+
+        const updatedConversation: Conversation = !shouldStartNew
+            ? { ...activeConversation!, messages: [...activeConversation!.messages, newUserMsg], lastModified: Date.now() }
             : { id: Date.now().toString(), title: userMsgContent.slice(0, 30) + '...', messages: [newUserMsg], createdAt: new Date().toISOString(), lastModified: Date.now() };
 
         setActiveConversation(updatedConversation);
@@ -783,15 +781,6 @@ const App: React.FC = () => {
                         </button>
 
                         <button
-                            onClick={() => setIsPromptDrawerOpen(true)}
-                            className="p-2 text-cyan-400 hover:text-white transition-colors hover:bg-cyan-500/10 rounded-lg group relative"
-                            title="AI Tools Studio"
-                        >
-                            <Sparkles size={20} className="group-hover:rotate-12 transition-transform" />
-                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
-                        </button>
-
-                        <button
                             onClick={() => setIsSettingsOpen(true)}
                             className="p-2 text-slate-400 hover:text-white transition-colors hover:bg-slate-800/50 rounded-lg"
                         >
@@ -800,9 +789,23 @@ const App: React.FC = () => {
                     </div>
                 </header>
 
-                </header>
+                {/* Side Trigger for Prompt Drawer */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30">
+                    <button
+                        onClick={() => setIsPromptDrawerOpen(true)}
+                        className="group flex flex-col items-center justify-center gap-2 w-8 h-32 bg-slate-950/80 backdrop-blur-md border-r border-y border-cyan-500/30 rounded-r-2xl transform transition-all duration-300 hover:w-10 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] active:scale-95"
+                        title={t('openAiTools')}
+                    >
+                        <div className="h-full w-0.5 bg-gradient-to-b from-transparent via-cyan-500/50 to-transparent group-hover:via-cyan-400 rounded-full" />
+                        <div className="absolute p-2 rounded-full bg-cyan-950/50 border border-cyan-500/50 group-hover:bg-cyan-500/20 transition-all">
+                            <ArrowRight size={16} className="text-cyan-400 group-hover:text-cyan-200" />
+                        </div>
+                    </button>
+                </div>
 
-                <div 
+
+
+                <div
                     ref={chatContainerRef}
                     className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth"
                 >
@@ -929,7 +932,7 @@ const App: React.FC = () => {
                             </button>
                         ) : (
                             <button
-                                onClick={handleSend}
+                                onClick={() => handleSend()}
                                 disabled={!input.trim()}
                                 className="absolute right-2 top-2 p-1.5 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-500 hover:to-teal-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-cyan-900/20"
                             >
@@ -1082,214 +1085,218 @@ const App: React.FC = () => {
                 </div>
             </div>
 
-            {fullTextModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4" onClick={() => setFullTextModalOpen(false)}>
-                    <div className="glass-panel rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col border border-slate-700/50" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6 border-b border-slate-700/30 flex justify-between items-center bg-black/20">
-                            <h3 className="font-bold text-lg text-slate-100 glow-text-cyan">{fullTextTitle}</h3>
-                            <div className="flex items-center gap-2">
+            {
+                fullTextModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4" onClick={() => setFullTextModalOpen(false)}>
+                        <div className="glass-panel rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col border border-slate-700/50" onClick={(e) => e.stopPropagation()}>
+                            <div className="p-6 border-b border-slate-700/30 flex justify-between items-center bg-black/20">
+                                <h3 className="font-bold text-lg text-slate-100 glow-text-cyan">{fullTextTitle}</h3>
+                                <div className="flex items-center gap-2">
 
-                                <button onClick={() => setFullTextModalOpen(false)} className="text-slate-400 hover:text-white transition-colors hover:rotate-90 duration-200">
-                                    <X size={24} />
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                            className="flex-1 overflow-y-auto p-8 prose prose-invert prose-slate max-w-none custom-scrollbar"
-                            onClick={handleModalClick}
-                        >
-                            {fullTextContent ? (
-                                <div dangerouslySetInnerHTML={{ __html: fullTextContent }} />
-                            ) : (
-                                <div className="flex items-center justify-center h-full text-slate-500">
-                                    <div className="animate-pulse flex flex-col items-center">
-                                        <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                        <p>Loading ancient wisdom...</p>
-                                    </div>
+                                    <button onClick={() => setFullTextModalOpen(false)} className="text-slate-400 hover:text-white transition-colors hover:rotate-90 duration-200">
+                                        <X size={24} />
+                                    </button>
                                 </div>
-                            )}
+                            </div>
+                            <div
+                                className="flex-1 overflow-y-auto p-8 prose prose-invert prose-slate max-w-none custom-scrollbar"
+                                onClick={handleModalClick}
+                            >
+                                {fullTextContent ? (
+                                    <div dangerouslySetInnerHTML={{ __html: fullTextContent }} />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-slate-500">
+                                        <div className="animate-pulse flex flex-col items-center">
+                                            <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                            <p>Loading ancient wisdom...</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {isSettingsOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setIsSettingsOpen(false)}>
-                    <div className="glass-panel border border-slate-700/50 rounded-2xl w-full max-w-md shadow-2xl bg-black/60 backdrop-blur-xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-                            <h3 className="font-bold text-lg text-slate-100 glow-text-cyan">{t('settings')}</h3>
-                            <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-white">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="p-6 space-y-6">
-                            <div className="space-y-4 border-b border-slate-700/50 pb-6 mb-6">
-                                <label className="text-sm font-medium text-slate-300">{t('aiProvider')}</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        onClick={() => setSettings({ ...settings, provider: 'google' })}
-                                        className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${settings.provider === 'google'
-                                            ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.2)]'
-                                            : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                            }`}
-                                    >
-                                        Google Gemini
-                                    </button>
-                                    <button
-                                        onClick={() => setSettings({ ...settings, provider: 'openrouter' })}
-                                        className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${settings.provider === 'openrouter'
-                                            ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]'
-                                            : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                            }`}
-                                    >
-                                        OpenRouter
-                                    </button>
-                                </div>
+            {
+                isSettingsOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setIsSettingsOpen(false)}>
+                        <div className="glass-panel border border-slate-700/50 rounded-2xl w-full max-w-md shadow-2xl bg-black/60 backdrop-blur-xl" onClick={(e) => e.stopPropagation()}>
+                            <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+                                <h3 className="font-bold text-lg text-slate-100 glow-text-cyan">{t('settings')}</h3>
+                                <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-white">
+                                    <X size={20} />
+                                </button>
                             </div>
 
-                            {settings.provider === 'google' ? (
-                                <>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">{t('geminiApiKey')}</label>
-                                        <input
-                                            type="password"
-                                            value={settings.apiKey}
-                                            onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
-                                            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
-                                        />
+                            <div className="p-6 space-y-6">
+                                <div className="space-y-4 border-b border-slate-700/50 pb-6 mb-6">
+                                    <label className="text-sm font-medium text-slate-300">{t('aiProvider')}</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => setSettings({ ...settings, provider: 'google' })}
+                                            className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${settings.provider === 'google'
+                                                ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.2)]'
+                                                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
+                                                }`}
+                                        >
+                                            Google Gemini
+                                        </button>
+                                        <button
+                                            onClick={() => setSettings({ ...settings, provider: 'openrouter' })}
+                                            className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${settings.provider === 'openrouter'
+                                                ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]'
+                                                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
+                                                }`}
+                                        >
+                                            OpenRouter
+                                        </button>
                                     </div>
+                                </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">Model</label>
-                                        <input
-                                            type="text"
-                                            list="model-options"
-                                            value={settings.model}
-                                            onChange={(e) => setSettings({ ...settings, model: e.target.value })}
-                                            placeholder="Select or type model ID..."
-                                            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
-                                        />
-                                        <datalist id="model-options">
-                                            <option value="gemini-2.5-flash-preview-09-2025" />
-                                            <option value="gemini-2.5-flash-lite" />
-                                            <option value="gemini-2.5-flash" />
-                                            <option value="gemini-2.0-flash" />
-                                        </datalist>
-                                        <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                                            {settings.language === 'ru' ? (
-                                                <>
-                                                    См. <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog?hl=ru').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog?hl=ru', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">историю изменений</button>, чтобы узнать о новых и закрытых моделях. На Preview и Experimental версии часто действуют щедрые бесплатные лимиты.
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Check the <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">changelog</button> for new/deprecated models. Preview & Experimental versions often have generous free tier limits.
-                                                </>
-                                            )}
-                                        </p>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="space-y-4 animate-fade-in">
-                                    <div className="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg text-xs text-purple-200">
-                                        {t('openRouterDescription')} <button onClick={() => openUrl('https://openrouter.ai/models').catch(() => window.open('https://openrouter.ai/models', '_blank'))} className="text-purple-400 hover:underline">{t('checkAvailableModels')}</button>.
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">{t('openRouterApiKey')}</label>
-                                        <input
-                                            type="password"
-                                            value={settings.openrouterApiKey}
-                                            onChange={(e) => setSettings({ ...settings, openrouterApiKey: e.target.value })}
-                                            placeholder="sk-or-v1-..."
-                                            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
-                                            onBlur={() => {
-                                                if (settings.openrouterApiKey && openRouterModels.length === 0) fetchOpenRouterModels();
-                                            }}
-                                        />
-                                        <p className="text-[10px] text-slate-500">{t('keySavedLocally')}</p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <label className="text-sm font-medium text-slate-300">{t('model')}</label>
-                                            <button
-                                                onClick={fetchOpenRouterModels}
-                                                disabled={isLoadingModels}
-                                                className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 disabled:opacity-50"
-                                            >
-                                                {isLoadingModels ? <span className="animate-spin">↻</span> : <Sparkles size={12} />}
-                                                {t('refreshList')}
-                                            </button>
+                                {settings.provider === 'google' ? (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-slate-300">{t('geminiApiKey')}</label>
+                                            <input
+                                                type="password"
+                                                value={settings.apiKey}
+                                                onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
+                                            />
                                         </div>
 
-                                        {openRouterModels.length > 0 ? (
-                                            <select
-                                                value={settings.openrouterModel}
-                                                onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none appearance-none"
-                                            >
-                                                {openRouterModels.map((m: any) => (
-                                                    <option key={m.id} value={m.id}>
-                                                        {m.name || m.id} ({Math.round((m.context_length || 0) / 1024)}k ctx)
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        ) : (
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-slate-300">Model</label>
                                             <input
                                                 type="text"
-                                                value={settings.openrouterModel}
-                                                onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
-                                                placeholder="google/gemini-2.0-flash-exp:free"
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                                                list="model-options"
+                                                value={settings.model}
+                                                onChange={(e) => setSettings({ ...settings, model: e.target.value })}
+                                                placeholder="Select or type model ID..."
+                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
                                             />
-                                        )}
-                                        <p className="text-[10px] text-slate-500">
-                                            {t('openRouterFooter')}
-                                        </p>
+                                            <datalist id="model-options">
+                                                <option value="gemini-2.5-flash-preview-09-2025" />
+                                                <option value="gemini-2.5-flash-lite" />
+                                                <option value="gemini-2.5-flash" />
+                                                <option value="gemini-2.0-flash" />
+                                            </datalist>
+                                            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                {settings.language === 'ru' ? (
+                                                    <>
+                                                        См. <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog?hl=ru').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog?hl=ru', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">историю изменений</button>, чтобы узнать о новых и закрытых моделях. На Preview и Experimental версии часто действуют щедрые бесплатные лимиты.
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Check the <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">changelog</button> for new/deprecated models. Preview & Experimental versions often have generous free tier limits.
+                                                    </>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="space-y-4 animate-fade-in">
+                                        <div className="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg text-xs text-purple-200">
+                                            {t('openRouterDescription')} <button onClick={() => openUrl('https://openrouter.ai/models').catch(() => window.open('https://openrouter.ai/models', '_blank'))} className="text-purple-400 hover:underline">{t('checkAvailableModels')}</button>.
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-slate-300">{t('openRouterApiKey')}</label>
+                                            <input
+                                                type="password"
+                                                value={settings.openrouterApiKey}
+                                                onChange={(e) => setSettings({ ...settings, openrouterApiKey: e.target.value })}
+                                                placeholder="sk-or-v1-..."
+                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                                                onBlur={() => {
+                                                    if (settings.openrouterApiKey && openRouterModels.length === 0) fetchOpenRouterModels();
+                                                }}
+                                            />
+                                            <p className="text-[10px] text-slate-500">{t('keySavedLocally')}</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-sm font-medium text-slate-300">{t('model')}</label>
+                                                <button
+                                                    onClick={fetchOpenRouterModels}
+                                                    disabled={isLoadingModels}
+                                                    className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 disabled:opacity-50"
+                                                >
+                                                    {isLoadingModels ? <span className="animate-spin">↻</span> : <Sparkles size={12} />}
+                                                    {t('refreshList')}
+                                                </button>
+                                            </div>
+
+                                            {openRouterModels.length > 0 ? (
+                                                <select
+                                                    value={settings.openrouterModel}
+                                                    onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none appearance-none"
+                                                >
+                                                    {openRouterModels.map((m: any) => (
+                                                        <option key={m.id} value={m.id}>
+                                                            {m.name || m.id} ({Math.round((m.context_length || 0) / 1024)}k ctx)
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={settings.openrouterModel}
+                                                    onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
+                                                    placeholder="google/gemini-2.0-flash-exp:free"
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                                                />
+                                            )}
+                                            <p className="text-[10px] text-slate-500">
+                                                {t('openRouterFooter')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="pt-6 border-t border-slate-700/50 text-center space-y-3">
+                                    <p className="text-sm text-cyan-200/80 font-medium leading-relaxed">
+                                        {t('settingsFooterText')}
+                                    </p>
+                                    <div className="flex flex-col items-center gap-2 text-xs text-slate-400">
+                                        <p>{t('createdWithLove')}</p>
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    await openUrl('https://boosty.to/amritagopi');
+                                                } catch (e) {
+                                                    console.error('Failed to open link with Tauri, trying window.open:', e);
+                                                    window.open('https://boosty.to/amritagopi', '_blank');
+                                                }
+                                            }}
+                                            className="relative group transition-transform hover:scale-110 active:scale-95 p-2 mt-1"
+                                            title="Support on Boosty"
+                                        >
+                                            <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <Heart
+                                                className="w-8 h-8 text-rose-400 fill-rose-500/10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(251,113,133,0.8)] group-hover:fill-rose-500/30 transition-all duration-300"
+                                                strokeWidth={1.5}
+                                            />
+                                        </button>
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="pt-6 border-t border-slate-700/50 text-center space-y-3">
-                                <p className="text-sm text-cyan-200/80 font-medium leading-relaxed">
-                                    {t('settingsFooterText')}
-                                </p>
-                                <div className="flex flex-col items-center gap-2 text-xs text-slate-400">
-                                    <p>{t('createdWithLove')}</p>
+                                <div className="pt-4 flex justify-end">
                                     <button
-                                        onClick={async () => {
-                                            try {
-                                                await openUrl('https://boosty.to/amritagopi');
-                                            } catch (e) {
-                                                console.error('Failed to open link with Tauri, trying window.open:', e);
-                                                window.open('https://boosty.to/amritagopi', '_blank');
-                                            }
-                                        }}
-                                        className="relative group transition-transform hover:scale-110 active:scale-95 p-2 mt-1"
-                                        title="Support on Boosty"
+                                        onClick={() => setIsSettingsOpen(false)}
+                                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-400 text-white rounded-lg transition-colors shadow-lg shadow-cyan-900/20"
                                     >
-                                        <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                        <Heart
-                                            className="w-8 h-8 text-rose-400 fill-rose-500/10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(251,113,133,0.8)] group-hover:fill-rose-500/30 transition-all duration-300"
-                                            strokeWidth={1.5}
-                                        />
+                                        {t('save')}
                                     </button>
                                 </div>
                             </div>
-
-                            <div className="pt-4 flex justify-end">
-                                <button
-                                    onClick={() => setIsSettingsOpen(false)}
-                                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-400 text-white rounded-lg transition-colors shadow-lg shadow-cyan-900/20"
-                                >
-                                    {t('save')}
-                                </button>
-                            </div>
                         </div>
-                    </div>
-                </div >
-            )}
+                    </div >
+                )
+            }
 
             <PromptDrawer
                 isOpen={isPromptDrawerOpen}
@@ -1300,11 +1307,12 @@ const App: React.FC = () => {
                 initialTemplateId={drawerInitialState.templateId}
                 initialData={drawerInitialState.data}
                 onSelectDevice={(prompt, templateTitle) => {
-                    handleSend(prompt);
-                    // Optional: You could add a toast or visual feedback that a "Special Tool" was used
+                    setIsPromptDrawerOpen(false); // Close immediately
+                    handleSend(prompt, true); // Force new chat
                 }}
+                t={t}
             />
-        </div>
+        </div >
     );
 };
 

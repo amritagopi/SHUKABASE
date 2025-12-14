@@ -164,6 +164,7 @@ shukabase_data.zip
 build/
 split_archives/
 src-tauri/rag_api_server.exe
+src-tauri/rag_api_server
 лог с VM.txt
 
 builds/SHUKABASE_EN_0.1.0_x64-setup.exe
