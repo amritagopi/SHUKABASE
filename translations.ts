@@ -78,7 +78,8 @@ export const TRANSLATIONS = {
         selectProtocol: "SELECT PROTOCOL",
         backToList: "Back to List",
         activateProtocol: "Activate Protocol",
-        openAiTools: "AI Tools Studio"
+        openAiTools: "AI Tools Studio",
+        responseGenerationFailed: "Response generation failed."
     },
     ru: {
         appTitle: "SHUKABASE",
@@ -159,6 +160,7 @@ export const TRANSLATIONS = {
         selectProtocol: "ВЫБЕРИТЕ ПРОТОКОЛ",
         backToList: "Назад к списку",
         activateProtocol: "Активировать Протокол",
-        openAiTools: "Студия AI Инструментов"
+        openAiTools: "Студия AI Инструментов",
+        responseGenerationFailed: "Не удалось сгенерировать ответ."
     }
 };

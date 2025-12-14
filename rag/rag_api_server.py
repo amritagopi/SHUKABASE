@@ -233,6 +233,10 @@ def initialize_engine():
             return True
             
         try:
+            if RAGEngine is None:
+                logger.error("❌ RAGEngine class is not loaded (likely due to missing dependencies). Cannot initialize.")
+                return False
+
             # Проверяем наличие основных файлов
             required = ["faiss_index", "chunked_scriptures"] # Check partial names
             present_files = os.listdir(DATA_DIR) if os.path.exists(DATA_DIR) else []

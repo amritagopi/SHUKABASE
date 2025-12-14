@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronDown, Sparkles, ArrowRight, ChevronLeft } from 'lucide-react'; // Ensure ArrowRight/ChevronLeft are imported
+import { X, ChevronDown, Sparkles, ArrowRight, ChevronLeft, Send } from 'lucide-react'; // Ensure ArrowRight/ChevronLeft are imported
 import { PROMPT_TEMPLATES, PromptTemplate } from './promptTemplates';
 
 interface PromptDrawerProps {
@@ -9,12 +9,20 @@ interface PromptDrawerProps {
     initialTemplateId?: string | null;
     initialData?: Record<string, any> | null;
     t: (key: string) => string;
+    language: 'en' | 'ru';
 }
 
-const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDevice, initialTemplateId, initialData, t }) => {
+const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDevice, initialTemplateId, initialData, t, language }) => {
     const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
     const [inputValues, setInputValues] = useState<Record<string, string>>({});
     const [isAnimating, setIsAnimating] = useState(false);
+
+    // Helper to get localized text
+    const txt = (obj: { en: any; ru: any } | string | undefined) => {
+        if (!obj) return '';
+        if (typeof obj === 'string') return obj;
+        return obj[language] || obj['en'];
+    };
 
     // Flatten all templates for the grid view since we removed categories UI
     const allTemplates = Object.values(PROMPT_TEMPLATES).flat();
@@ -46,12 +54,28 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
     const handleGenerate = () => {
         if (!selectedTemplate) return;
         let finalPrompt = selectedTemplate.systemPrompt;
-        selectedTemplate.inputs.forEach(input => {
-            const val = inputValues[input.key] || '';
-            finalPrompt = finalPrompt.replace(new RegExp(`{{${input.key}}}`, 'g'), val);
+
+        // Simple mustache replacement
+        Object.entries(inputValues).forEach(([key, value]) => {
+            finalPrompt = finalPrompt.replace(new RegExp(`{{${key}}}`, 'g'), value);
         });
-        onSelectDevice(finalPrompt, selectedTemplate.title);
-        // State cleanup happens in parent onClose -> useEffect
+
+        // Inject Language Instruction based on UI setting
+        const langInstruction = language === 'ru'
+            ? "\n\n[IMPORTANT SYSTEM INSTRUCTION: The user's interface language is RUSSIAN. Please output your response entirely in RUSSIAN.]"
+            : "\n\n[IMPORTANT SYSTEM INSTRUCTION: The user's interface language is ENGLISH. Please output your response entirely in ENGLISH.]";
+
+        finalPrompt += langInstruction;
+
+        // Create Display Content (User Friendly Summary)
+        const displayLines = Object.entries(inputValues).map(([key, value]) => {
+            const field = selectedTemplate.inputs.find(f => f.key === key);
+            const label = field ? txt(field.label) : key;
+            return `**${label}**: ${value}`;
+        });
+        const displayContent = `**${txt(selectedTemplate.title)}**\n\n${displayLines.join('\n')}`;
+
+        onSelectDevice(finalPrompt, displayContent);
     };
 
     return (
@@ -68,17 +92,9 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                     }`}
             >
                 {/* Main Container */}
-                <div className="h-full w-full bg-[#050B14] border-r border-cyan-500/30 shadow-[0_0_50px_rgba(34,211,238,0.15)] flex overflow-hidden relative">
+                <div className="h-full w-full bg-[#050B14]/30 backdrop-blur-2xl border-r border-cyan-500/30 shadow-[0_0_50px_rgba(34,211,238,0.15)] flex overflow-hidden relative">
 
-                    {/* Cyber Grid Background */}
-                    <div className="absolute inset-0 pointer-events-none opacity-20"
-                        style={{
-                            backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px)',
-                            backgroundSize: '40px 40px',
-                            perspective: '1000px',
-                            transform: 'rotateX(10deg) scale(1.1)'
-                        }}>
-                    </div>
+
 
                     {/* Content Area */}
                     <div className="relative z-10 w-full h-full flex flex-col p-8 md:p-12">
@@ -107,10 +123,10 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                             <button
                                                 key={template.id}
                                                 onClick={() => setSelectedTemplate(template)}
-                                                className="group relative h-24 flex items-center px-8 
-                                                    bg-[#0B1221]/80 backdrop-blur-md 
-                                                    border border-cyan-500/30 rounded-lg 
-                                                    hover:bg-[#11192E] hover:border-cyan-400 
+                                                className="group relative h-24 flex items-center px-8
+                                                    bg-[#0B1221]/80 backdrop-blur-md
+                                                    border border-cyan-500/30 rounded-lg
+                                                    hover:bg-[#11192E] hover:border-cyan-400
                                                     hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]
                                                     transition-all duration-300"
                                             >
@@ -122,10 +138,10 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                                 {/* Text Info */}
                                                 <div className="text-left flex-1">
                                                     <h3 className="text-lg font-semibold text-slate-100 group-hover:text-cyan-300 transition-colors mb-0.5">
-                                                        {template.title}
+                                                        {txt(template.title)}
                                                     </h3>
                                                     <p className="text-xs text-slate-500 group-hover:text-slate-400 line-clamp-1">
-                                                        {template.description}
+                                                        {txt(template.description)}
                                                     </p>
                                                 </div>
 
@@ -143,13 +159,10 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                 {/* Left Column: Hero Image */}
                                 <div className="hidden md:flex flex-1 relative items-center justify-start -ml-12">
                                     <div className="relative w-full h-full flex items-center justify-start">
-                                        {/* Glow effect */}
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-cyan-500/10 blur-[120px] rounded-full mix-blend-screen"></div>
-
                                         {selectedTemplate.image ? (
                                             <img
                                                 src={selectedTemplate.image}
-                                                alt={selectedTemplate.title}
+                                                alt={txt(selectedTemplate.title)}
                                                 className="relative z-10 h-[90%] w-auto object-contain object-left drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity duration-500"
                                             />
                                         ) : (
@@ -163,7 +176,7 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                 </div>
 
                                 {/* Right Column: Controls */}
-                                <div className="flex-1 flex flex-col justify-center max-w-xl mx-auto md:mx-0 w-full">
+                                <div className="flex-1 flex flex-col max-w-xl mx-auto md:mx-0 w-full overflow-y-auto custom-scrollbar px-2 py-4">
 
                                     {/* Header & Back */}
                                     <div className="mb-8">
@@ -178,10 +191,10 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                         </button>
 
                                         <h2 className="text-3xl md:text-4xl font-bold text-white glow-text-cyan mb-2">
-                                            {selectedTemplate.title}
+                                            {txt(selectedTemplate.title)}
                                         </h2>
                                         <p className="text-lg text-slate-400 leading-relaxed border-l-2 border-cyan-500/50 pl-4 py-1">
-                                            {selectedTemplate.description}
+                                            {txt(selectedTemplate.description)}
                                         </p>
                                     </div>
 
@@ -190,13 +203,13 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                         {selectedTemplate.inputs.map(input => (
                                             <div key={input.key} className="space-y-2">
                                                 <label className="text-sm font-medium text-cyan-100/80 ml-1">
-                                                    {input.label}
+                                                    {txt(input.label)}
                                                 </label>
                                                 {input.type === 'textarea' ? (
                                                     <textarea
                                                         value={inputValues[input.key] || ''}
                                                         onChange={(e) => setInputValues(prev => ({ ...prev, [input.key]: e.target.value }))}
-                                                        placeholder={input.placeholder}
+                                                        placeholder={txt(input.placeholder)}
                                                         rows={4}
                                                         className="w-full bg-[#0B1221] border border-cyan-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-all outline-none resize-none shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]"
                                                     />
@@ -207,8 +220,8 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                                             onChange={(e) => setInputValues(prev => ({ ...prev, [input.key]: e.target.value }))}
                                                             className="w-full bg-[#0B1221] border border-cyan-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-all outline-none appearance-none shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]"
                                                         >
-                                                            <option value="" disabled selected>{input.placeholder}</option>
-                                                            {input.options?.map(opt => (
+                                                            <option value="" disabled selected>{txt(input.placeholder)}</option>
+                                                            {(input.options ? txt(input.options) as string[] : []).map(opt => (
                                                                 <option key={opt} value={opt}>{opt}</option>
                                                             ))}
                                                         </select>
@@ -219,7 +232,7 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
                                                         type={input.type}
                                                         value={inputValues[input.key] || ''}
                                                         onChange={(e) => setInputValues(prev => ({ ...prev, [input.key]: e.target.value }))}
-                                                        placeholder={input.placeholder}
+                                                        placeholder={txt(input.placeholder)}
                                                         className="w-full bg-[#0B1221] border border-cyan-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder:text-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-all outline-none shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]"
                                                     />
                                                 )}
@@ -228,10 +241,9 @@ const PromptDrawer: React.FC<PromptDrawerProps> = ({ isOpen, onClose, onSelectDe
 
                                         <button
                                             onClick={handleGenerate}
-                                            className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-bold rounded-xl shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] transition-all transform active:scale-[0.98] mt-4 uppercase tracking-widest flex items-center justify-center gap-3 border border-cyan-400/20"
+                                            className="w-full py-6 bg-gradient-to-r from-cyan-600 to-teal-600 rounded-xl text-white shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center group mt-4 border border-cyan-400/20"
                                         >
-                                            <Sparkles className="w-5 h-5 animate-pulse" />
-                                            Activate Protocol
+                                            <Send className="w-8 h-8 group-hover:scale-110 transition-transform" />
                                         </button>
                                     </div>
                                 </div>

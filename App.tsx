@@ -421,7 +421,7 @@ const App: React.FC = () => {
         }
     };
 
-    const handleSend = async (manualContent?: string, forceNewChat: boolean = false) => {
+    const handleSend = async (manualContent?: string, forceNewChat: boolean = false, displayContent?: string) => {
         const contentToSend = manualContent || input;
         if (!contentToSend.trim() || loading || isSendingRef.current) return;
 
@@ -444,7 +444,8 @@ const App: React.FC = () => {
         setLoading(true);
         isSendingRef.current = true;
 
-        const newUserMsg: Message = { role: 'user', content: userMsgContent, parts: [{ text: userMsgContent }], timestamp: Date.now() };
+        const visibleContent = displayContent || userMsgContent;
+        const newUserMsg: Message = { role: 'user', content: visibleContent, parts: [{ text: userMsgContent }], timestamp: Date.now() };
 
         setAgentSteps([]); // Clear previous steps
 
@@ -452,7 +453,7 @@ const App: React.FC = () => {
 
         const updatedConversation: Conversation = !shouldStartNew
             ? { ...activeConversation!, messages: [...activeConversation!.messages, newUserMsg], lastModified: Date.now() }
-            : { id: Date.now().toString(), title: userMsgContent.slice(0, 30) + '...', messages: [newUserMsg], createdAt: new Date().toISOString(), lastModified: Date.now() };
+            : { id: Date.now().toString(), title: visibleContent.slice(0, 30) + '...', messages: [newUserMsg], createdAt: new Date().toISOString(), lastModified: Date.now() };
 
         setActiveConversation(updatedConversation);
 
@@ -737,13 +738,20 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-purple-900/10 via-transparent to-orange-900/10">
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full animate-pulse"
-                    style={{ background: 'radial-gradient(circle, rgba(28, 105, 135, 0.2) 0%, rgba(28, 105, 135, 0) 60%)' }}></div>
-                <div className="absolute bottom-[-500px] right-[-500px] w-[1200px] h-[1200px] animate-pulse"
-                    style={{ background: 'radial-gradient(circle, rgba(9, 26, 180, 0.15) 0%, rgba(9, 26, 180, 0) 60%)', animationDelay: '2s' }}></div>
-
+        <div className="flex h-screen w-screen overflow-hidden relative">
+            {/* Video Background */}
+            <div className="absolute inset-0 -z-20">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                >
+                    <source src="/background.mp4" type="video/mp4" />
+                </video>
+                {/* Overlay for tint/glassmorphism base */}
+                <div className="absolute inset-0 bg-[#050B14]/40 backdrop-blur-sm" />
             </div>
 
             <ConversationHistory
@@ -1306,11 +1314,12 @@ const App: React.FC = () => {
                 }}
                 initialTemplateId={drawerInitialState.templateId}
                 initialData={drawerInitialState.data}
-                onSelectDevice={(prompt, templateTitle) => {
+                onSelectDevice={(prompt, displayContent) => {
                     setIsPromptDrawerOpen(false); // Close immediately
-                    handleSend(prompt, true); // Force new chat
+                    handleSend(prompt, true, displayContent); // Force new chat with display override
                 }}
                 t={t}
+                language={settings.language as 'en' | 'ru'}
             />
         </div >
     );

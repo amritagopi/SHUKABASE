@@ -182,7 +182,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               >
                 <MessageSquare size={18} className={activeConversationId === convo.id ? 'text-cyan-400' : 'opacity-50'} />
                 <div className="flex-1 truncate text-sm font-medium">
-                  {convo.title}
+                  {convo.title.replace(/[\*\_\#\[\]]/g, '').trim()}
                 </div>
 
                 <button

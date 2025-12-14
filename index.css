@@ -39,6 +39,26 @@ body {
   background: #a3a3a3;
 }
 
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #7c7c7c transparent;
+  overflow-y: auto; /* Ensure it scrolls */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #7c7c7c;
+  border-radius: 3px;
+}
+
 /* Neon Glow Utilities */
 .glow-text-cyan {
   text-shadow: 0 0 10px rgba(34, 211, 238, 0.6), 0 0 20px rgba(34, 211, 238, 0.3);
