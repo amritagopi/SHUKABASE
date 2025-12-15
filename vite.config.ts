@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => {
       }
     },
     optimizeDeps: {
-      entries: ['index.html', 'src/**/*.{ts,tsx}']
+      entries: ['index.html', 'src/**/*.{ts,tsx}'],
+      exclude: ['vitest', '@testing-library/jest-dom', '@testing-library/react', 'jsdom']
     },
     plugins: [react()],
     define: {

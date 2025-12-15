@@ -74,9 +74,8 @@ export const TRANSLATIONS = {
             "lob": "Light of the Bhagavata",
             "spl": "Prabhupada Lilamrta"
         },
-        commandDeck: "Command Deck",
-        selectProtocol: "SELECT PROTOCOL",
-        backToList: "Back to List",
+        quickQueries: "Quick Queries",
+        sendRequest: "Send Request",
         activateProtocol: "Activate Protocol",
         openAiTools: "AI Tools Studio",
         responseGenerationFailed: "Response generation failed."
@@ -156,9 +155,9 @@ export const TRANSLATIONS = {
             "lob": "Свет Бхагаваты",
             "spl": "Прабхупада-лиламрита"
         },
-        commandDeck: "Командная Панель",
-        selectProtocol: "ВЫБЕРИТЕ ПРОТОКОЛ",
-        backToList: "Назад к списку",
+
+        quickQueries: "Быстрые запросы",
+        sendRequest: "Отправить запрос",
         activateProtocol: "Активировать Протокол",
         openAiTools: "Студия AI Инструментов",
         responseGenerationFailed: "Не удалось сгенерировать ответ."

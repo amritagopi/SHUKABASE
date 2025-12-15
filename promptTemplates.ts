@@ -411,7 +411,7 @@ Evaluate the user's answer and respond in this structured format:
         {
             id: 'shastra_vision',
             title: { en: 'Shastra Vision', ru: 'Shastra Vision' },
-            description: { en: 'Precise prompts for Art AI', ru: 'Создание точных промптов для Art AI' },
+            description: { en: 'Creating a prompt for generating images using neural networks (Midjourney, DALL-E, Nano Banana, etc.)', ru: 'Создание запроса (промпта) для генерации изображения с помощью нейросетей (Midjourney, DALL-E, Nano Banana и т. п.)' },
             icon: ImageIcon,
             image: '/cards/painting.png',
             color: 'text-pink-400',
