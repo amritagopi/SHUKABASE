@@ -117,6 +117,7 @@ jobs:
           SHUKABASE_LANG: ${{ matrix.language }}
           SHUKABASE_DATA_ID: ${{ matrix.data_id }}
           CI: true
+        shell: bash
         run: |
           if [[ "${{ matrix.platform }}" == *"macos"* ]]; then
             npm run tauri build -- --target universal-apple-darwin
