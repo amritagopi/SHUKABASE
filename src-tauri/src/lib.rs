@@ -60,7 +60,15 @@ pub fn run() {
               // Используем механизм ресурсов Tauri для поиска файла
               let bin_name = if cfg!(target_os = "windows") {
                   "rag_api_server.exe"
+              } else if cfg!(target_os = "macos") {
+                  // На macOS выбираем бинарник в зависимости от архитектуры
+                  if std::env::consts::ARCH == "aarch64" {
+                      "rag_api_server_aarch64"
+                  } else {
+                      "rag_api_server_x64"
+                  }
               } else {
+                  // Linux и другие
                   "rag_api_server"
               };
 

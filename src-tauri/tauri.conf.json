@@ -37,7 +37,9 @@
     ],
     "resources": [
       "rag_api_server.exe",
-      "rag_api_server"
+      "rag_api_server",
+      "rag_api_server_x64",
+      "rag_api_server_aarch64"
     ],
     "windows": {
       "nsis": {
