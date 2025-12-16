@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-15, macos-14, ubuntu-22.04]
+        platform: [windows-latest, macos-13, ubuntu-22.04]
         language: [en, ru, all]
         include:
           - language: en
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-14' && 'aarch64-apple-darwin' || 'x86_64-apple-darwin' }}
+          targets: ${{ contains(matrix.platform, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install Linux Dependencies
         if: runner.os == 'Linux'
@@ -90,7 +90,11 @@ jobs:
           SHUKABASE_DATA_ID: ${{ matrix.data_id }}
           CI: true
         run: |
-          npm run tauri build
+          if [[ "${{ matrix.platform }}" == *"macos"* ]]; then
+            npm run tauri build -- --target universal-apple-darwin
+          else
+            npm run tauri build
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -99,6 +103,7 @@ jobs:
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
             src-tauri/target/release/bundle/deb/*.deb
             src-tauri/target/release/bundle/appimage/*.AppImage
           if-no-files-found: warn
