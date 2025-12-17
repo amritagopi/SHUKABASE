@@ -105,7 +105,135 @@ setup_state = {
 
 # --- Функции для скачивания данных ---
 
-# ... (Previous download functions remain, but we need to update background_download_task to write version)
+# --- Ссылки на данные (GitHub Releases) ---
+DATA_URLS = {
+    'all': "https://github.com/amritagopi/shukabase-gemini/releases/download/data-v2/shukabase_data_multilingual.zip",
+    'ru': "https://github.com/amritagopi/shukabase-gemini/releases/download/data-v2/shukabase_data_ru.zip",
+    'en': "https://github.com/amritagopi/shukabase-gemini/releases/download/data-v2/shukabase_data_en.zip"
+}
+
+def download_file_direct(url, destination):
+    session = requests.Session()
+    logger.info(f"Downloading from: {url}")
+    
+    try:
+        response = session.get(url, stream=True, timeout=30)
+        response.raise_for_status() # Check for HTTP errors
+        
+        CHUNK_SIZE = 32768
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        # Если сервер не отдает размер, используем примерный (500MB)
+        if total_size == 0:
+            total_size = 500 * 1024 * 1024 
+        
+        with open(destination, "wb") as f:
+            for chunk in response.iter_content(CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    # Обновляем прогресс (0-80% выделяем на скачивание)
+                    progress = min(80, int((downloaded / total_size) * 80))
+                    setup_state["progress"] = progress
+                    setup_state["status"] = "downloading"
+                    
+        logger.info("Download saved successfully.")
+        
+    except Exception as e:
+        logger.error(f"❌ Download error: {e}")
+        raise e
+
+def background_download_task(language_mode):
+    global setup_state
+    setup_state["is_downloading"] = True
+    setup_state["status"] = "downloading"
+    setup_state["progress"] = 0
+    setup_state["error"] = None
+    
+    try:
+        if not os.path.exists(DATA_DIR):
+            os.makedirs(DATA_DIR, exist_ok=True)
+
+        zip_path = os.path.join(DATA_DIR, "shukabase_data.zip")
+        
+        # Выбираем URL
+        download_url = DATA_URLS.get(language_mode, DATA_URLS['all'])
+        
+        logger.info(f"Starting download for mode: {language_mode} from {download_url}")
+        
+        download_file_direct(download_url, zip_path)
+        
+        # Проверка целостности архива ПЕРЕД извлечением
+        if not zipfile.is_zipfile(zip_path):
+             with open(zip_path, 'rb') as f:
+                 head = f.read(200)
+             logger.error(f"File is not a valid ZIP. Header: {head}")
+             setup_state["error"] = "Downloaded file is corrupted or not a zip file. Check logs."
+             setup_state["status"] = "error"
+             setup_state["is_downloading"] = False
+             return
+
+        setup_state["status"] = "extracting"
+        setup_state["progress"] = 85
+        
+        logger.info("Extracting archive...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(DATA_DIR)
+            
+            # Smart Flattening: Find where the key file is
+            found_root = None
+            for root, dirs, files in os.walk(DATA_DIR):
+                if any(f.startswith('faiss_index_') for f in files):
+                    found_root = root
+                    break
+            
+            if found_root and found_root != DATA_DIR:
+                logger.info(f"Found data in nested folder: {found_root}. Moving to {DATA_DIR}...")
+                for item in os.listdir(found_root):
+                    s = os.path.join(found_root, item)
+                    d = os.path.join(DATA_DIR, item)
+                    if os.path.exists(d):
+                        if os.path.isdir(d):
+                            shutil.rmtree(d)
+                        else:
+                            os.remove(d)
+                    shutil.move(s, d)
+                # Cleanup empty dirs
+                try:
+                    shutil.rmtree(found_root)
+                except:
+                    pass
+
+        # Write version file
+        try:
+            with open(os.path.join(DATA_DIR, "data_version.txt"), "w") as f:
+                f.write(str(DATA_VERSION))
+        except Exception as ve:
+            logger.error(f"Failed to write version file: {ve}")
+
+        os.remove(zip_path)
+        
+        setup_state["progress"] = 95
+        setup_state["status"] = "initializing"
+        
+        # Инициализируем движок
+        # Важно: это может занять время, поэтому делаем это здесь
+        if initialize_engine():
+            setup_state["progress"] = 100
+            setup_state["status"] = "completed"
+        else:
+            setup_state["status"] = "error"
+            setup_state["error"] = "Initialization failed. Check logs for missing files."
+            
+        setup_state["is_downloading"] = False
+        
+    except Exception as e:
+        logger.error(f"Setup failed: {e}", exc_info=True)
+        setup_state["status"] = "error"
+        setup_state["error"] = str(e)
+        setup_state["is_downloading"] = False
 
 # --- API Endpoints ---
 
