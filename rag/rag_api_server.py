@@ -27,30 +27,31 @@ from pathlib import Path
 # --- Настройка логгирования (СРАЗУ) ---
 # Определяем путь к логам до всего остального
 APP_NAME = "Shukabase"
-if getattr(sys, 'frozen', False):
-    local_app_data = os.getenv('LOCALAPPDATA')
-    if not local_app_data:
-         local_app_data = os.path.join(os.path.expanduser("~"), ".shukabase")
-    base_path = os.path.join(local_app_data, APP_NAME)
-else:
-    base_path = os.path.dirname(os.path.abspath(__file__))
+handlers = [logging.StreamHandler()] # Всегда пишем в консоль (перехватывается Rust)
 
-log_dir = os.path.join(base_path, "logs")
-if not os.path.exists(log_dir):
-    try:
-        os.makedirs(log_dir, exist_ok=True)
-    except:
-        pass # Если не можем создать, пишем в stderr
+try:
+    if getattr(sys, 'frozen', False):
+        local_app_data = os.getenv('LOCALAPPDATA')
+        if not local_app_data:
+             local_app_data = os.path.join(os.path.expanduser("~"), ".shukabase")
+        base_path = os.path.join(local_app_data, APP_NAME)
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
 
-log_file = os.path.join(log_dir, "rag_api_server.log")
+    log_dir = os.path.join(base_path, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    log_file = os.path.join(log_dir, "rag_api_server.log")
+    file_handler = logging.FileHandler(log_file, encoding='utf-8', mode='a')
+    handlers.append(file_handler)
+except Exception as e:
+    # Если не удалось создать файл логов, просто выводим ошибку в stderr и работаем дальше
+    sys.stderr.write(f"CRITICAL: Failed to setup file logging: {e}\n")
 
 logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    handlers=[
-        logging.FileHandler(log_file, encoding='utf-8', mode='a'),
-        logging.StreamHandler()
-    ]
+    handlers=handlers
 )
 logger = logging.getLogger(__name__)
 
