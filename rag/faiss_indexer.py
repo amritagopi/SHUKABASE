@@ -19,8 +19,8 @@ import time
 try:
     import faiss
 except ImportError:
-    print("⚠️  FAISS не установлен. Установите с помощью:")
-    print("   pip install faiss-cpu  (или faiss-gpu для GPU)")
+    print("WARNING: FAISS not installed. Install with:")
+    print("   pip install faiss-cpu  (or faiss-gpu for GPU)")
     exit(1)
 
 
@@ -50,9 +50,9 @@ class FAISSIndexer:
         metadata_file = f"rag/embeddings_metadata_{language}.json"
         npz_file = f"rag/embeddings_{language}.npz" # Изменено на .npz
         
-        print(f"📂 Загружаю эмбеддинги из {npz_file}...")
+        print(f"Loading embeddings from {npz_file}...")
         if not Path(npz_file).exists():
-            print(f"⚠️  Файл {npz_file} не найден. Пропускаю обработку {language}.")
+            print(f"WARNING: File {npz_file} not found. Skipping {language}.")
             return None, None
         
         # Загрузка NPZ файла и извлечение эмбеддингов
@@ -61,7 +61,7 @@ class FAISSIndexer:
         embeddings_list = [npz_data[key] for key in sorted(npz_data.files) if key.startswith('embeddings_')]
         
         if not embeddings_list:
-            print(f"❌ В файле {npz_file} не найдено массивов эмбеддингов. Пропускаю обработку {language}.")
+            print(f"ERROR: No embedding arrays found in {npz_file}. Skipping {language}.")
             return None, None
             
         embeddings = np.vstack(embeddings_list).astype('float32')
@@ -69,7 +69,7 @@ class FAISSIndexer:
         print(f"✅ Загружено {embeddings.shape[0]:,} эмбеддингов размерности {embeddings.shape[1]}")
         
         if not Path(metadata_file).exists():
-            print(f"⚠️  Файл {metadata_file} не найден. Пропускаю обработку {language}.")
+            print(f"WARNING: File {metadata_file} not found. Skipping {language}.")
             return None, None
             
         with open(metadata_file, 'r', encoding='utf-8') as f:
@@ -87,7 +87,7 @@ class FAISSIndexer:
         Returns:
             Построенный FAISS индекс
         """
-        print(f"\n🔨 Строю FAISS индекс для {embeddings.shape[0]:,} эмбеддингов...")
+        print(f"\nBuilding FAISS index for {embeddings.shape[0]:,} embeddings...")
         start_time = time.time()
         
         # Нормализуем эмбеддинги перед добавлением в индекс
@@ -110,9 +110,9 @@ class FAISSIndexer:
             
             # Обучение индекса
             if not index.is_trained:
-                print("  ⚙️ Обучаю IndexIVFFlat (может занять некоторое время)...")
+                print("  Training IndexIVFFlat (may take some time)...")
                 index.train(embeddings)
-                print("  ✅ Обучение завершено.")
+                print("  Training completed.")
             
             index.add(embeddings)
         
@@ -127,7 +127,7 @@ class FAISSIndexer:
         index_file = f"rag/faiss_index_{language}.bin"
         metadata_file = f"rag/faiss_metadata_{language}.json"
         
-        print(f"\n💾 Сохраняю индекс в {index_file}...")
+        print(f"\nSaving index to {index_file}...")
         faiss.write_index(index, index_file)
         index_size = Path(index_file).stat().st_size / (1024*1024)
         print(f"✅ Индекс сохранён: {index_size:.2f} МБ")
@@ -135,11 +135,12 @@ class FAISSIndexer:
         # Добавляем информацию о модели эмбеддингов в метаданные индекса
         metadata['embedding_model'] = "models/text-embedding-004"
         metadata['embedding_dim'] = self.embedding_dim
+        metadata['total_embeddings'] = int(index.ntotal)
 
         with open(metadata_file, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=2)
         metadata_size = Path(metadata_file).stat().st_size / (1024*1024)
-        print(f"✅ Метаданные сохранены: {metadata_size:.2f} МБ")
+        print(f"Metadata saved: {metadata_size:.2f} MB")
         return index_file, metadata_file
 
     def process_language(self, language: str = 'ru') -> Dict[str, Any]:
@@ -152,15 +153,24 @@ class FAISSIndexer:
         # Проверяем, существует ли индекс и метаданные
         if Path(index_file).exists() and Path(metadata_file_out).exists():
             index_size = Path(index_file).stat().st_size / (1024*1024)
-            print(f"⏩ Индекс и метаданные для {language} уже существуют ({index_size:.2f} МБ). Пропускаю обработку.")
+            print(f"SKIP: Index and metadata for {language} already exist ({index_size:.2f} MB). Skipping.")
             
             # Загружаем существующие метаданные, чтобы вернуть их в статистику
             with open(metadata_file_out, 'r', encoding='utf-8') as f:
                 existing_metadata = json.load(f)
             
+            # Попытаемся подсчитать общее количество эмбеддингов, если его нет в метаданных
+            total_embeddings = existing_metadata.get('total_embeddings')
+            if total_embeddings is None:
+                total_embeddings = 0
+                if 'structure' in existing_metadata:
+                    for book in existing_metadata['structure'].values():
+                        for file_info in book.values():
+                            total_embeddings += file_info.get('num_chunks', 0)
+            
             return {
                 'language': language,
-                'total_embeddings': existing_metadata.get('total_embeddings', 'N/A'),
+                'total_embeddings': total_embeddings or 'N/A',
                 'embedding_dim': existing_metadata.get('embedding_dim', self.embedding_dim),
                 'index_file': index_file,
                 'metadata_file': metadata_file_out
@@ -190,46 +200,56 @@ class FAISSIndexer:
 def process_all_languages():
     """Обрабатывает индексы для обоих языков."""
     
+    import sys
+    
     print("="*70)
-    print("🔍 СОЗДАНИЕ FAISS ИНДЕКСОВ")
+    print("FAISS INDEXER - START")
     print("="*70)
     
     indexer = FAISSIndexer(embedding_dim=768) # Обновленная размерность
     
     all_stats = {}
     
-    print("\n📍 ЭТАП 1: ИНДЕКС ДЛЯ РУССКИХ ПИСАНИЙ")
-    print("-" * 70)
-    stats_ru = indexer.process_language('ru')
-    if stats_ru:
-        all_stats['ru'] = stats_ru
-    
-    print("\n📍 ЭТАП 2: ИНДЕКС ДЛЯ АНГЛИЙСКИХ ПИСАНИЙ")
-    print("-" * 70)
-    stats_en = indexer.process_language('en')
-    if stats_en:
-        all_stats['en'] = stats_en
+    # CLI: python faiss_indexer.py [ru|en|all]
+    langs = []
+    if len(sys.argv) > 1:
+        arg = sys.argv[1].lower()
+        if arg in ('ru', 'en'):
+            langs = [arg]
+        else:
+            langs = ['ru', 'en']
+    else:
+        langs = ['ru', 'en']
+
+    for lang in langs:
+        print(f"\nSTAGE: {lang.upper()} SCRIPTURES")
+        print("-" * 70)
+        stats = indexer.process_language(lang)
+        if stats:
+            all_stats[lang] = stats
     
     print("\n" + "="*70)
     if not all_stats:
-        print("❌ ИНДЕКСИРОВАНИЕ ЗАВЕРШИЛОСЬ С ОШИБКАМИ ИЛИ БЕЗ СОЗДАНИЯ ИНДЕКСОВ.")
+        print("INDEXING FAILED OR SKIPPED.")
     else:
-        print("✅ ИНДЕКСИРОВАНИЕ ЗАВЕРШЕНО!")
+        print("INDEXING COMPLETED!")
     print("="*70)
     
     for lang, stats in all_stats.items():
-        print(f"\n📊 {lang.upper()}:")
+        print(f"\n[STATS] {lang.upper()}:")
         if stats:
-            print(f"   🔢 Всего эмбеддингов: {stats['total_embeddings']:,}")
-            print(f"   📏 Размерность: {stats['embedding_dim']}")
-            print(f"   📚 Индекс: {stats['index_file']}")
-            print(f"   📝 Метаданные: {stats['metadata_file']}")
+            total = stats['total_embeddings']
+            total_str = f"{total:,}" if isinstance(total, (int, float)) else str(total)
+            print(f"   Total embeddings: {total_str}")
+            print(f"   Dim: {stats['embedding_dim']}")
+            print(f"   Index: {stats['index_file']}")
+            print(f"   Meta: {stats['metadata_file']}")
         else:
-            print("   ⚠️ Пропуск (вероятно, отсутствовали эмбеддинги).")
+            print("   Skip (likely no embeddings).")
     
     if all_stats:
-        print("\n✨ RAG система готова к использованию!")
-        print("👉 Теперь вы можете запустить API сервер: python rag/rag_api_server.py")
+        print("\nRAG system is ready!")
+        print("Now you can start the API server: python rag/rag_api_server.py")
     
     return all_stats
 

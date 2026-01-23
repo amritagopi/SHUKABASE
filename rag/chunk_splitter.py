@@ -108,7 +108,7 @@ class ChunkSplitter:
         total_chunks = 0
         
         for book_name in sorted(parsed_data.keys()):
-            print(f"  📖 Обработка {book_name}...")
+            print(f"  Processing {book_name}...")
             
             chunked_data[book_name] = {}
             book_chunks = 0
@@ -125,9 +125,9 @@ class ChunkSplitter:
                 
                 # Логируем прогресс каждые 100 файлов
                 if file_count % 100 == 0:
-                    print(f"    ⏳ Обработано {file_count} файлов... ({total_chunks} чанков)")
+                    print(f"    Processed {file_count} files... ({total_chunks} chunks)")
             
-            print(f"    ✅ Создано {book_chunks} чанков из {file_count} файлов")
+            print(f"    Created {book_chunks} chunks from {file_count} files")
         
         return chunked_data, total_chunks
     
@@ -145,10 +145,10 @@ class ChunkSplitter:
         output_file = f"rag/chunked_scriptures_{language}.json"
         
         if not Path(parsed_file).exists():
-            print(f"⚠️  Файл {parsed_file} не найден. Пропускаю обработку {language}.")
+            print(f"WARNING: File {parsed_file} not found. Skipping {language}.")
             return None, None
         if Path(output_file).exists():
-            print(f"⏩ {output_file} уже существует. Пропускаю обработку {language}.")
+            print(f"SKIP: {output_file} already exists. Skipping {language}.")
             file_size = Path(output_file).stat().st_size / (1024*1024)
             stats = {
                 'language': language,
@@ -161,20 +161,20 @@ class ChunkSplitter:
                 'elapsed_seconds': 0
             }
             return None, stats
-        print(f"\n🔍 Загружаю {parsed_file}...")
+        print(f"\nLoading {parsed_file}...")
         start_time = time.time()
         with open(parsed_file, 'r', encoding='utf-8') as f:
             parsed_data = json.load(f)
-        print(f"✅ Загружено {len(parsed_data)} книг")
-        print(f"\n✂️  Разбиваю текст на чанки (chunk_size={self.chunk_size}, overlap={self.overlap})...")
+        print(f"Loaded {len(parsed_data)} books")
+        print(f"\nSplitting text into chunks (chunk_size={self.chunk_size}, overlap={self.overlap})...")
         chunked_data, total_chunks = self.chunk_parsed_scripture(parsed_data, language)
-        print(f"\n💾 Сохраняю в {output_file}...")
+        print(f"\nSaving to {output_file}...")
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(chunked_data, f, ensure_ascii=False, indent=2)
         file_size = Path(output_file).stat().st_size / (1024*1024)
         elapsed = time.time() - start_time
-        print(f"✅ Файл сохранён! Размер: {file_size:.2f} МБ")
-        print(f"⏱️  Время обработки: {elapsed:.1f} сек ({elapsed/60:.1f} мин)")
+        print(f"File saved! Size: {file_size:.2f} MB")
+        print(f"Processing time: {elapsed:.1f} sec ({elapsed/60:.1f} min)")
         # Собираем статистику
         stats = {
             'language': language,
@@ -193,7 +193,7 @@ def process_all_languages():
     """Обрабатывает оба языка"""
     
     print("="*70)
-    print("✂️  РАЗБИЕНИЕ ТЕКСТА НА ЧАНКИ")
+    print("CHUNK SPLITTER - START")
     print("="*70)
     
     import sys
@@ -210,26 +210,26 @@ def process_all_languages():
     else:
         langs = ['ru', 'en']
     for lang in langs:
-        print(f"\n📍 ЭТАП: {lang.upper()} ПИСАНИЯ")
+        print(f"\nSTAGE: {lang.upper()} SCRIPTURES")
         print("-" * 70)
         _, stats = splitter.process_language(lang)
         all_stats[lang] = stats
     print("\n" + "="*70)
-    print("✅ РАЗБИЕНИЕ ЗАВЕРШЕНО!")
+    print("CHUNKING COMPLETED!")
     print("="*70)
     total_time = sum(stats['elapsed_seconds'] for stats in all_stats.values() if stats and 'elapsed_seconds' in stats)
     for lang, stats in all_stats.items():
-        print(f"\n📊 {lang.upper()}:")
+        print(f"\n[STATS] {lang.upper()}:")
         if stats:
-            print(f"   📚 Книг: {stats['total_books']}")
-            print(f"   📄 Всего чанков: {stats['total_chunks']}")
-            print(f"   💾 Размер файла: {stats['file_size_mb']:.2f} МБ")
-            print(f"   ⏱️  Время: {stats['elapsed_seconds']:.1f} сек")
-            print(f"   📝 Параметры: chunk_size={stats['chunk_size']}, overlap={stats['overlap']}")
+            print(f"   Books: {stats['total_books']}")
+            print(f"   Total chunks: {stats['total_chunks']}")
+            print(f"   File size: {stats['file_size_mb']:.2f} MB")
+            print(f"   Time: {stats['elapsed_seconds']:.1f} sec")
+            print(f"   Params: chunk_size={stats['chunk_size']}, overlap={stats['overlap']}")
         else:
-            print("   ⚠️  Не обработано.")
-    print(f"\n⏱️  ОБЩЕЕ ВРЕМЯ: {total_time:.1f} сек ({total_time/60:.2f} мин)")
-    print("\n👉 Следующий шаг: Создание эмбеддингов для RAG")
+            print("   Not processed.")
+    print(f"\nTOTAL TIME: {total_time:.1f} sec ({total_time/60:.2f} min)")
+    print("\nNext step: Create embeddings for RAG")
     return all_stats
 
 

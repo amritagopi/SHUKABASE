@@ -29,8 +29,8 @@ class EmbeddingsGenerator:
         """
         self.model_name = "models/text-embedding-004"
         self.embedding_dim = 768  # Размерность для text-embedding-004
-        print(f"🔄 Инициализирован генератор с моделью: {self.model_name}")
-        print(f"📏 Размерность эмбеддинга: {self.embedding_dim}")
+        print(f"Initialized generator with model: {self.model_name}")
+        print(f"Embedding dimension: {self.embedding_dim}")
     
     def generate_embeddings(self, chunks_data: Dict[str, Dict[str, List[str]]], 
                           language: str = 'ru', batch_size: int = 100) -> Dict:
@@ -46,7 +46,7 @@ class EmbeddingsGenerator:
             словарь с эмбеддингами и метаданными
         """
         if batch_size > 100:
-            print(f"⚠️ Размер батча ({batch_size}) превышает лимит API (100). Устанавливаю 100.")
+            print(f"WARNING: Batch size ({batch_size}) exceeds API limit (100). Setting to 100.")
             batch_size = 100
 
         embeddings_data = {
@@ -77,8 +77,8 @@ class EmbeddingsGenerator:
                     })
                     total_chunks += 1
         
-        print(f"📊 Всего чанков для обработки: {total_chunks:,}")
-        print(f"🔄 Генерирую эмбеддинги (batch_size={batch_size}). Это может занять время...\n")
+        print(f"Total chunks to process: {total_chunks:,}")
+        print(f"Generating embeddings (batch_size={batch_size}). This may take a while...\n")
         
         # Генерируем эмбеддинги батчами
         start_time = time.time()
@@ -114,18 +114,18 @@ class EmbeddingsGenerator:
                 rate = total_embeddings / elapsed if elapsed > 0 else 0
                 eta = (len(all_chunks_with_info) - total_embeddings) / rate if rate > 0 else 0
                 
-                print(f"  ⏳ {progress_pct:5.1f}% | {total_embeddings:7,} эмбеддингов | {rate:5.1f} шт/сек | ETA: {eta:6.0f}сек")
+                print(f"  {progress_pct:5.1f}% | {total_embeddings:7,} embeddings | {rate:5.1f} items/sec | ETA: {eta:6.0f}sec")
 
                 # Пауза, чтобы не превышать лимиты API (например, 60 запросов в минуту)
                 time.sleep(1)
 
             except Exception as e:
-                print(f"\n❌ Ошибка при обработке батча {batch_start}-{batch_end}: {e}")
-                print("   Пропускаю этот батч. Проверьте соединение и API ключ.")
+                print(f"\nERROR processing batch {batch_start}-{batch_end}: {e}")
+                print("   Skipping this batch. Check connection and API key.")
                 continue
 
         elapsed = time.time() - start_time
-        print(f"\n✅ Эмбеддинги созданы за {elapsed:.1f} сек ({elapsed/60:.1f} мин)")
+        print(f"\nEmbeddings created in {elapsed:.1f} sec ({elapsed/60:.1f} min)")
         
         return embeddings_data
     
@@ -136,7 +136,7 @@ class EmbeddingsGenerator:
         # ... (этот метод остается без изменений)
         output_file = f"rag/embeddings_{language}.npz"
         
-        print(f"\n💾 Сохраняю эмбеддинги в {output_file}...")
+        print(f"\nSaving embeddings to {output_file}...")
         
         embeddings_arrays = {}
         metadata = {
@@ -174,8 +174,8 @@ class EmbeddingsGenerator:
         npz_size = Path(output_file).stat().st_size / (1024*1024)
         json_size = Path(metadata_file).stat().st_size / (1024*1024)
         
-        print(f"✅ NPZ файл сохранён: {npz_size:.2f} МБ")
-        print(f"✅ Метаданные сохранены: {json_size:.2f} МБ")
+        print(f"NPZ file saved: {npz_size:.2f} MB")
+        print(f"Metadata saved: {json_size:.2f} MB")
         
         return output_file, metadata_file
 
@@ -185,16 +185,16 @@ class EmbeddingsGenerator:
         """
         chunked_file = f"rag/chunked_scriptures_{language}.json"
         
-        print(f"\n🔍 Загружаю чанки из {chunked_file}...")
+        print(f"\nLoading chunks from {chunked_file}...")
         with open(chunked_file, 'r', encoding='utf-8') as f:
             chunks_data = json.load(f)
         
-        print(f"✅ Загружено {len(chunks_data)} книг")
+        print(f"Loaded {len(chunks_data)} books")
         
         embeddings_data = self.generate_embeddings(chunks_data, language=language, batch_size=100)
         
         if sum(len(file_data) for book_data in embeddings_data['books'].values() for file_data in book_data.values()) == 0:
-            print("❌ Не было сгенерировано ни одного эмбеддинга. Процесс прерван.")
+            print("ERROR: No embeddings generated. Aborting.")
             return None
 
         npz_file, json_file = self.save_embeddings(embeddings_data, language=language)
@@ -214,60 +214,63 @@ class EmbeddingsGenerator:
 def process_all_languages():
     """Обрабатывает эмбеддинги для обоих языков"""
     
+    import sys
+    
     print("="*70)
-    print("🧠 ГЕНЕРАЦИЯ ЭМБЕДДИНГОВ ДЛЯ RAG (GOOGLE GEMINI API)")
+    print("EMBEDDINGS GENERATOR - START (GOOGLE GEMINI API)")
     print("="*70)
 
     # Загружаем API ключ из .env файла
     load_dotenv()
     if 'GEMINI_API_KEY' not in os.environ:
-        print("❌ ОШИБКА: Переменная окружения GEMINI_API_KEY не найдена.")
-        print("   Пожалуйста, создайте файл .env в корне проекта и добавьте в него строку:")
-        print("   GEMINI_API_KEY='Ваш_ключ'")
+        print("ERROR: GEMINI_API_KEY environment variable not found.")
         return
     
     try:
         genai.configure(api_key=os.environ['GEMINI_API_KEY'])
-        print("✅ Ключ Gemini API успешно сконфигурирован.")
+        print("API Key configured.")
     except Exception as e:
-        print(f"❌ Ошибка при конфигурации Gemini API: {e}")
+        print(f"Error configuring API: {e}")
         return
 
     generator = EmbeddingsGenerator()
     
     all_stats = {}
     
-    # Русские писания
-    print("\n📍 ЭТАП 1: ЭМБЕДДИНГИ ДЛЯ РУССКИХ ПИСАНИЙ")
-    print("-" * 70)
-    stats_ru = generator.process_language('ru')
-    if stats_ru:
-        all_stats['ru'] = stats_ru
-    
-    # Английские писания
-    print("\n📍 ЭТАП 2: ЭМБЕДДИНГИ ДЛЯ АНГЛИЙСКИХ ПИСАНИЙ")
-    print("-" * 70)
-    stats_en = generator.process_language('en')
-    if stats_en:
-        all_stats['en'] = stats_en
+    langs = []
+    if len(sys.argv) > 1:
+        arg = sys.argv[1].lower()
+        if arg in ('ru', 'en'):
+            langs = [arg]
+        else:
+            langs = ['ru', 'en']
+    else:
+        langs = ['ru', 'en']
+
+    for lang in langs:
+        print(f"\nSTAGE: {lang.upper()} SCRIPTURES")
+        print("-" * 70)
+        stats = generator.process_language(lang)
+        if stats:
+            all_stats[lang] = stats
     
     print("\n" + "="*70)
     if not all_stats:
-        print("❌ ГЕНЕРАЦИЯ ЭМБЕДДИНГОВ ЗАВЕРШИЛАСЬ С ОШИБКАМИ.")
+        print("EMBEDDINGS GENERATION FAILED OR SKIPPED.")
     else:
-        print("✅ ГЕНЕРАЦИЯ ЭМБЕДДИНГОВ ЗАВЕРШЕНА!")
+        print("EMBEDDINGS GENERATION COMPLETED!")
     print("="*70)
     
     for lang, stats in all_stats.items():
-        print(f"\n📊 {lang.upper()}:")
-        print(f"   📚 Книг: {stats['total_books']}")
-        print(f"   🧠 Модель: {stats['embedding_model']}")
-        print(f"   📏 Размерность: {stats['embedding_dim']}")
-        print(f"   💾 NPZ файл: {stats['npz_file']}")
-        print(f"   📝 Метаданные: {stats['metadata_file']}")
+        print(f"\n[STATS] {lang.upper()}:")
+        print(f"   Books: {stats['total_books']}")
+        print(f"   Model: {stats['embedding_model']}")
+        print(f"   Dim: {stats['embedding_dim']}")
+        print(f"   NPZ: {stats['npz_file']}")
+        print(f"   Meta: {stats['metadata_file']}")
     
     if all_stats:
-        print("\n👉 Следующий шаг: Создание индекса для быстрого поиска (FAISS)")
+        print("\nNext step: Create index for fast search (FAISS)")
     
     return all_stats
 

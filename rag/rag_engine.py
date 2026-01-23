@@ -604,6 +604,15 @@ class RAGEngine:
         Основной метод поиска.
         Объединяет: Exact Verse + Vector Search + BM25 + Simple Keyword Search
         """
+        # ==================== PRIORITY RAG LAYER CONFIG ====================
+        # Книги, которые всегда должны быть в топе ("Core ISKCON Basics")
+        CORE_BOOKS = [
+            'Introductory-handbook-for-Krishna-Consciousness', 
+            'Disciple-Course-SHB-5th-Edition-March-2017'
+        ]
+        CORE_BOOST_MULTIPLIER = 2.5 # Существенное повышение веса для базовых книг
+        # ===================================================================
+
         logger.info(f"🔍 Поиск: '{query}' ({language}, top_k={top_k})")
         if language not in self.indices:
             return {'success': False, 'error': f'Индекс для языка {language} не загружен.'}
@@ -676,6 +685,14 @@ class RAGEngine:
             k_rrf = 60
             combined_scores = {}
             
+            # Helper to check if book is CORE
+            def get_boost_multiplier(res_item):
+                book_name = res_item.get('book', '')
+                if any(cb.lower() in book_name.lower() for cb in CORE_BOOKS):
+                    logger.info(f"   🚀 BOOSTING CORE BOOK: {book_name}")
+                    return CORE_BOOST_MULTIPLIER
+                return 1.0
+
             # Добавляем точные результаты (если вдруг есть)
             for res in exact_results:
                 idx = res['index']
@@ -687,7 +704,8 @@ class RAGEngine:
                 if idx not in combined_scores:
                     combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
                 if combined_scores[idx]['rrf_score'] < 50.0:
-                    combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                    boost = get_boost_multiplier(res)
+                    combined_scores[idx]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
                     combined_scores[idx]['data']['vector_rank'] = rank + 1
                 
             # Process BM25 Results
@@ -697,7 +715,8 @@ class RAGEngine:
                     combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
                 if combined_scores[idx]['rrf_score'] < 50.0:
                     # BM25 обычно точнее вектора для редких слов
-                    combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                    boost = get_boost_multiplier(res)
+                    combined_scores[idx]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
                     combined_scores[idx]['data']['keyword_rank'] = rank + 1
 
             # Process Simple Match Results (NEW)
@@ -708,7 +727,8 @@ class RAGEngine:
                     combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
                 if combined_scores[idx]['rrf_score'] < 50.0:
                     # Добавляем вес. Если слово редкое, ранг будет высоким.
-                    combined_scores[idx]['rrf_score'] += 1.0 / (k_rrf + rank + 1)
+                    boost = get_boost_multiplier(res)
+                    combined_scores[idx]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
                     combined_scores[idx]['data']['simple_match_rank'] = rank + 1
 
             # Sort by RRF score
