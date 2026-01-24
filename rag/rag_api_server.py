@@ -90,7 +90,7 @@ except Exception as e:
 
 # ID архива данных
 DATA_ARCHIVE_ID = os.environ.get("SHUKABASE_DATA_ID", "1eqZDHhw2HbpaiWydGZXKvTPJf6EIShA0")
-DATA_VERSION = 3 # Increment this to force re-download on client updates
+DATA_VERSION = 4 # Increment this to force re-download on client updates
 
 DATA_DIR = os.path.join(base_path, "rag_data") if getattr(sys, 'frozen', False) else base_path
 CHAT_HISTORY_DIR = os.path.join(base_path, "chat_history")
@@ -114,9 +114,9 @@ setup_state = {
 
 # --- Ссылки на данные (GitHub Releases) ---
 DATA_URLS = {
-    'all': "https://github.com/amritagopi/shukabase-gemini/releases/download/data-v2/shukabase_data_multilingual.zip",
-    'ru': "https://github.com/amritagopi/shukabase-gemini/releases/download/data-v2/shukabase_data_ru.zip",
-    'en': "https://github.com/amritagopi/shukabase-gemini/releases/download/data-v2/shukabase_data_en.zip"
+    'all': "https://github.com/amritagopi/shukabase-install-data/releases/download/data-v2/shukabase_data_multilingual.zip",
+    'ru': "https://github.com/amritagopi/shukabase-install-data/releases/download/data-v2/shukabase_data_ru.zip",
+    'en': "https://github.com/amritagopi/shukabase-install-data/releases/download/data-v2/shukabase_data_en.zip"
 }
 
 def initialize_engine():
