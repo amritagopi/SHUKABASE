@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     backendUrl: 'http://localhost:5000/api/search',
     useMockData: false,
     model: 'gemini-2.0-flash-exp',
-    language: localStorage.getItem('shukabase_language') === 'ru' ? 'ru' : 'en',
+    language: 'all',
     provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
     openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'z-ai/glm-4.5-air:free',
@@ -105,50 +105,13 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                         </p>
 
                         <div className="grid grid-cols-1 gap-3">
-                            {/* @ts-ignore */}
-                            {(typeof process !== 'undefined' && process.env?.SHUKABASE_LANG === 'ru') ? (
-                                <button
-                                    onClick={() => startDownload('ru')}
-                                    className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
-                                >
-                                    <Globe className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                                    <span>Russian Language Pack</span>
-                                </button>
-                            ) : /* @ts-ignore */
-                                (typeof process !== 'undefined' && process.env?.SHUKABASE_LANG === 'en') ? (
                                     <button
-                                        onClick={() => startDownload('en')}
+                                        onClick={() => startDownload('all')}
                                         className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
                                     >
                                         <Globe className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                                        <span>English Language Pack</span>
+                                        <span>Скачать базу знаний (Multilingual)</span>
                                     </button>
-                                ) : (
-                                    <>
-                                        <button
-                                            onClick={() => startDownload('ru')}
-                                            className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
-                                        >
-                                            <Globe className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                                            <span>{settings.language === 'ru' ? 'Русский язык' : 'Russian Language'}</span>
-                                        </button>
-
-                                        <button
-                                            onClick={() => startDownload('en')}
-                                            className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
-                                        >
-                                            <Globe className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                                            <span>{settings.language === 'ru' ? 'Английский язык' : 'English Language'}</span>
-                                        </button>
-                                        <button
-                                            onClick={() => startDownload('all')}
-                                            className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
-                                        >
-                                            <Globe className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                                            <span>{settings.language === 'ru' ? 'Мультиязычный (RU + EN)' : 'Multilingual (RU + EN)'}</span>
-                                        </button>
-                                    </>
-                                )}
                         </div>
 
                         <p className="text-[10px] text-center text-slate-500 mt-4">
@@ -255,7 +218,8 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [settings, setSettings] = useState<AppSettings>(() => {
         const savedLang = localStorage.getItem('shukabase_language');
-        return { ...DEFAULT_SETTINGS, language: savedLang === 'ru' ? 'ru' : 'en' };
+        // Force 'all' regardless of saved setting to migrate user
+        return { ...DEFAULT_SETTINGS, language: 'all' };
     });
 
     // Auto-save language settings
@@ -284,7 +248,7 @@ const App: React.FC = () => {
         fullTextTitle,
         handleReadFull,
         handleModalClick
-    } = useBookReader(settings.language as 'en' | 'ru', settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
+    } = useBookReader('ru', settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
 
     // Manual Search State
     const [sidebarMode, setSidebarMode] = useState<'context' | 'search'>('context');
@@ -410,7 +374,7 @@ const App: React.FC = () => {
 
     // Helper for translations
     const t = (key: keyof typeof TRANSLATIONS.en) => {
-        const lang = settings.language || 'en';
+        const lang = settings.language === 'all' ? 'ru' : (settings.language || 'en');
         // @ts-ignore
         const value = TRANSLATIONS[lang][key] || TRANSLATIONS['en'][key];
         if (typeof value === 'string') return value;
@@ -703,13 +667,7 @@ const App: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={toggleLanguage}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-xs font-bold uppercase tracking-wider text-slate-300 transition-colors border border-slate-700 hover:border-cyan-500/30"
-                        >
-                            <Globe size={14} className="text-cyan-400" />
-                            {settings.language === 'en' ? 'EN' : 'RU'}
-                        </button>
+
 
                         <button
                             onClick={() => setIsSettingsOpen(true)}

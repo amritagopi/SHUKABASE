@@ -603,133 +603,164 @@ class RAGEngine:
         """
         Основной метод поиска.
         Объединяет: Exact Verse + Vector Search + BM25 + Simple Keyword Search
+        Поддерживает language='all' для поиска по всем загруженным языкам.
         """
         # ==================== PRIORITY RAG LAYER CONFIG ====================
         # Книги, которые всегда должны быть в топе ("Core ISKCON Basics")
+        # Fixed: Updated to match actual directory names (underscores)
         CORE_BOOKS = [
-            'Introductory-handbook-for-Krishna-Consciousness', 
+            'Introductory_handbook_for_Krishna_Consciousness', 
             'Disciple-Course-SHB-5th-Edition-March-2017'
         ]
         CORE_BOOST_MULTIPLIER = 2.5 # Существенное повышение веса для базовых книг
         # ===================================================================
 
-        logger.info(f"🔍 Поиск: '{query}' ({language}, top_k={top_k})")
-        if language not in self.indices:
-            return {'success': False, 'error': f'Индекс для языка {language} не загружен.'}
+        logger.info(f"🔍 Поиск: '{query}' (lang={language}, top_k={top_k})")
+        
+        target_languages = []
+        if language == 'all':
+            target_languages = list(self.indices.keys())
+        else:
+            if language in self.indices:
+                target_languages = [language]
+            else:
+                return {'success': False, 'error': f'Индекс для языка {language} не загружен.'}
 
         try:
-            # 0. Проверка на точный стих
-            verse_ref = self._detect_verse_reference(query)
-            exact_results = []
-            if verse_ref:
-                exact_results = self._find_verse_in_metadata(verse_ref, language)
-                if exact_results:
-                    logger.info(f"🎉 Найдены точные совпадения стихов: {len(exact_results)}")
-                    return {
-                        'success': True,
-                        'results': exact_results,
-                        'query': query,
-                        'search_type': 'exact_verse_reference',
-                        'count': len(exact_results)
-                    }
-
-            # 1. Расширение запроса
-            query_variants = [query]
-            if expand_query:
-                expander_method = getattr(QueryExpander, f'expand_query_{language}', None)
-                if expander_method:
-                    query_variants = expander_method(query)
-
-            logger.info(f"   📋 Варианты запроса: {query_variants}")
-
-            # 2. Получение эмбеддингов
-            variant_embeddings = self._get_embedding(query_variants, api_key=api_key)
-            
-            # 3. Векторный поиск
+            all_exact_results = []
             all_vector_results = []
-            for idx, emb in enumerate(variant_embeddings):
-                vector_results = self._search_by_vector(emb, language, top_k * 2, vector_distance_threshold)
-                all_vector_results.extend(vector_results)
+            all_keyword_results = []
+            all_simple_match_results = []
+            all_query_variants = [query]
 
-            # Удаление дубликатов для векторного поиска
-            seen_indices = set()
-            unique_vector_results = []
-            for res in sorted(all_vector_results, key=lambda x: x['score'], reverse=True):
-                if res['index'] not in seen_indices:
-                    seen_indices.add(res['index'])
-                    unique_vector_results.append(res)
+            # --- SEARCH IN EACH LANGUAGE ---
+            for lang in target_languages:
+                # 0. Проверка на точный стих
+                verse_ref = self._detect_verse_reference(query)
+                if verse_ref:
+                    exact_res = self._find_verse_in_metadata(verse_ref, lang)
+                    if exact_res:
+                        all_exact_results.extend(exact_res)
+
+                # 1. Расширение запроса
+                if expand_query:
+                    expander_method = getattr(QueryExpander, f'expand_query_{lang}', None)
+                    if expander_method:
+                        variants = expander_method(query)
+                        all_query_variants.extend(variants)
+
+                # 2. Получение эмбеддингов и Векторный поиск
+                # Используем варианты для текущего языка + оригинал
+                # (Можно оптимизировать и эмбеддить один раз для всех вариантов, но пока так)
+                lang_query_variants = [query]
+                if expand_query and getattr(QueryExpander, f'expand_query_{lang}', None):
+                     lang_query_variants = getattr(QueryExpander, f'expand_query_{lang}')(query)
+                
+                variant_embeddings = self._get_embedding(lang_query_variants, api_key=api_key)
+                
+                for idx, emb in enumerate(variant_embeddings):
+                    vec_res = self._search_by_vector(emb, lang, top_k * 2, vector_distance_threshold)
+                    all_vector_results.extend(vec_res)
+
+                # 4. Keyword Search (BM25)
+                if lang in self.bm25_indices:
+                    kw_res = self._search_by_keyword(query, lang, top_k * 2)
+                    all_keyword_results.extend(kw_res)
+
+                # 5. Simple Exact Phrase Search
+                sm_res = self._search_by_simple_match(query, lang, top_k * 2)
+                all_simple_match_results.extend(sm_res)
+
+            # Если нашли точные стихи, возвращаем их сразу (если их достаточно?)
+            # Но пользователь может хотеть мульти-язычный ответ. 
+            # Если reference, то вернем что нашли.
+            if all_exact_results:
+                logger.info(f"🎉 Найдены точные совпадения стихов: {len(all_exact_results)}")
+                return {
+                    'success': True,
+                    'results': all_exact_results,
+                    'query': query,
+                    'search_type': 'exact_verse_reference',
+                    'count': len(all_exact_results)
+                }
+
+            # Deduplicate variants
+            all_query_variants = list(set(all_query_variants))
+            logger.info(f"   📋 Варианты запроса (combined): {all_query_variants}")
+
+            # Deduplicate vector results (by index AND language? No, index is per-language specific)
+            # We must be careful: index 10 in RU is different from index 10 in EN.
+            # We need a unique ID that includes language.
+            # My current implementation of `_search_by_...` returns 'book', 'chapter', etc.
+            # But 'index' is raw integer.
+            # RRF loop below uses `idx`. We need to make `idx` composite or unique.
+            # Let's Modify the results to have a unique key for RRF.
             
-            top_vector_results = unique_vector_results[:top_k * 2]
+            # Helper to make unique key
+            def make_unique_key(res):
+                # We don't have 'lang' in 'res' yet. We assume res are distinct objects.
+                # But RRF uses 'index'.
+                # Let's use (book, chapter, chunk_idx) as unique key which is stable across logic
+                return f"{res.get('book')}_{res.get('chapter')}_{res.get('chunk_idx')}"
 
-            # --- DEBUG: ЧТО НАШЕЛ ВЕКТОР? ---
-            if top_vector_results:
-                logger.info(f"   👀 ВЕКТОРНЫЙ ПОИСК (Топ-3):")
-                for i, res in enumerate(top_vector_results[:3]):
-                    preview = res['text'][:100].replace('\n', ' ')
-                    logger.info(f"      {i+1}. [{res['score']:.4f}] {preview}...")
-            else:
-                logger.info("   👀 Векторный поиск ничего не нашел.")
-            # --------------------------------
-
-            # 4. Keyword Search (BM25)
-            keyword_results = []
-            if language in self.bm25_indices:
-                keyword_results = self._search_by_keyword(query, language, top_k * 2)
-
-            # 5. Simple Exact Phrase Search (NEW)
-            simple_match_results = self._search_by_simple_match(query, language, top_k * 2)
-            if simple_match_results:
-                logger.info(f"   📝 Простой поиск нашел {len(simple_match_results)} точных совпадений")
-
-            # 6. Hybrid Fusion (RRF - Reciprocal Rank Fusion)
+            # 6. Hybrid Fusion (RRF)
             k_rrf = 60
             combined_scores = {}
             
             # Helper to check if book is CORE
             def get_boost_multiplier(res_item):
                 book_name = res_item.get('book', '')
-                if any(cb.lower() in book_name.lower() for cb in CORE_BOOKS):
+                if any(cb.lower() in book_name.lower().replace('_', '-') for cb in CORE_BOOKS) or \
+                   any(cb.lower() in book_name.lower().replace('-', '_') for cb in CORE_BOOKS):
                     logger.info(f"   🚀 BOOSTING CORE BOOK: {book_name}")
                     return CORE_BOOST_MULTIPLIER
                 return 1.0
 
-            # Добавляем точные результаты (если вдруг есть)
-            for res in exact_results:
-                idx = res['index']
-                combined_scores[idx] = {'data': res, 'rrf_score': 100.0}
-
             # Process Vector Results
-            for rank, res in enumerate(top_vector_results):
-                idx = res['index']
-                if idx not in combined_scores:
-                    combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
-                if combined_scores[idx]['rrf_score'] < 50.0:
-                    boost = get_boost_multiplier(res)
-                    combined_scores[idx]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
-                    combined_scores[idx]['data']['vector_rank'] = rank + 1
+            # Sort globally by score before RRF ranking? 
+            # Ideally RRF ranks per-system. Here we treat "Vector Search" as one system, regardless of language.
+            # So we sort all vector results by distance/score.
+            all_vector_results.sort(key=lambda x: x['score'], reverse=True)
+            
+            # Remove duplicates based on unique content
+            seen_content = set()
+            unique_vector_results = []
+            for res in all_vector_results:
+                ukey = make_unique_key(res)
+                if ukey not in seen_content:
+                    seen_content.add(ukey)
+                    unique_vector_results.append(res)
+            
+            for rank, res in enumerate(unique_vector_results[:top_k * 4]): # Consider more candidates
+                ukey = make_unique_key(res)
+                if ukey not in combined_scores:
+                    combined_scores[ukey] = {'data': res, 'rrf_score': 0.0}
                 
-            # Process BM25 Results
-            for rank, res in enumerate(keyword_results):
-                idx = res['index']
-                if idx not in combined_scores:
-                    combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
-                if combined_scores[idx]['rrf_score'] < 50.0:
-                    # BM25 обычно точнее вектора для редких слов
-                    boost = get_boost_multiplier(res)
-                    combined_scores[idx]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
-                    combined_scores[idx]['data']['keyword_rank'] = rank + 1
+                boost = get_boost_multiplier(res)
+                combined_scores[ukey]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
+                combined_scores[ukey]['data']['vector_rank'] = rank + 1
 
-            # Process Simple Match Results (NEW)
-            # Точное совпадение фразы должно иметь высокий вес
-            for rank, res in enumerate(simple_match_results):
-                idx = res['index']
-                if idx not in combined_scores:
-                    combined_scores[idx] = {'data': res, 'rrf_score': 0.0}
-                if combined_scores[idx]['rrf_score'] < 50.0:
-                    # Добавляем вес. Если слово редкое, ранг будет высоким.
-                    boost = get_boost_multiplier(res)
-                    combined_scores[idx]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
-                    combined_scores[idx]['data']['simple_match_rank'] = rank + 1
+            # Process BM25 Results
+            all_keyword_results.sort(key=lambda x: x['score'], reverse=True)
+            for rank, res in enumerate(all_keyword_results[:top_k * 4]):
+                ukey = make_unique_key(res)
+                if ukey not in combined_scores:
+                    combined_scores[ukey] = {'data': res, 'rrf_score': 0.0}
+                
+                boost = get_boost_multiplier(res)
+                combined_scores[ukey]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
+                combined_scores[ukey]['data']['keyword_rank'] = rank + 1
+
+            # Process Simple Match Results
+            all_simple_match_results.sort(key=lambda x: x['score'], reverse=True)
+            for rank, res in enumerate(all_simple_match_results[:top_k * 4]):
+                ukey = make_unique_key(res)
+                if ukey not in combined_scores:
+                    combined_scores[ukey] = {'data': res, 'rrf_score': 0.0}
+                
+                boost = get_boost_multiplier(res)
+                combined_scores[ukey]['rrf_score'] += (1.0 / (k_rrf + rank + 1)) * boost
+                combined_scores[ukey]['data']['simple_match_rank'] = rank + 1
 
             # Sort by RRF score
             hybrid_results = sorted(combined_scores.values(), key=lambda x: x['rrf_score'], reverse=True)
@@ -752,7 +783,7 @@ class RAGEngine:
                     final_results = []
                     
                     for i, res in enumerate(final_candidates):
-                        if res['score'] > 50.0:
+                        if res['score'] > 50.0: # High confidence exact match
                             res['final_score'] = 1.0
                             final_results.append(res)
                         else:
@@ -769,23 +800,22 @@ class RAGEngine:
                             original_result['final_score'] = float(score)
                             final_results.append(original_result)
                     else:
-                        # If nothing to rerank (all exact matches), just copy
                         final_results.extend([res for res in final_candidates if 'final_score' not in res])
                     
+                    # Sort final results by final_score
+                    final_results.sort(key=lambda x: x.get('final_score', 0), reverse=True)
                     logger.info("✅ Re-ranking finished successfully.")
 
                 except Exception as e:
                     logger.error(f"❌ Re-ranking failed (using standard results): {e}")
                     final_results = final_candidates
             else:
-                if use_reranking:
-                    logger.info("⏩ Skipping Re-ranking (model not loaded or disabled)")
                 final_results = final_candidates
 
             return {
                 'success': True,
                 'results': final_results,
-                'query_variants': query_variants,
+                'query_variants': all_query_variants,
                 'count': len(final_results)
             }
         
