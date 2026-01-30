@@ -91,8 +91,14 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                     <h1 className="text-3xl font-bold glow-text-cyan mb-2">
                         Shukabase AI
                     </h1>
-                    <p className="text-slate-400 text-sm">
-                        {settings.language === 'ru' ? 'Первоначальная настройка' : 'First Run Setup'}
+                    <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
+                        <span>{settings.language === 'ru' ? 'Первоначальная настройка' : 'First Run Setup'}</span>
+                        <button
+                            onClick={() => setSettings(prev => ({ ...prev, language: prev.language === 'ru' ? 'en' : 'ru' }))}
+                            className="ml-2 text-[10px] px-1.5 py-0.5 rounded border border-slate-700 hover:border-cyan-500/50 text-slate-500 hover:text-cyan-400 transition-colors uppercase font-bold"
+                        >
+                            {settings.language === 'ru' ? 'EN' : 'RU'}
+                        </button>
                     </p>
                 </div>
 
@@ -104,14 +110,32 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                                 : 'Please select your preferred language pack to download the knowledge base.'}
                         </p>
 
-                        <div className="grid grid-cols-1 gap-3">
-                                    <button
-                                        onClick={() => startDownload('all')}
-                                        className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-lg font-medium text-slate-200 transition-all flex items-center justify-center gap-3 group"
-                                    >
-                                        <Globe className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                                        <span>Скачать базу знаний (Multilingual)</span>
-                                    </button>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button
+                                onClick={() => startDownload('ru')}
+                                className="flex flex-col items-center justify-center p-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-xl transition-all group"
+                            >
+                                <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🇷🇺</div>
+                                <span className="text-xs font-medium text-slate-300">Русский</span>
+                                <span className="text-[9px] text-slate-500">RU Only</span>
+                            </button>
+                            <button
+                                onClick={() => startDownload('en')}
+                                className="flex flex-col items-center justify-center p-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-cyan-500/50 rounded-xl transition-all group"
+                            >
+                                <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🇬🇧</div>
+                                <span className="text-xs font-medium text-slate-300">English</span>
+                                <span className="text-[9px] text-slate-500">EN Only</span>
+                            </button>
+                            <button
+                                onClick={() => startDownload('all')}
+                                className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 border border-cyan-500/30 hover:border-cyan-500/50 rounded-xl transition-all group relative overflow-hidden"
+                            >
+                                <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <Globe className="w-6 h-6 mb-1 text-cyan-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-xs font-bold text-cyan-400">Multi</span>
+                                <span className="text-[9px] text-cyan-600">RU + EN</span>
+                            </button>
                         </div>
 
                         <p className="text-[10px] text-center text-slate-500 mt-4">
@@ -122,8 +146,7 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                     <div className="space-y-6">
                         <div className="text-center">
                             <h3 className="text-lg font-semibold mb-2 text-slate-200">
-                                {/* @ts-ignore */}
-                                {(typeof process !== 'undefined' && process.env?.SHUKABASE_LANG === 'ru') ? (
+                                {settings.language === 'ru' ? (
                                     status === 'extracting' ? 'Распаковка файлов...' :
                                         status === 'initializing' ? 'Инициализация движка...' :
                                             'Скачивание базы знаний...'
@@ -134,8 +157,7 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                                 )}
                             </h3>
                             <p className="text-slate-500 text-xs">
-                                {/* @ts-ignore */}
-                                {(typeof process !== 'undefined' && process.env?.SHUKABASE_LANG === 'ru') ? 'Пожалуйста, подождите. Это может занять несколько минут.' : 'Please wait, this may take a few minutes.'}
+                                {settings.language === 'ru' ? 'Пожалуйста, подождите. Это может занять несколько минут.' : 'Please wait, this may take a few minutes.'}
                             </p>
                         </div>
 
@@ -143,8 +165,7 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                             <div className="flex mb-2 items-center justify-between">
                                 <div>
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
-                                        {/* @ts-ignore */}
-                                        {(typeof process !== 'undefined' && process.env?.SHUKABASE_LANG === 'ru') ? 'Прогресс' : 'Progress'}
+                                        {settings.language === 'ru' ? 'Прогресс' : 'Progress'}
                                     </span>
                                 </div>
                                 <div className="text-right">
@@ -198,8 +219,7 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
                                     onClick={() => setStep('lang')}
                                     className="text-xs text-red-400 hover:text-red-300 underline"
                                 >
-                                    {/* @ts-ignore */}
-                                    {(typeof process !== 'undefined' && process.env?.SHUKABASE_LANG === 'ru') ? 'Попробовать снова' : 'Try Again'}
+                                    {settings.language === 'ru' ? 'Попробовать снова' : 'Try Again'}
                                 </button>
                             </div>
                         )}
@@ -218,8 +238,7 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [settings, setSettings] = useState<AppSettings>(() => {
         const savedLang = localStorage.getItem('shukabase_language');
-        // Force 'all' regardless of saved setting to migrate user
-        return { ...DEFAULT_SETTINGS, language: 'all' };
+        return { ...DEFAULT_SETTINGS, language: savedLang || 'ru' };
     });
 
     // Auto-save language settings
@@ -248,7 +267,7 @@ const App: React.FC = () => {
         fullTextTitle,
         handleReadFull,
         handleModalClick
-    } = useBookReader('ru', settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
+    } = useBookReader(settings.language === 'all' ? 'ru' : (settings.language as 'ru' | 'en'), settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
 
     // Manual Search State
     const [sidebarMode, setSidebarMode] = useState<'context' | 'search'>('context');
@@ -374,7 +393,7 @@ const App: React.FC = () => {
 
     // Helper for translations
     const t = (key: keyof typeof TRANSLATIONS.en) => {
-        const lang = settings.language === 'all' ? 'ru' : (settings.language || 'en');
+        const lang = (settings.language === 'all' ? 'ru' : (settings.language || 'en')) as 'ru' | 'en';
         // @ts-ignore
         const value = TRANSLATIONS[lang][key] || TRANSLATIONS['en'][key];
         if (typeof value === 'string') return value;
@@ -667,7 +686,16 @@ const App: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-
+                        <button
+                            onClick={toggleLanguage}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/40 hover:bg-slate-700/60 border border-slate-700/50 transition-all group"
+                            title={settings.language === 'ru' ? 'Switch to English' : 'Переключить на русский'}
+                        >
+                            <Globe size={16} className="text-cyan-400 group-hover:rotate-12 transition-transform" />
+                            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                                {settings.language === 'all' ? 'Multi' : settings.language}
+                            </span>
+                        </button>
 
                         <button
                             onClick={() => setIsSettingsOpen(true)}
