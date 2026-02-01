@@ -238,7 +238,7 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [settings, setSettings] = useState<AppSettings>(() => {
         const savedLang = localStorage.getItem('shukabase_language');
-        return { ...DEFAULT_SETTINGS, language: savedLang || 'ru' };
+        return { ...DEFAULT_SETTINGS, language: (savedLang as 'ru' | 'en' | 'all') || 'ru' };
     });
 
     // Auto-save language settings
@@ -267,7 +267,7 @@ const App: React.FC = () => {
         fullTextTitle,
         handleReadFull,
         handleModalClick
-    } = useBookReader(settings.language === 'all' ? 'ru' : (settings.language as 'ru' | 'en'), settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
+    } = useBookReader(settings.language === 'all' ? 'ru' : settings.language, settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
 
     // Manual Search State
     const [sidebarMode, setSidebarMode] = useState<'context' | 'search'>('context');

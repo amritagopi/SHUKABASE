@@ -37,7 +37,7 @@ export interface AppSettings {
   backendUrl: string;
   useMockData: boolean;
   model: string; // Google Model
-  language: 'ru' | 'en';
+  language: 'ru' | 'en' | 'all';
   // New Multi-provider settings
   // New Multi-provider settings
   provider: 'google' | 'openrouter';

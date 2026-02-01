@@ -509,7 +509,7 @@ class RAGEngine:
             return []
 
     def _detect_verse_reference(self, query: str) -> Dict[str, Any]:
-        """Пытается определить, является ли запрос ссылкой на стих."""
+        """Пытается определить, что запрос — это ссылка на стих (БГ 2.1, ШБ 1.1.1, УГ 1.1)."""
         query = query.lower().strip()
         
         book_map = {
@@ -518,10 +518,11 @@ class RAGEngine:
             'cc': 'cc', 'чч': 'cc', 'caitanya': 'cc', 'чайтанья': 'cc', 'caitanya caritamrta': 'cc', 'чайтанья чаритамрита': 'cc',
             'iso': 'iso', 'ишо': 'iso', 'isopanisad': 'iso', 'sri isopanisad': 'iso', 'шри ишопанишад': 'iso',
             'nod': 'nod', 'нп': 'nod', 'nectar of devotion': 'nod',
-            'noi': 'noi', 'нн': 'noi', 'nectar of instruction': 'noi'
+            'noi': 'noi', 'нн': 'noi', 'nectar of instruction': 'noi',
+            'ug': 'Uddhava-Gita', 'уг': 'Uddhava-Gita', 'uddhava': 'Uddhava-Gita', 'уддхава': 'Uddhava-Gita'
         }
         
-        # Сначала проверяем формат Песнь.Глава.Стих (для ШБ)
+        # 1. Проверяем формат Песнь.Глава.Стих (для ШБ)
         match_sb = re.search(r'([a-zа-я\s]+?)\.?\s*(\d+)\.(\d+)\.(\d+)', query)
         if match_sb:
             book_raw, canto, chapter, verse = match_sb.groups()
@@ -529,7 +530,7 @@ class RAGEngine:
             if book_key in book_map:
                 return {'book': book_map[book_key], 'chapter': f"{canto}.{chapter}", 'verse': verse}
 
-        # Затем проверяем формат Глава.Стих
+        # 2. Проверяем формат Глава.Стих (БГ 2.1, УГ 3.4)
         match = re.search(r'([a-zа-я\s]+?)\.?\s*(\d+)[. :](\d+)', query)
         if match:
             book_raw, chapter, verse = match.groups()
@@ -548,45 +549,58 @@ class RAGEngine:
         target_chapter = ref['chapter']
         target_verse = ref['verse']
         
-        logger.info(f"🎯 Ищу стих: Book={target_book}, Chapter={target_chapter}, Verse={target_verse}")
+        logger.info(f"🎯 Exact Verse Search: Book={target_book}, Ch={target_chapter}, V={target_verse}")
         
         for idx, meta in enumerate(metadata_list):
-            if meta.get('book') == target_book:
-                meta_chapter = str(meta.get('chapter', ''))
+            # Сравниваем книгу (нечеткое сравнение если нужно, но здесь точное по ключу)
+            # Но ключи могут отличаться (bg vs Bhagavad-Gita). 
+            # Для стандартных книг ключи обычно короткие (bg, sb), для новых - длинные.
+            # Если target_book = 'Uddhava-Gita', ищем вхождение.
+            
+            meta_book = meta.get('book', '').lower()
+            if target_book.lower() not in meta_book and meta_book not in target_book.lower():
+                 continue
+
+            meta_chapter = str(meta.get('chapter', ''))
+            
+            def normalize_chapter(ch):
+                return '.'.join([p.lstrip('0') for p in str(ch).split('.')])
+            
+            if normalize_chapter(meta_chapter) == normalize_chapter(target_chapter):
+                text = self._get_text_from_meta(meta, language)
+                clean_text = text.lower()
                 
-                def normalize_chapter(ch):
-                    return '.'.join([p.lstrip('0') for p in str(ch).split('.')])
+                is_match = False
                 
-                if normalize_chapter(meta_chapter) == normalize_chapter(target_chapter):
-                    
-                    text = self._get_text_from_meta(meta, language)
-                    clean_text = text.lower()
-                    
-                    is_match = False
-                    
-                    if f"text {target_verse}" in clean_text[:50]:
-                        is_match = True
-                    elif f"текст {target_verse}" in clean_text[:50]:
-                        is_match = True
-                    elif clean_text.strip().startswith(f"{target_verse}."):
-                        is_match = True
-                    elif f"{target_verse}-" in clean_text[:20]:
-                        is_match = True
-                        
-                    if is_match:
-                        logger.info(f"✅ Найден точный стих в индексе {idx}")
-                        results.append({
-                            'index': int(idx),
-                            'distance': 0.0,
-                            'score': 100.0,
-                            'text': text,
-                            'book': target_book, 
-                            'chapter': meta_chapter, 
-                            'verse': target_verse, 
-                            'chunk_idx': meta.get('chunk_idx'),
-                            'html_path': meta.get('html_path'),
-                            'source': 'exact_verse'
-                        })
+                # Эвристики для поиска номера стиха в тексте
+                indicators = [
+                    f"text {target_verse}", f"текст {target_verse}", 
+                    f"verse {target_verse}", f"стих {target_verse}",
+                    f"{target_verse}."
+                ]
+                
+                if any(ind in clean_text[:100] for ind in indicators):
+                     is_match = True
+                elif f"{target_verse}-" in clean_text[:20]: # 10-11
+                     is_match = True
+                elif clean_text.strip().startswith(target_verse):
+                     is_match = True
+
+                if is_match:
+                    logger.info(f"✅ Found exact verse at index {idx}")
+                    results.append({
+                        'index': int(idx),
+                        'distance': 0.0,
+                        'score': 100.0,
+                        'text': text,
+                        'book': meta.get('book'), 
+                        'chapter': meta_chapter, 
+                        'verse': target_verse, 
+                        'chunk_idx': meta.get('chunk_idx'),
+                        'html_path': meta.get('html_path'),
+                        'source': 'exact_verse',
+                        'is_study_guide': False # Стихи обычно из шастр
+                    })
         
         return results
 
@@ -603,16 +617,16 @@ class RAGEngine:
         """
         Основной метод поиска.
         Объединяет: Exact Verse + Vector Search + BM25 + Simple Keyword Search
-        Поддерживает language='all' для поиска по всем загруженным языкам.
         """
         # ==================== PRIORITY RAG LAYER CONFIG ====================
         # Книги, которые всегда должны быть в топе ("Core ISKCON Basics")
-        # Fixed: Updated to match actual directory names (underscores)
         CORE_BOOKS = [
-            'Introductory_handbook_for_Krishna_Consciousness', 
-            'Disciple-Course-SHB-5th-Edition-March-2017'
+             'Introductory-handbook-for-Krishna-Consciousness', # Normalized name
+             'Introductory_handbook_for_Krishna_Consciousness',
+             'Disciple-Course-SHB-5th-Edition',
+             'Disciple-Course-SHB-5th-Edition-March-2017'
         ]
-        CORE_BOOST_MULTIPLIER = 2.5 # Существенное повышение веса для базовых книг
+        CORE_BOOST_MULTIPLIER = 3.0 
         # ===================================================================
 
         logger.info(f"🔍 Поиск: '{query}' (lang={language}, top_k={top_k})")

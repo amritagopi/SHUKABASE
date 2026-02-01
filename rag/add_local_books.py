@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 # CONFIGURATION
-SOURCE_DIR = r"c:/Users/annac/shukabase-ai/доп книги для шуки"
+SOURCE_DIR = r"c:/Users/annac/shukabase-ai/доп книги для шуки/processed"
 
 def clean_filename(filename):
     name = os.path.splitext(filename)[0]

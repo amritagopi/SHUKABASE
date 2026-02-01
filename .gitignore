@@ -194,6 +194,5 @@ rag_data/
 builds/data_archives/shukabase_data_multilingual.zip
 builds/data_archives/shukabase_data_en.zip
 builds/data_archives/shukabase_data_ru.zip
-доп книги для шуки/*
-
+new_books/*
 miscellaneous/команды.md
