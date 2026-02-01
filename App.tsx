@@ -742,7 +742,16 @@ const App: React.FC = () => {
                                         }
                                     `}
                                 >
-                                    <ParsedContent content={msg.content} onCitationClick={handleCitationClick} t={t} />
+                                    <ParsedContent
+                                        content={msg.content}
+                                        onCitationClick={(citationId) => {
+                                            if (msg.sources && msg.sources.length > 0) {
+                                                setCurrentSources(msg.sources);
+                                            }
+                                            handleCitationClick(citationId);
+                                        }}
+                                        t={t}
+                                    />
 
                                     {/* Generative UI Tool Widget */}
                                     {msg.toolCall && (

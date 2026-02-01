@@ -26,8 +26,33 @@ def clean_html_tags(text):
     text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
     
     # Normalize whitespace
+    # Normalize whitespace
     lines = [line.strip() for line in text.split('\n') if line.strip()]
-    return '\n'.join(lines)
+    
+    cleaned_lines = []
+    for line in lines:
+        # 1. Remove "TExT 13" patterns (common in old OCR)
+        if re.search(r'TExT\s+\d+', line, re.IGNORECASE):
+            continue
+            
+        # 2. Start of book noise
+        if any(x in line.lower() for x in ['publishing house', 'copyright', 'all rights reserved', 'предисловие', 'издательство']):
+             continue
+             
+        # 3. Mojibake / Bad Encoding Detection
+        # Heuristic: If > 20% of chars are non-alphanumeric AND not Cyrillic/Common punctuation
+        # We check for "bad" chars directly
+        bad_chars = re.findall(r'[¬~ÌQ¹ÌFFHº¢]', line)
+        if len(bad_chars) > 3: # If line has more than 3 visible garbage chars
+            continue
+            
+        # 4. Remove standalone numbers (often page numbers)
+        if re.match(r'^\d+$', line):
+            continue
+
+        cleaned_lines.append(line)
+        
+    return '\n'.join(cleaned_lines)
 
 def extract_content_from_html(html_content):
     """Extracts text from the main content area of the HTML."""

@@ -101,8 +101,12 @@ export const useBookReader = (language: 'en' | 'ru', backendUrl: string = 'http:
                 // Clean leading slashes just in case
                 const cleanPath = normalizedPath.replace(/^\/+/, '');
 
-                // If the path ALREADY starts with the book folder, we should trust it
-                chapterPath = `/books/${lang}/${cleanPath}`;
+                // Fix: Ensure we include the book folder if the path is just "1/index.html"
+                if (bookFolder && !cleanPath.startsWith(bookFolder)) {
+                    chapterPath = `/books/${lang}/${bookFolder}/${cleanPath}`;
+                } else {
+                    chapterPath = `/books/${lang}/${cleanPath}`;
+                }
 
                 // Add index.html if missing
                 if (!chapterPath.endsWith('.html')) {

@@ -18,7 +18,8 @@ RAG_ARTIFACT_PATTERNS = [
     "rag/parsed_scriptures_*.json",
     "rag/embeddings_*.npz",
     "rag/embeddings_metadata_*.json",
-    "rag/faiss_metadata_*.json"
+    "rag/faiss_metadata_*.json",
+    "rag/chat_history/*.json"
 ]
 
 PUBLIC_BOOKS_DIR = Path("public/books")

@@ -1,0 +1,119 @@
+Зая, я изучила твой проект (по описанию и сайту, так как репозиторий, похоже, приватный или я не могу получить к нему доступ напрямую, но архитектуру я поняла отлично: Python Backend + Electron + FAISS).
+
+Ты абсолютно права: **GraphRAG — идеальный кандидат**, потому что у тебя фиксированный набор книг ("Золотой фонд" ИСККОН).
+
+Вот конкретный **План Реализации (Battle Plan)**, заточенный под то, чтобы вся тяжесть легла на тебя (на этапе сборки), а у пользователя на старом ноуте всё летало.
+
+### Этап 1: "Кухня разработчика" (Делаешь только ты)
+
+Тебе нужно сгенерировать "Граф Знаний" один раз. Это будет твой "ассет", который ты включишь в билд.
+
+1.  **Установка:**
+    В твоём dev-окружении (не в requirements для юзеров, а у тебя):
+    ```bash
+    pip install graphrag
+    ```
+
+2.  **Инициализация:**
+    Создай папку для индексации (например, внутри проекта):
+    ```bash
+    python -m graphrag.index --init --root ./rag_graph_build
+    ```
+
+3.  **Настройка (Critical Step):**
+    В файле `rag_graph_build/settings.yaml` тебе нужно настроить LLM.
+    *   Так как ты экономишь, используй **OpenRouter** или локальную **Ollama** (если у тебя мощный GPU), чтобы не разориться на OpenAI при индексации (это тысячи запросов!).
+    *   *Лайфхак:* Для `llm:` используй модель подешевле, но умную (например, `gpt-4o-mini` или `flash` модели), а для `embeddings:` можно оставить OpenAI или локальные (но лучше совместимые).
+
+4.  **Запуск Индексации:**
+    Положи текстовые файлы книг (Бхагаватам и т.д.) в `rag_graph_build/input`.
+    ```bash
+    python -m graphrag.index --root ./rag_graph_build
+    ```
+    ☕ *Иди пей чай, это надолго.*
+
+5.  **Результат:**
+    В папке `rag_graph_build/output/.../artifacts` появятся `.parquet` файлы (таблицы). Самые важные для нас:
+    *   `create_final_community_reports.parquet` (готовые саммари тем)
+    *   `create_final_entities.parquet` (словарь терминов)
+    *   `create_final_relationships.parquet` (связи)
+
+***
+
+### Этап 2: Интеграция в `rag_engine.py` (Код приложения)
+
+Вот тут магия. Мы не будем заставлять пользователя строить граф. Мы научим приложение **читать** твои `.parquet` файлы.
+
+**1. Добавь зависимости в `requirements.txt` приложения:**
+```text
+graphrag
+pandas  # нужно для чтения parquet
+tiktoken
+```
+*(GraphRAG тянет за собой зависимости, проверь, чтобы они не конфликтовали с твоим окружением, возможно, придется зафиксировать версии)*.
+
+**2. Обнови структуру проекта:**
+Скопируй папку `artifacts` (только нужные файлы) в папку `data/graph_index` твоего приложения.
+
+**3. Модифицируем `rag_engine.py`:**
+Тебе нужно добавить новый класс поиска `GraphSearch`.
+
+```python
+import pandas as pd
+import tiktoken
+from graphrag.query.structured_search.local_search.search import LocalSearch
+from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey
+from graphrag.vector_stores.lancedb import LanceDBVectorStore # Или что ты используешь
+
+class GraphRAGService:
+    def __init__(self, index_dir="./data/graph_index"):
+        # 1. Загружаем таблицы (это быстро, Pandas читает parquet мгновенно)
+        self.entities = pd.read_parquet(f"{index_dir}/create_final_entities.parquet")
+        self.relationships = pd.read_parquet(f"{index_dir}/create_final_relationships.parquet")
+        self.reports = pd.read_parquet(f"{index_dir}/create_final_community_reports.parquet")
+        self.text_units = pd.read_parquet(f"{index_dir}/create_final_text_units.parquet")
+        
+        # 2. Настраиваем "Локальный Поиск" (Local Search)
+        # Это режим, который ищет конкретные ответы про Кришну, Арджуну и т.д.
+        self.search_engine = LocalSearch(
+            llm=..., # Твой клиент LLM (Ollama/OpenRouter)
+            context_builder=..., # Конфигурация контекста
+            token_encoder=tiktoken.get_encoding("cl100k_base"),
+            # Сюда передаем загруженные датафреймы
+            entities=self.entities,
+            relationships=self.relationships,
+            reports=self.reports,
+            text_units=self.text_units,
+            community_level=2, # Уровень детализации (подбери экспериментально)
+        )
+
+    async def asearch(self, query: str):
+        # Выполняем поиск
+        result = await self.search_engine.asearch(query)
+        return result.response
+```
+
+***
+
+### Этап 3: Гибридизация (Главный секрет скорости)
+
+Чистый GraphRAG (`LocalSearch`) может быть медленным на генерацию ответа, потому что он делает много вызовов LLM для сборки контекста.
+
+**Для старого ноутбука сделай так:**
+
+В функции генерации ответа (`get_answer` или как она у тебя называется) сделай "умный роутинг":
+
+1.  **Быстрый путь (FAISS):** Сначала ищем обычным вектором. Если `score` (уверенность) высокий — отдаем ответ сразу. Это секунды.
+2.  **Умный путь (GraphRAG):** Если векторный поиск нашел мало или вопрос сложный (содержит слова "связь", "почему", "сравнение") — запускаем `GraphRAGService`.
+
+**ИЛИ (ещё круче для производительности):**
+
+Используй GraphRAG только для **получения контекста**, а генерируй ответ своей обычной быстрой моделью.
+GraphRAG выдаст тебе супер-качественный контекст (Context Data), который он собрал по графу. Ты берешь этот текст и скармливаешь его своей обычной цепочке.
+
+### Что это даст пользователю?
+*   **Вес:** Приложение вырастет на ~100-300 МБ (зависит от количества книг). Терпимо.
+*   **Скорость:** Если использовать GraphRAG только как retriever (добытчик контекста), задержка будет минимальной, а точность — космической.
+*   **CPU:** Чтение parquet-файлов и фильтрация pandas — это операции, которые любой i3 процессор 5-летней давности съест и не поперхнется.
+
+**Итого:** Твой `rag_engine.py` становится гибридным. Ты не ломаешь старое, ты просто добавляешь "экспертный режим", который включается, когда простой поиск буксует.
