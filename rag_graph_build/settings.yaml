@@ -1,68 +1,98 @@
+### GraphRAG Settings for Shukabase
+### Talking to local LiteLLM proxy for perfect Gemini integration
 
-encoding_model: cl100k_base
-skip_workflows: []
+models:
+  default_chat_model:
+    type: chat
+    model_provider: openai
+    auth_type: api_key
+    api_key: "sk-graphrag-local-proxy"
+    model: gemini-flash
+    api_base: http://localhost:4000
+    model_supports_json: true
+    concurrent_requests: 50 # Let's go fast!
+    async_mode: threaded
+    retry_strategy: exponential_backoff
+    max_retries: 10
+    tokens_per_minute: null
+    requests_per_minute: null
+    request_timeout: 180
 
-llm:
-  api_key: ${GRAPHRAG_API_KEY}
-  type: openai_chat
-  model: qwen2.5:14b
-  model_supports_json: true
-  api_base: http://localhost:11434/v1
-  max_tokens: 4000
-  request_timeout: 180.0
-  # Ollama usually handles concurrency well, but let's be safe
-  tokens_per_minute: 0 # unlimited
-  requests_per_minute: 0 # unlimited
-  max_retries: 5
-  concurrent_requests: 1 # Safe for local GPU/CPU. If powerful, increase.
-
-parallelization:
-  stagger: 0.5
-  num_threads: 50 # Threads for IO, but LLM is strictly sequential on local GPU usually
-
-async_mode: threaded
-
-embeddings:
-  async_mode: threaded
-  vector_store:
-    type: lancedb
-    db_uri: 'output/lancedb'
-    container_name: default
-    overwrite: true
-  llm:
-    api_key: ${GRAPHRAG_API_KEY}
-    type: openai_embedding
+  default_embedding_model:
+    type: embedding
+    model_provider: openai
+    auth_type: api_key
+    api_key: "ollama"
     model: nomic-embed-text
     api_base: http://localhost:11434/v1
-    tokens_per_minute: 0
-    requests_per_minute: 0
-    concurrent_requests: 5 # Embeddings are faster
+    concurrent_requests: 10
+    async_mode: threaded
+    retry_strategy: exponential_backoff
+    max_retries: 10
+    tokens_per_minute: null
+    requests_per_minute: null
+
+input:
+  storage:
+    type: file
+    base_dir: input
+  file_type: text
+  file_pattern: ".*[.]txt"
+  encoding: utf-8
 
 chunks:
   size: 1200
   overlap: 100
   group_by_columns: [id]
 
-input:
+output:
   type: file
-  file_type: text
-  base_dir: "input"
-  file_encoding: utf-8
-  file_pattern: ".*\\.txt$"
+  base_dir: output
 
 cache:
   type: file
-  base_dir: "cache"
-
-storage:
-  type: file
-  base_dir: "output"
+  base_dir: cache
 
 reporting:
   type: file
-  base_dir: "logs"
+  base_dir: logs
 
-snapshots:
-  graphml: false
-  raw_entities: false
-  top_level_nodes: false
+vector_store:
+  default_vector_store:
+    type: lancedb
+    db_uri: output/lancedb
+    container_name: default
+
+embed_text:
+  model_id: default_embedding_model
+  vector_store_id: default_vector_store
+
+extract_graph:
+  model_id: default_chat_model
+  prompt: prompts/extract_graph.txt
+  entity_types: [organization, person, geo, event, concept, deity, scripture, teaching]
+  max_gleanings: 1
+
+summarize_descriptions:
+  model_id: default_chat_model
+  prompt: prompts/summarize_descriptions.txt
+  max_length: 500
+  max_input_tokens: 4000
+
+community_reports:
+  model_id: default_chat_model
+  graph_prompt: prompts/community_report_graph.txt
+  text_prompt: prompts/community_report_text.txt
+  max_length: 2000
+  max_input_length: 8000
+
+local_search:
+  chat_model_id: default_chat_model
+  embedding_model_id: default_embedding_model
+  prompt: prompts/local_search_system_prompt.txt
+
+global_search:
+  chat_model_id: default_chat_model
+  map_prompt: prompts/global_search_map_system_prompt.txt
+  reduce_prompt: prompts/global_search_reduce_system_prompt.txt
+  knowledge_prompt: prompts/global_search_knowledge_system_prompt.txt

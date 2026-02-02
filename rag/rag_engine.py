@@ -19,6 +19,14 @@ import os
 import time
 import re
 import difflib
+import pandas as pd
+
+# GraphRAG support
+GRAPHRAG_AVAILABLE = True
+try:
+    import pandas as pd
+except ImportError:
+    GRAPHRAG_AVAILABLE = False
 
 # Управление зависимостями
 try:
@@ -155,6 +163,63 @@ class RerankerModel:
             return [(i, 1.0, doc) for i, doc in enumerate(documents)][:top_k]
 
 
+class GraphSearchService:
+    """Service for querying GraphRAG extracted entities and community reports."""
+    
+    def __init__(self, data_dir: Path):
+        self.entities = None
+        self.reports = None
+        self.enabled = False
+        
+        if not GRAPHRAG_AVAILABLE:
+            logger.warning("⚠️ pandas not available. Graph search disabled.")
+            return
+
+        try:
+            nodes_path = data_dir / "entities.parquet"
+            reports_path = data_dir / "community_reports.parquet"
+            
+            if nodes_path.exists() and reports_path.exists():
+                logger.info(f"📂 Loading GraphRAG artifacts from {data_dir}...")
+                self.entities = pd.read_parquet(nodes_path, columns=["title", "description", "human_readable_id"])
+                # Create a lowercase column for faster matching
+                self.entities['name_lower'] = self.entities['title'].str.lower()
+                
+                self.reports = pd.read_parquet(reports_path, columns=["title", "summary", "full_content", "rank"])
+                self.enabled = True
+                logger.info(f"✅ GraphSearchService initialized with {len(self.entities)} entities and {len(self.reports)} reports.")
+            else:
+                logger.warning(f"⚠️ GraphRAG files not found in {data_dir}. Graph search disabled.")
+        except Exception as e:
+            logger.error(f"❌ Failed to load GraphRAG data: {e}")
+
+    def search_context(self, query: str, top_k: int = 3) -> str:
+        """Find relevant community reports and format them as context."""
+        if not self.enabled or not self.reports is not None:
+            return ""
+        
+        try:
+            # Simple keyword search in report summaries/titles
+            query_lower = query.lower()
+            # We use a very basic regex search for now
+            mask = self.reports['summary'].str.contains(query_lower, case=False, na=False) | \
+                   self.reports['title'].str.contains(query_lower, case=False, na=False)
+            
+            relevant_reports = self.reports[mask].sort_values(by="rank", ascending=False).head(top_k)
+            
+            if relevant_reports.empty:
+                return ""
+            
+            context = "### KNOWLEDGE GRAPH CONTEXT (Synthesized Knowledge)\n\n"
+            for _, report in relevant_reports.iterrows():
+                context += f"#### {report['title']}\n{report['summary']}\n\n"
+            
+            return context
+        except Exception as e:
+            logger.error(f"Error in graph search: {e}")
+            return ""
+
+
 # --- Обновленный RAGEngine ---
 
 class RAGEngine:
@@ -188,6 +253,9 @@ class RAGEngine:
         
         for lang in languages:
             self._load_language_data(lang)
+        
+        # Initialize GraphRAG service
+        self.graph_service = GraphSearchService(self.base_dir / "graph_index")
         
         logger.info("✅ RAG Engine готов к работе!")
 
@@ -826,10 +894,14 @@ class RAGEngine:
             else:
                 final_results = final_candidates
 
+            # 8. Graph Context
+            graph_context = self.graph_service.search_context(query)
+
             return {
                 'success': True,
                 'results': final_results,
                 'query_variants': all_query_variants,
+                'graph_context': graph_context,
                 'count': len(final_results)
             }
         

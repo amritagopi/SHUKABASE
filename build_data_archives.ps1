@@ -29,6 +29,11 @@ else {
     Write-Host "   Copying English books..."
     Copy-Item -Recurse "public\books\en" "$EN_DIR\books\"
 
+    if (Test-Path "rag\graph_index") {
+        Write-Host "   Adding knowledge graph..."
+        Copy-Item -Recurse "rag\graph_index" $EN_DIR
+    }
+
     Write-Host "   Creating zip..."
     Compress-Archive -Path "$EN_DIR\*" -DestinationPath $EN_ZIP -Force
     Write-Host "English archive ready" -ForegroundColor Green
@@ -54,6 +59,11 @@ else {
 
     Write-Host "   Copying Russian books..."
     Copy-Item -Recurse "public\books\ru" "$RU_DIR\books\"
+
+    if (Test-Path "rag\graph_index") {
+        Write-Host "   Adding knowledge graph..."
+        Copy-Item -Recurse "rag\graph_index" $RU_DIR
+    }
 
     Write-Host "   Creating zip..."
     Compress-Archive -Path "$RU_DIR\*" -DestinationPath $RU_ZIP -Force
@@ -85,6 +95,11 @@ else {
     Write-Host "   Copying all books..."
     Copy-Item -Recurse "public\books\en" "$ALL_DIR\books\"
     Copy-Item -Recurse "public\books\ru" "$ALL_DIR\books\"
+
+    if (Test-Path "rag\graph_index") {
+        Write-Host "   Adding knowledge graph..."
+        Copy-Item -Recurse "rag\graph_index" $ALL_DIR
+    }
 
     Write-Host "   Creating zip..."
     Compress-Archive -Path "$ALL_DIR\*" -DestinationPath $ALL_ZIP -Force

@@ -28,6 +28,12 @@ echo "   Copying English books..."
 mkdir -p "$EN_DIR/books"
 cp -r public/books/en "$EN_DIR/books/"
 
+# Copy graph index if exists
+if [ -d "rag/graph_index" ]; then
+    echo "   Adding knowledge graph..."
+    cp -r rag/graph_index "$EN_DIR/"
+fi
+
 echo "   Creating zip..."
 cd "$BUILD_DIR"
 zip -r shukabase_data_en.zip shukabase_data_en/
@@ -49,6 +55,12 @@ cp rag/chunked_scriptures_ru.json "$RU_DIR/"
 echo "   Copying Russian books..."
 mkdir -p "$RU_DIR/books"
 cp -r public/books/ru "$RU_DIR/books/"
+
+# Copy graph index if exists
+if [ -d "rag/graph_index" ]; then
+    echo "   Adding knowledge graph..."
+    cp -r rag/graph_index "$RU_DIR/"
+fi
 
 echo "   Creating zip..."
 cd "$BUILD_DIR"
@@ -77,6 +89,12 @@ echo "   Copying all books..."
 mkdir -p "$ALL_DIR/books"
 cp -r public/books/en "$ALL_DIR/books/"
 cp -r public/books/ru "$ALL_DIR/books/"
+
+# Copy graph index if exists
+if [ -d "rag/graph_index" ]; then
+    echo "   Adding knowledge graph..."
+    cp -r rag/graph_index "$ALL_DIR/"
+fi
 
 echo "   Creating zip..."
 cd "$BUILD_DIR"

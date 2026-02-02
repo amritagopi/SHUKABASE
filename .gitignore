@@ -196,3 +196,6 @@ builds/data_archives/shukabase_data_en.zip
 builds/data_archives/shukabase_data_ru.zip
 new_books/*
 miscellaneous/команды.md
+rag_graph_build/*
+rag_graph_build_temp/*
+rag/graph_index/*

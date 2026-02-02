@@ -164,7 +164,7 @@ export const searchScriptures = async (query: string, settings: AppSettings): Pr
     }
     const data = await response.json();
     const results = data.results || [];
-    return results.map((item: any) => ({
+    const chunks: SourceChunk[] = results.map((item: any) => ({
       id: `${(item.book || 'unknown').replace(/\s+/g, "").toLowerCase()}.${item.chapter}.${item.verse}`,
       bookTitle: item.book || 'Unknown',
       chapter: item.chapter,
@@ -173,6 +173,22 @@ export const searchScriptures = async (query: string, settings: AppSettings): Pr
       score: item.final_score || item.score || 0,
       sourceUrl: item.html_path
     }));
+
+    // Handle Knowledge Graph context
+    if (data.graph_context && typeof data.graph_context === 'string' && data.graph_context.trim()) {
+      const graphChunk: SourceChunk = {
+        id: 'graph-knowledge-summary',
+        bookTitle: 'SHUKABASE KNOWLEDGE GRAPH',
+        chapter: 'Summary',
+        verse: 'Concepts',
+        content: data.graph_context,
+        score: 1.0,
+      };
+      // Prepend to show it as a high-priority overview
+      chunks.unshift(graphChunk);
+    }
+
+    return chunks;
   } catch (err: any) {
     console.error("Retrieval error", err);
     return [];
@@ -222,7 +238,11 @@ PERSONA & TONE:
 - **Humorous/Witty**: (Optional) You can use specific slang or "Vaishnava humor" if appropriate, but keep it respectful to the philosophy.
 - **Conflict**: Never scold the user. If they ask something outside your scope, gently explain your limitations with a smile 😇.
 
-INSTRUCTIONS:
+### KNOWLEDGE SOURCES
+1. **Scripture Database:** Direct quotes from Srila Prabhupada's books. Used for specific verses and purports.
+2. **Knowledge Graph:** Synthesized high-level summaries of entities and theological concepts. Use this to provide broader context and connect different topics.
+
+### INSTRUCTIONS:
 1. Analyze the user's request.
 2. Use the following Thought-Action-Observation loop strictly:
 
@@ -257,7 +277,7 @@ RULES:
     let scratchpad = "";
     if (initialChunks.length > 0) {
       const formattedContext = initialChunks.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n');
-      scratchpad += `Observation: Found initial relevant verses:\n${formattedContext}\n\n`;
+      scratchpad += `Observation: Found initial relevant verses: \n${formattedContext} \n\n`;
     }
 
     while (currentStep < MAX_STEPS) {
@@ -307,12 +327,12 @@ RULES:
 
       if (actionMatch) {
         const query = actionMatch[2];
-        if (onStep) onStep({ type: 'action', content: `Searching: ${query}`, timestamp: Date.now() });
+        if (onStep) onStep({ type: 'action', content: `Searching: ${query} `, timestamp: Date.now() });
         const results = await searchScriptures(query, settings);
         if (onSourcesFound) onSourcesFound(results);
 
         const obs = results.length > 0
-          ? `\nObservation: Found:\n${results.map(c => `[[${c.id}]] ${c.content}`).join('\n')}\n`
+          ? `\nObservation: Found: \n${results.map(c => `[[${c.id}]] ${c.content}`).join('\n')} \n`
           : `\nObservation: No results.\n`;
         scratchpad += obs;
       } else {
@@ -352,11 +372,9 @@ PERSONA:
     - "Харе Кришна! Вся слава Шриле Прабхупаде!"
 - **Conflict**: If the user is frustrated or asks for something impossible, respond with empathy and kindness, not sharp refusals.
 
-CORE OBJECTIVE:
-Answer the user's spiritual questions by strictly searching the provided scripture database.
-- You MUST NOT invent information.
-- You MUST ground every claim in the retrieved texts.
-- If you don't find the answer in the database, admit it gently.
+### KNOWLEDGE SOURCES:
+1. **Scripture Database:** Direct quotes from Srila Prabhupada's books. These provide specific authoritative evidence.
+2. **Knowledge Graph:** Synthesized high-level summaries of entities and theological concepts. Use this context to connect different topics and provide an overview.
 
 SEARCH STRATEGY (CRITICAL):
 1. **Normalization**: Convert search terms to their simplest **Nominative Case** (Именительный падеж).
@@ -394,7 +412,7 @@ Be Shuka - wise, kind, and devoted to truth.
     if (initialChunks.length > 0) {
       messages.push({
         role: 'system',
-        content: `Initial Context:\n${initialChunks.map(c => `[[${c.id}]] ${c.content}`).join('\n')}`
+        content: `Initial Context: \n${initialChunks.map(c => `[[${c.id}]] ${c.content}`).join('\n')} `
       });
     }
 
@@ -438,7 +456,7 @@ Be Shuka - wise, kind, and devoted to truth.
             if (onSourcesFound) onSourcesFound(results);
 
             const toolResultContent = results.length > 0
-              ? `Found ${results.length} verses:\n${results.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n')}`
+              ? `Found ${results.length} verses: \n${results.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n')} `
               : "No relevant verses found.";
 
             // Push Tool Result to history
