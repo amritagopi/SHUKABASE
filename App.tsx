@@ -19,13 +19,9 @@ const DEFAULT_SETTINGS: AppSettings = {
     useMockData: false,
     model: 'gemini-2.0-flash-exp',
     language: 'all',
-    provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter' | 'groq' | 'sambanova') || 'google',
+    provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
-    openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'z-ai/glm-4.5-air:free',
-    groqApiKey: localStorage.getItem('shukabase_groq_api_key') || '',
-    groqModel: localStorage.getItem('shukabase_groq_model') || 'llama-3.1-70b-versatile',
-    sambanovaApiKey: localStorage.getItem('shukabase_sambanova_api_key') || '',
-    sambanovaModel: localStorage.getItem('shukabase_sambanova_model') || 'Meta-Llama-3.1-70B-Instruct',
+    openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.0-flash-exp:free',
     telemetryEnabled: localStorage.getItem('shukabase_telemetry_enabled') !== 'false', // Default true
 };
 
@@ -323,9 +319,12 @@ const App: React.FC = () => {
             const res = await fetch('https://openrouter.ai/api/v1/models?supported_parameters=tools');
             if (res.ok) {
                 const data = await res.json();
-                // Filter: Free (prompt=0) models
+                // Filter: Google + Free (prompt=0) models
                 const models = (data.data || [])
-                    .filter((m: any) => m.pricing?.prompt === "0")
+                    .filter((m: any) =>
+                        m.id.startsWith("google/") &&
+                        m.pricing?.prompt === "0"
+                    )
                     .sort((a: any, b: any) => (b.context_length || 0) - (a.context_length || 0));
                 setOpenRouterModels(models);
             }
@@ -484,22 +483,12 @@ const App: React.FC = () => {
                 setIsSettingsOpen(true);
                 return;
             }
-        } else if (settings.provider === 'groq') {
-            if (!settings.groqApiKey) {
-                setIsSettingsOpen(true);
-                return;
-            }
-        } else if (settings.provider === 'sambanova') {
-            if (!settings.sambanovaApiKey) {
-                setIsSettingsOpen(true);
-                return;
-            }
-        } else {
-            // Default to google validation
-            if (!settings.apiKey) {
-                setIsSettingsOpen(true);
-                return;
-            }
+        }
+
+        // Google API Key is ALWAYS required for Knowledge Base search/embeddings
+        if (!settings.apiKey) {
+            setIsSettingsOpen(true);
+            return;
         }
 
         const userMsgContent = contentToSend;
@@ -851,7 +840,7 @@ const App: React.FC = () => {
 
                 <div className="p-4 border-t border-slate-800/50 bg-black/40 backdrop-blur-md z-20">
                     <div className="max-w-4xl mx-auto mb-2 text-center">
-                        <p className="text-[10px] text-slate-500 font-medium tracking-tight opacity-60">
+                        <p className="text-[14px] text-slate-500 font-medium tracking-tight opacity-60">
                             {t('aiDisclaimer')}
                         </p>
                     </div>
@@ -1100,40 +1089,27 @@ const App: React.FC = () => {
                                         >
                                             OpenRouter
                                         </button>
-                                        <button
-                                            onClick={() => setSettings({ ...settings, provider: 'groq' })}
-                                            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${settings.provider === 'groq'
-                                                ? 'bg-orange-600/20 text-orange-400 border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.2)]'
-                                                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                                }`}
-                                        >
-                                            Groq
-                                        </button>
-                                        <button
-                                            onClick={() => setSettings({ ...settings, provider: 'sambanova' })}
-                                            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${settings.provider === 'sambanova'
-                                                ? 'bg-red-600/20 text-red-400 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
-                                                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                                }`}
-                                        >
-                                            SambaNova
-                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-slate-300">
+                                            {t('geminiApiKey')} <span className="text-[10px] text-cyan-400 uppercase font-bold ml-1 tracking-tighter">(Mandatory for Search)</span>
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={settings.apiKey}
+                                            onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                                            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
+                                            placeholder="AIza..."
+                                        />
                                     </div>
                                 </div>
 
                                 {settings.provider === 'google' ? (
                                     <>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">{t('geminiApiKey')}</label>
-                                            <input
-                                                type="password"
-                                                value={settings.apiKey}
-                                                onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
+                                        <div className="pt-2 space-y-2">
                                             <label className="text-sm font-medium text-slate-300">Model</label>
                                             <input
                                                 type="text"
@@ -1162,7 +1138,7 @@ const App: React.FC = () => {
                                             </p>
                                         </div>
                                     </>
-                                ) : settings.provider === 'openrouter' ? (
+                                ) : (
                                     <div className="space-y-4 animate-fade-in">
                                         <div className="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg text-xs text-purple-200">
                                             {// @ts-ignore
@@ -1224,69 +1200,6 @@ const App: React.FC = () => {
                                                 {// @ts-ignore
                                                     t('openRouterFooter')}
                                             </p>
-                                        </div>
-                                    </div>
-                                ) : settings.provider === 'groq' ? (
-                                    <div className="space-y-4 animate-fade-in">
-                                        <div className="bg-orange-900/10 border border-orange-500/20 p-3 rounded-lg text-xs text-orange-200">
-                                            {// @ts-ignore
-                                                t('groqDescription')} <button onClick={() => openUrl('https://console.groq.com/keys').catch(() => window.open('https://console.groq.com/keys', '_blank'))} className="text-orange-400 hover:underline">{// @ts-ignore
-                                                    t('checkAvailableModels')}</button>.
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">{// @ts-ignore
-                                                t('groqApiKey')}</label>
-                                            <input
-                                                type="password"
-                                                value={settings.groqApiKey}
-                                                onChange={(e) => setSettings({ ...settings, groqApiKey: e.target.value })}
-                                                placeholder="gsk_..."
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                                            />
-                                            <p className="text-[10px] text-slate-500">{t('keySavedLocally')}</p>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">{t('model')}</label>
-                                            <input
-                                                type="text"
-                                                value={settings.groqModel}
-                                                onChange={(e) => setSettings({ ...settings, groqModel: e.target.value })}
-                                                placeholder="llama-3.1-70b-versatile"
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                                            />
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4 animate-fade-in">
-                                        <div className="bg-red-900/10 border border-red-500/20 p-3 rounded-lg text-xs text-red-200">
-                                            {// @ts-ignore
-                                                t('sambanovaDescription')} <button onClick={() => openUrl('https://cloud.sambanova.ai/').catch(() => window.open('https://cloud.sambanova.ai/', '_blank'))} className="text-red-400 hover:underline">{// @ts-ignore
-                                                    t('checkAvailableModels')}</button>.
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">{// @ts-ignore
-                                                t('sambanovaApiKey')}</label>
-                                            <input
-                                                type="password"
-                                                value={settings.sambanovaApiKey}
-                                                onChange={(e) => setSettings({ ...settings, sambanovaApiKey: e.target.value })}
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-red-500 focus:outline-none"
-                                            />
-                                            <p className="text-[10px] text-slate-500">{t('keySavedLocally')}</p>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">{t('model')}</label>
-                                            <input
-                                                type="text"
-                                                value={settings.sambanovaModel}
-                                                onChange={(e) => setSettings({ ...settings, sambanovaModel: e.target.value })}
-                                                placeholder="Meta-Llama-3.1-70B-Instruct"
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-red-500 focus:outline-none"
-                                            />
                                         </div>
                                     </div>
                                 )}
@@ -1357,10 +1270,6 @@ const App: React.FC = () => {
                                             localStorage.setItem('shukabase_provider', settings.provider);
                                             localStorage.setItem('shukabase_openrouter_api_key', settings.openrouterApiKey);
                                             localStorage.setItem('shukabase_openrouter_model', settings.openrouterModel);
-                                            localStorage.setItem('shukabase_groq_api_key', settings.groqApiKey);
-                                            localStorage.setItem('shukabase_groq_model', settings.groqModel);
-                                            localStorage.setItem('shukabase_sambanova_api_key', settings.sambanovaApiKey);
-                                            localStorage.setItem('shukabase_sambanova_model', settings.sambanovaModel);
                                             setIsSettingsOpen(false);
                                         }}
                                         className="px-4 py-2 bg-cyan-600 hover:bg-cyan-400 text-white rounded-lg transition-colors shadow-lg shadow-cyan-900/20"
