@@ -19,7 +19,6 @@ import os
 import time
 import re
 import difflib
-import pandas as pd
 
 # GraphRAG support
 GRAPHRAG_AVAILABLE = True

@@ -22,3 +22,5 @@ typing_extensions
 pyinstaller
 einops
 sentry-sdk[flask]
+pandas
+pyarrow
