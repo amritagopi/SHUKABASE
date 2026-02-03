@@ -25,6 +25,6 @@ npm run tauri:build
 echo.
 echo ========================================
 echo   Готово! Установщик:
-echo   src-tauri\target\release\bundle\nsis\SHUKABASE_0.1.0_x64-setup.exe
+echo   src-tauri\target\release\bundle\nsis\SHUKABASE_0.2.1_x64-setup.exe
 echo ========================================
 pause

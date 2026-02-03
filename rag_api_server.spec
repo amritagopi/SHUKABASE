@@ -32,11 +32,11 @@ hidden_imports += ['flask_cors', 'dotenv', 'werkzeug', 'jinja2', 'markupsafe']
 # 6. Core ML & Utils
 hidden_imports += collect_submodules('transformers')
 hidden_imports += collect_submodules('torch')
-hidden_imports += collect_submodules('google.generativeai')
+hidden_imports += collect_submodules('google.genai') # NEW SDK
 hidden_imports += collect_submodules('faiss')
 hidden_imports += collect_submodules('rank_bm25')
 hidden_imports += collect_submodules('sklearn')
-hidden_imports += ['numpy', 'regex', 'requests', 'tqdm', 
+hidden_imports += ['numpy', 'regex', 'requests', 'tqdm', 'pandas', 'pyarrow',
                    'filelock', 'packaging', 'typing_extensions', 'pickle']
 
 # Data files
