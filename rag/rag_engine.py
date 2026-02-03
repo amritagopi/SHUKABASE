@@ -32,7 +32,7 @@ try:
     import faiss
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
     import torch
-    import google.generativeai as genai
+    from google import genai
     from dotenv import load_dotenv
     from rank_bm25 import BM25Okapi
     from nltk.stem import SnowballStemmer
@@ -133,7 +133,7 @@ class RerankerModel:
             # Сначала пробуем загрузить, если есть интернет или кэш
             self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
             self.model = AutoModelForSequenceClassification.from_pretrained(
-                model_name, trust_remote_code=True, torch_dtype=torch.float32
+                model_name, trust_remote_code=True, dtype=torch.float32
             )
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
             self.model.to(self.device)
@@ -263,17 +263,18 @@ class RAGEngine:
         load_dotenv()
         api_key = os.environ.get('GEMINI_API_KEY')
         self.current_api_key = None
+        self.genai_client = None
         
         if not api_key:
             logger.warning("⚠️ Переменная окружения GEMINI_API_KEY не найдена. RAG будет работать в ограниченном режиме.")
             return
 
         try:
-            genai.configure(api_key=api_key)
+            self.genai_client = genai.Client(api_key=api_key)
             self.current_api_key = api_key
-            logger.info("✅ Ключ Gemini API успешно сконфигурирован.")
+            logger.info("✅ Клиент Gemini API (google-genai) успешно создан.")
         except Exception as e:
-            logger.error(f"❌ Ошибка при конфигурации Gemini API: {e}")
+            logger.error(f"❌ Ошибка при создании клиента Gemini API: {e}")
 
     def _load_language_data(self, language: str):
         """Загружает индекс, метаданные и чанки для указанного языка."""
@@ -386,30 +387,34 @@ class RAGEngine:
             try:
                 masked_key = f"{api_key[:4]}...{api_key[-4:]}" if len(api_key) > 8 else "***"
                 logger.info(f"🔑 Using dynamic API key: {masked_key}")
-                genai.configure(api_key=api_key)
+                self.genai_client = genai.Client(api_key=api_key)
                 self.current_api_key = api_key
             except Exception as e:
                 logger.error(f"Error configuring API key: {e}")
 
+        if not self.genai_client:
+            logger.error("❌ Gemini API client not initialized.")
+            dim = 768
+            return np.zeros((len(texts), dim), dtype='float32')
+
         try:
-            if len(texts) == 1:
-                result = genai.embed_content(
-                    model="models/text-embedding-004",
-                    content=texts[0],
-                    task_type="RETRIEVAL_QUERY"
+            all_embeddings = []
+            for text in texts:
+                result = self.genai_client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=text,
+                    config={"task_type": "RETRIEVAL_QUERY"}
                 )
-                embedding = result['embedding']
-                return np.array([embedding], dtype='float32')
-            else:
-                all_embeddings = []
-                for text in texts:
-                    result = genai.embed_content(
-                        model="models/text-embedding-004",
-                        content=text,
-                        task_type="RETRIEVAL_QUERY"
-                    )
-                    all_embeddings.append(result['embedding'])
-                return np.array(all_embeddings, dtype='float32')
+                # result.embeddings - это список объектов Embedding.
+                # Если передан один текст, в списке будет один элемент.
+                if result.embeddings:
+                    all_embeddings.append(result.embeddings[0].values)
+                else:
+                    logger.warning(f"No embeddings returned for text snippet: {text[:50]}...")
+                    all_embeddings.append([0.0] * 768)
+
+            return np.array(all_embeddings, dtype='float32')
+            
         except Exception as e:
             logger.error(f"❌ Ошибка при получении эмбеддинга от Gemini API: {e}", exc_info=True)
             dim = 768
