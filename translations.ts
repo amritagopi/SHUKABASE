@@ -56,6 +56,7 @@ export const TRANSLATIONS = {
         sambanovaApiKey: "SambaNova API Key",
         settingsFooterText: "SHUKABASE is my gift to everyone studying shastras and interested in Krishna consciousness.",
         createdWithLove: "Created with love for lecturers, students, and bhakti practitioners. To support the author - click the heart",
+        aiDisclaimer: "Artificial Intelligence can make mistakes just like humans - please verify information with authoritative sources.",
         books: {
             "sb": "Srimad-Bhagavatam",
             "bg": "Bhagavad-gita As It Is",
@@ -167,6 +168,7 @@ export const TRANSLATIONS = {
         sambanovaApiKey: "Ключ SambaNova API",
         settingsFooterText: "SHUKABASE — мой подарок всем, кто изучает шастры и интересуется сознанием Кришны.",
         createdWithLove: "Создано с любовью для лекторов, учеников и практикующих бхакти. Чтобы поддержать автора - нажмите на сердечко",
+        aiDisclaimer: "Искусственный интеллект может ошибаться так же, как и люди — пожалуйста, сверяйте информацию с авторитетными источниками.",
         books: {
             "sb": "Шримад-Бхагаватам",
             "bg": "Бхагавад-гита как она есть",
@@ -187,7 +189,16 @@ export const TRANSLATIONS = {
             "owk": "На пути к Кришне",
             "ej": "Легкое путешествие на другие планеты",
             "lob": "Свет Бхагаваты",
-            "spl": "Прабхупада-лиламрита"
+            "spl": "Прабхупада-лиламрита",
+            "Наука самоосознания": "Наука самоосознания",
+            "Учение Шри Чайтаньи": "Учение Шри Чайтаньи",
+            "Шри Ишопанишад": "Шри Ишопанишад",
+            "Нектар наставлений": "Нектар наставлений",
+            "Путешествие вглубь себя": "Путешествие вглубь себя",
+            "Совершенные вопросы, совершенные ответы": "Совершенные вопросы, совершенные ответы",
+            "Учение Господа Капилы": "Учение Господа Капилы",
+            "Молитвы царицы Кунти": "Молитвы царицы Кунти",
+            "Раджа-Видья - царь знания": "Раджа-Видья - царь знания"
         },
 
         quickQueries: "Быстрые запросы",

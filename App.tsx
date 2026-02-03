@@ -484,6 +484,16 @@ const App: React.FC = () => {
                 setIsSettingsOpen(true);
                 return;
             }
+        } else if (settings.provider === 'groq') {
+            if (!settings.groqApiKey) {
+                setIsSettingsOpen(true);
+                return;
+            }
+        } else if (settings.provider === 'sambanova') {
+            if (!settings.sambanovaApiKey) {
+                setIsSettingsOpen(true);
+                return;
+            }
         } else {
             // Default to google validation
             if (!settings.apiKey) {
@@ -840,6 +850,11 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="p-4 border-t border-slate-800/50 bg-black/40 backdrop-blur-md z-20">
+                    <div className="max-w-4xl mx-auto mb-2 text-center">
+                        <p className="text-[10px] text-slate-500 font-medium tracking-tight opacity-60">
+                            {t('aiDisclaimer')}
+                        </p>
+                    </div>
                     <div className="max-w-4xl mx-auto relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-teal-500 rounded-xl opacity-20 group-hover:opacity-40 transition duration-500 blur"></div>
                         <input
@@ -910,51 +925,53 @@ const App: React.FC = () => {
                                     <p className="text-xs mt-2 opacity-50">{t('searchPlaceholder')}</p>
                                 </div>
                             ) : (
-                                currentSources.map((chunk) => (
-                                    <div
-                                        key={chunk.id}
-                                        id={`source-${chunk.id}`}
-                                        className={`p-4 rounded-xl border transition-all duration-300 cursor-pointer group relative backdrop-blur-sm ${highlightedSourceId === chunk.id
-                                            ? 'bg-cyan-900/20 border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.2)]'
-                                            : 'bg-slate-900/40 border-slate-800 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.1)]'
-                                            }`}
-                                        onClick={() => setHighlightedSourceId(chunk.id)}
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span
-                                                className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20 truncate max-w-[240px]"
-                                                title={getBookTitle(chunk.bookTitle)}
-                                            >
-                                                {getBookTitle(chunk.bookTitle)}
-                                            </span>
-                                            <span className="text-[10px] text-slate-500 font-mono group-hover:text-slate-400">
-                                                {Math.round(chunk.score * 100)}%
-                                            </span>
-                                        </div>
-
-                                        <h4 className="text-xs font-semibold text-slate-300 mb-2 font-mono flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
-                                            {chunk.chapter && chunk.verse
-                                                ? `Chapter ${chunk.chapter}, Verse ${chunk.verse} `
-                                                : (chunk.pageNumber ? `Page ${chunk.pageNumber} ` : '')}
-                                        </h4>
-
-                                        <p className="text-sm text-slate-400 leading-relaxed font-serif border-l-2 border-slate-700 pl-3 line-clamp-6 group-hover:line-clamp-none transition-all">
-                                            "{chunk.content}"
-                                        </p>
-
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleReadFull(chunk);
-                                            }}
-                                            className="mt-3 w-full text-xs py-2 px-3 bg-slate-800/80 hover:bg-slate-700 text-cyan-300 rounded-lg transition-colors border border-slate-700 hover:border-cyan-500/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100"
+                                currentSources
+                                    .filter(chunk => !['SHUKABASE KNOWLEDGE GRAPH', 'PRIORITY RAG LAYER'].includes(chunk.bookTitle))
+                                    .map((chunk) => (
+                                        <div
+                                            key={chunk.id}
+                                            id={`source-${chunk.id}`}
+                                            className={`p-4 rounded-xl border transition-all duration-300 cursor-pointer group relative backdrop-blur-sm ${highlightedSourceId === chunk.id
+                                                ? 'bg-cyan-900/20 border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.2)]'
+                                                : 'bg-slate-900/40 border-slate-800 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.1)]'
+                                                }`}
+                                            onClick={() => setHighlightedSourceId(chunk.id)}
                                         >
-                                            <BookOpen size={12} />
-                                            {t('readFull')}
-                                        </button>
-                                    </div>
-                                ))
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span
+                                                    className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20 truncate max-w-[240px]"
+                                                    title={getBookTitle(chunk.bookTitle)}
+                                                >
+                                                    {getBookTitle(chunk.bookTitle)}
+                                                </span>
+                                                <span className="text-[10px] text-slate-500 font-mono group-hover:text-slate-400">
+                                                    {Math.round(chunk.score * 100)}%
+                                                </span>
+                                            </div>
+
+                                            <h4 className="text-xs font-semibold text-slate-300 mb-2 font-mono flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+                                                {chunk.chapter && chunk.verse
+                                                    ? `Chapter ${chunk.chapter}, Verse ${chunk.verse} `
+                                                    : (chunk.pageNumber ? `Page ${chunk.pageNumber} ` : '')}
+                                            </h4>
+
+                                            <p className="text-sm text-slate-400 leading-relaxed font-serif border-l-2 border-slate-700 pl-3 line-clamp-6 group-hover:line-clamp-none transition-all">
+                                                "{chunk.content}"
+                                            </p>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleReadFull(chunk);
+                                                }}
+                                                className="mt-3 w-full text-xs py-2 px-3 bg-slate-800/80 hover:bg-slate-700 text-cyan-300 rounded-lg transition-colors border border-slate-700 hover:border-cyan-500/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100"
+                                            >
+                                                <BookOpen size={12} />
+                                                {t('readFull')}
+                                            </button>
+                                        </div>
+                                    ))
                             )}
                         </div>
                     ) : (

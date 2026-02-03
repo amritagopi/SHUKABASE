@@ -623,14 +623,32 @@ class RAGEngine:
         
         logger.info(f"🎯 Exact Verse Search: Book={target_book}, Ch={target_chapter}, V={target_verse}")
         
+        BOOK_ALIASES = {
+            'sb': ['srimad-bhagavatam', 'бхагаватам', 'шб'],
+            'bg': ['bhagavad-gita', 'бхагавад-гита', 'бг'],
+            'cc': ['caitanya-caritamrta', 'чайтанья-чаритамрита', 'чч'],
+            'nod': ['nectar of devotion', 'нектар преданности', 'нп'],
+            'noi': ['nectar of instruction', 'нектар наставлений', 'нн'],
+            'iso': ['isopanisad', 'ишопанишад', 'ишо'],
+        }
+        
+        target_book_lower = target_book.lower()
+        
         for idx, meta in enumerate(metadata_list):
-            # Сравниваем книгу (нечеткое сравнение если нужно, но здесь точное по ключу)
-            # Но ключи могут отличаться (bg vs Bhagavad-Gita). 
-            # Для стандартных книг ключи обычно короткие (bg, sb), для новых - длинные.
-            # Если target_book = 'Uddhava-Gita', ищем вхождение.
-            
             meta_book = meta.get('book', '').lower()
-            if target_book.lower() not in meta_book and meta_book not in target_book.lower():
+            
+            # Check for direct match or alias match
+            is_book_match = target_book_lower in meta_book or meta_book in target_book_lower
+            
+            if not is_book_match:
+                # Check aliases
+                for canonical, aliases in BOOK_ALIASES.items():
+                    if target_book_lower == canonical or target_book_lower in aliases:
+                        if meta_book == canonical or any(a in meta_book for a in aliases):
+                            is_book_match = True
+                            break
+            
+            if not is_book_match:
                  continue
 
             meta_chapter = str(meta.get('chapter', ''))
@@ -696,7 +714,11 @@ class RAGEngine:
              'Introductory-handbook-for-Krishna-Consciousness', # Normalized name
              'Introductory_handbook_for_Krishna_Consciousness',
              'Disciple-Course-SHB-5th-Edition',
-             'Disciple-Course-SHB-5th-Edition-March-2017'
+             'Disciple-Course-SHB-5th-Edition-March-2017',
+             'Наука самоосознания',
+             'Учение Шри Чайтаньи',
+             'Шри Ишопанишад',
+             'Нектар наставлений'
         ]
         CORE_BOOST_MULTIPLIER = 3.0 
         # ===================================================================

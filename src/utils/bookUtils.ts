@@ -44,7 +44,17 @@ export const BOOK_MAP: Record<string, string> = {
     'Subodhini-3': 'Subodhini-3',
     'Upadesamrita-Subodhini-GDD': 'Upadesamrita-Subodhini-GDD',
     'Bhagavata-Subodhini-5-6': 'Bhagavata-Subodhini-5-6',
-    'Bhagavata-Subodhini-Canto-7': 'Bhagavata-Subodhini-Canto-7'
+    'Bhagavata-Subodhini-Canto-7': 'Bhagavata-Subodhini-Canto-7',
+    // Russian Books
+    'Наука самоосознания': 'Наука самоосознания',
+    'Учение Шри Чайтаньи': 'Учение Шри Чайтаньи',
+    'Шри Ишопанишад': 'Шри Ишопанишад',
+    'Нектар наставлений': 'Нектар наставлений',
+    'Путешествие вглубь себя': 'Путешествие вглубь себя',
+    'Совершенные вопросы, совершенные ответы': 'Совершенные вопросы, совершенные ответы',
+    'Учение Господа Капилы': 'Учение Господа Капилы',
+    'Молитвы царицы Кунти': 'Молитвы царицы Кунти',
+    'Раджа-Видья - царь знания': 'Раджа-Видья - царь знания'
 };
 
 export const getBookFolder = (bookTitle: string): string | null => {
