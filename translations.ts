@@ -50,6 +50,10 @@ export const TRANSLATIONS = {
         model: "Model",
         refreshList: "Refresh List",
         openRouterFooter: "Currently showing FREE models with Tool support.",
+        groqDescription: "Lightning-fast inference from Groq Cloud.",
+        groqApiKey: "Groq API Key",
+        sambanovaDescription: "Enterprise-grade Llama models from SambaNova Systems.",
+        sambanovaApiKey: "SambaNova API Key",
         settingsFooterText: "SHUKABASE is my gift to everyone studying shastras and interested in Krishna consciousness.",
         createdWithLove: "Created with love for lecturers, students, and bhakti practitioners. To support the author - click the heart",
         books: {
@@ -157,6 +161,10 @@ export const TRANSLATIONS = {
         model: "Модель",
         refreshList: "Обновить список",
         openRouterFooter: "Показаны БЕСПЛАТНЫЕ модели с поддержкой инструментов.",
+        groqDescription: "Молниеносная генерация от Groq Cloud.",
+        groqApiKey: "Ключ Groq API",
+        sambanovaDescription: "Мощные модели Llama от SambaNova Systems.",
+        sambanovaApiKey: "Ключ SambaNova API",
         settingsFooterText: "SHUKABASE — мой подарок всем, кто изучает шастры и интересуется сознанием Кришны.",
         createdWithLove: "Создано с любовью для лекторов, учеников и практикующих бхакти. Чтобы поддержать автора - нажмите на сердечко",
         books: {

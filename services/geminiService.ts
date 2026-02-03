@@ -69,27 +69,52 @@ const SEARCH_TOOL_DEF = {
   }
 };
 
-const callOpenRouter = async (
+const callOpenAICompatibleApi = async (
   messages: any[],
   settings: AppSettings,
+  provider: 'openrouter' | 'groq' | 'sambanova',
   temperature: number = 0
 ): Promise<any> => {
-  console.group("🚀 [OpenRouter] Request Debugger");
+  const providerConfig = {
+    openrouter: {
+      url: "https://openrouter.ai/api/v1/chat/completions",
+      apiKey: settings.openrouterApiKey,
+      model: settings.openrouterModel,
+      headers: {
+        'HTTP-Referer': 'https://shukabase.app',
+        'X-Title': 'Shukabase AI'
+      }
+    },
+    groq: {
+      url: "https://api.groq.com/openai/v1/chat/completions",
+      apiKey: settings.groqApiKey,
+      model: settings.groqModel,
+      headers: {}
+    },
+    sambanova: {
+      url: "https://api.sambanova.ai/v1/chat/completions",
+      apiKey: settings.sambanovaApiKey,
+      model: settings.sambanovaModel,
+      headers: {}
+    }
+  };
+
+  const config = providerConfig[provider];
+  console.group(`🚀 [${provider.toUpperCase()}] Request Debugger`);
   try {
-    const url = "https://openrouter.ai/api/v1/chat/completions";
-    const apiKey = settings.openrouterApiKey;
+    const { url, apiKey, model, headers } = config;
 
     if (!apiKey) {
-      console.error("❌ API Key is missing inside callOpenRouter!");
-      throw new Error("OpenRouter API Key is missing (client-side check).");
+      console.error(`❌ API Key is missing inside call${provider.toUpperCase()}API!`);
+      throw new Error(`${provider.toUpperCase()} API Key is missing (client-side check).`);
     }
 
     console.log("📍 Target URL:", url);
-    console.log("🔑 API Key Status:", apiKey.startsWith("sk-or-") ? "Valid Prefix (sk-or-)" : "Unknown Prefix", `(${apiKey.substring(0, 8)}...)`);
-    console.log("🧠 Model:", settings.openrouterModel);
+    console.log("🔑 API Key Status:", apiKey ? "Present" : "Missing", `(${apiKey.substring(0, 8)}...)`);
+    console.log("🧠 Model:", model);
 
     const requestBody = {
-      model: settings.openrouterModel,
+      model: model,
       messages: messages,
       temperature: temperature,
       tools: [SEARCH_TOOL_DEF],
@@ -105,8 +130,7 @@ const callOpenRouter = async (
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://shukabase.app', // OpenRouter requirement
-        'X-Title': 'Shukabase AI'
+        ...headers
       },
       body: bodyString
     });
@@ -115,24 +139,23 @@ const callOpenRouter = async (
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`❌ [OpenRouter] HTTP Error Body:`, errText);
+      console.error(`❌ [${provider.toUpperCase()}] HTTP Error Body:`, errText);
 
       let errMsg = errText;
       try {
         const errJson = JSON.parse(errText);
-        // Common OpenRouter error structure
         errMsg = errJson.error?.message || JSON.stringify(errJson);
       } catch { }
-      throw new Error(`OpenRouter API Error: ${errMsg}`);
+      throw new Error(`${provider.toUpperCase()} API Error: ${errMsg}`);
     }
 
     const data = await response.json();
-    console.log("✅ [OpenRouter] Success! Response Data:", data);
+    console.log(`✅ [${provider.toUpperCase()}] Success! Response Data:`, data);
     console.groupEnd();
     return data.choices?.[0]?.message;
 
   } catch (error) {
-    console.error("🔥 [OpenRouter] CRITICAL FAILURE:", error);
+    console.error(`🔥 [${provider.toUpperCase()}] CRITICAL FAILURE:`, error);
     console.groupEnd();
     throw error;
   }
@@ -345,9 +368,14 @@ RULES:
     return scratchpad || "No response generated (Loop ended)."; // Fallback
   }
 
-  // --- OPENROUTER PROVIDER (Native Tool Calling) ---
-  if (settings.provider === 'openrouter') {
-    if (!settings.openrouterApiKey) throw new Error("OpenRouter API Key is missing.");
+  // --- OPENROUTER / GROQ / SAMBANOVA PROVIDERS (Native Tool Calling) ---
+  if (settings.provider === 'openrouter' || settings.provider === 'groq' || settings.provider === 'sambanova') {
+    const currentProvider = settings.provider;
+    const apiKey = currentProvider === 'openrouter' ? settings.openrouterApiKey
+      : currentProvider === 'groq' ? settings.groqApiKey
+        : settings.sambanovaApiKey;
+
+    if (!apiKey) throw new Error(`${currentProvider.toUpperCase()} API Key is missing.`);
 
     const SYSTEM_PROMPT = `
 You are SHUKA, an intelligent and warm-hearted spiritual research assistant dedicated to helping users study the books of His Divine Grace A.C. Bhaktivedanta Swami Prabhupada.
@@ -412,7 +440,7 @@ Be Shuka - wise, kind, and devoted to truth.
     if (initialChunks.length > 0) {
       messages.push({
         role: 'system',
-        content: `Initial Context: \n${initialChunks.map(c => `[[${c.id}]] ${c.content}`).join('\n')} `
+        content: `Initial Context: \n${initialChunks.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n')} `
       });
     }
 
@@ -423,7 +451,7 @@ Be Shuka - wise, kind, and devoted to truth.
       currentStep++;
       if (signal?.aborted) throw new Error("Aborted");
 
-      const responseMessage = await callOpenRouter(messages, settings);
+      const responseMessage = await callOpenAICompatibleApi(messages, settings, currentProvider);
 
       // Add the Assistant's response to history immediately
       messages.push(responseMessage);
@@ -433,8 +461,6 @@ Be Shuka - wise, kind, and devoted to truth.
 
       if (content) {
         console.log("Assistant Thought/Content:", content);
-        // OpenRouter models often output thoughts before tool calls or as final answer
-        // We can heuristic check if this is a final answer if no tools are called
         if (onStep) onStep({ type: 'thought', content: content, timestamp: Date.now() });
       }
 
@@ -444,14 +470,11 @@ Be Shuka - wise, kind, and devoted to truth.
             const args = JSON.parse(toolCall.function.arguments);
             const query = args.query;
 
-
             if (onStep) onStep({ type: 'action', content: `Searching: "${query}"`, timestamp: Date.now() });
-            console.log(`[OpenRouter] Tool Call: Searching '${query}'`);
+            console.log(`[${currentProvider.toUpperCase()}] Tool Call: Searching '${query}'`);
 
             const results = await searchScriptures(query, settings);
-
-            // Reverted truncation as requested
-            console.log(`[OpenRouter] Found ${results.length} results.`);
+            console.log(`[${currentProvider.toUpperCase()}] Found ${results.length} results.`);
 
             if (onSourcesFound) onSourcesFound(results);
 

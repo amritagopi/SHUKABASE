@@ -40,9 +40,13 @@ export interface AppSettings {
   language: 'ru' | 'en' | 'all';
   // New Multi-provider settings
   // New Multi-provider settings
-  provider: 'google' | 'openrouter';
+  provider: 'google' | 'openrouter' | 'groq' | 'sambanova';
   openrouterApiKey: string;
   openrouterModel: string;
+  groqApiKey: string;
+  groqModel: string;
+  sambanovaApiKey: string;
+  sambanovaModel: string;
   telemetryEnabled: boolean;
 }
 
