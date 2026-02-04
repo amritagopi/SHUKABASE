@@ -74,18 +74,6 @@ except Exception as e:
 # --- Добавляем корень проекта в sys.path ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    # ⚠️ КРИТИЧЕСКИЙ ИМПОРТ ⚠️
-    try:
-        from rag.rag_engine import RAGEngine
-    except ImportError:
-        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-        from rag_engine import RAGEngine
-except Exception as e:
-    logger.critical(f"🔥 FATAL IMPORT ERROR: {e}", exc_info=True)
-    # Пытаемся продолжить чтобы сервер запустился и отдал лог, но без движка
-    RAGEngine = None 
-
 # --- Константы ---
 
 # ID архива данных
@@ -141,8 +129,14 @@ def initialize_engine():
         try:
             logger.info(f"Initializing RAGEngine from {DATA_DIR}...")
             
-            if RAGEngine is None:
-                logger.critical("Cannot initialize engine: RAGEngine class is missing (import failed).")
+            # --- LAZY IMPORT (TO SPEED UP PORT BINDING) ---
+            try:
+                from rag.rag_engine import RAGEngine
+            except ImportError:
+                sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+                from rag_engine import RAGEngine
+            except Exception as e:
+                logger.critical(f"🔥 FATAL IMPORT ERROR: {e}", exc_info=True)
                 return False
                 
             # Initialize with our data directory

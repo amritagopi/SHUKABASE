@@ -339,7 +339,7 @@ const App: React.FC = () => {
     // Initial Check for Setup
     useEffect(() => {
         let attempts = 0;
-        const maxAttempts = 30; // 30 seconds timeout
+        const maxAttempts = 120; // 120 seconds timeout (safer for slow starts)
 
         const checkStatus = async () => {
             try {
