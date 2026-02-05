@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     useMockData: false,
     model: 'gemini-2.5-flash',
     language: 'all',
+    multilingualSearch: localStorage.getItem('shukabase_multilingual_search') === 'true',
     provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
     openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.5-flash',
@@ -1078,10 +1079,17 @@ const App: React.FC = () => {
                                             onClick={() => handleReadFull(chunk)}
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20 truncate max-w-[240px]">
-                                                    {getBookTitle(chunk.bookTitle)}
-                                                </span>
-                                                <span className="text-[10px] text-slate-500 font-mono">
+                                                <div className="flex items-center gap-2 truncate">
+                                                    <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20 truncate max-w-[200px]">
+                                                        {getBookTitle(chunk.bookTitle)}
+                                                    </span>
+                                                    {chunk.lang && (
+                                                        <span className="text-[9px] font-bold text-slate-400 bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-700/50 uppercase">
+                                                            {chunk.lang}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="text-[10px] text-slate-500 font-mono shrink-0">
                                                     {Math.round(chunk.score * 100)}%
                                                 </span>
                                             </div>
@@ -1093,6 +1101,14 @@ const App: React.FC = () => {
                                             <p className="text-sm text-slate-400 leading-relaxed font-serif line-clamp-4 group-hover:line-clamp-none transition-all">
                                                 "{chunk.content}"
                                             </p>
+                                            {chunk.translation && (
+                                                <div className="mt-2 pt-2 border-t border-slate-800/50 flex items-center gap-2">
+                                                    <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
+                                                    <span className="text-[10px] text-cyan-500/70 font-medium">
+                                                        {settings.language === 'ru' ? 'Доступен перевод' : 'Translation available'}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     ))
                                 )}
@@ -1167,6 +1183,27 @@ const App: React.FC = () => {
                                                 }`}
                                         >
                                             OpenRouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 border-b border-slate-700/50 pb-6 mb-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <label className="text-sm font-medium text-slate-300">{// @ts-ignore
+                                                t('multilingualSearch')}</label>
+                                            <p className="text-[10px] text-slate-500">{// @ts-ignore
+                                                t('multilingualSearchHint')}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                const newVal = !settings.multilingualSearch;
+                                                setSettings({ ...settings, multilingualSearch: newVal });
+                                                localStorage.setItem('shukabase_multilingual_search', String(newVal));
+                                            }}
+                                            className={`w-10 h-5 rounded-full transition-all relative ${settings.multilingualSearch ? 'bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.4)]' : 'bg-slate-700'}`}
+                                        >
+                                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.multilingualSearch ? 'left-6' : 'left-1'}`} />
                                         </button>
                                     </div>
                                 </div>

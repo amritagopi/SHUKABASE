@@ -7,6 +7,13 @@ export interface SourceChunk {
   content: string;
   score: number;
   sourceUrl?: string;
+  lang?: string; // New field for Phase 4
+  translation?: {
+    text: string;
+    book: string;
+    chapter: string;
+    lang: string;
+  }; // New field for Phase 4
 }
 
 export interface AgentStep {
@@ -38,6 +45,7 @@ export interface AppSettings {
   useMockData: boolean;
   model: string; // Google Model
   language: 'ru' | 'en' | 'all';
+  multilingualSearch: boolean; // New flag for Phase 4
   // New Multi-provider settings
   provider: 'google' | 'openrouter';
   openrouterApiKey: string;

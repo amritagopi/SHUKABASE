@@ -166,7 +166,8 @@ export const searchScriptures = async (query: string, settings: AppSettings, sig
       body: JSON.stringify({
         query: query,
         language: lang,
-        top_k: 20, // Reverted to 20 as requested
+        multilingual: settings.multilingualSearch, // Pass the new setting
+        top_k: 20, 
         api_key: settings.apiKey
       }),
       signal
@@ -185,7 +186,9 @@ export const searchScriptures = async (query: string, settings: AppSettings, sig
       verse: item.verse,
       content: item.text,
       score: item.final_score || item.score || 0,
-      sourceUrl: item.html_path
+      sourceUrl: item.html_path,
+      lang: item.lang, // Map language
+      translation: item.translation // Map translation
     }));
 
     // Handle Knowledge Graph context
@@ -348,7 +351,13 @@ RULES:
         if (onSourcesFound) onSourcesFound(results);
 
         const obs = results.length > 0
-          ? `\nObservation: Found: \n${results.map(c => `[[${c.id}]] ${c.content}`).join('\n')} \n`
+          ? `\nObservation: Found ${results.length} results: \n${results.map(c => {
+              let text = `[[${c.id}]] (${c.lang || 'unknown'}) ${c.content}`;
+              if (c.translation) {
+                text += `\n[Translation in ${c.translation.lang}]: ${c.translation.text}`;
+              }
+              return text;
+            }).join('\n')} \n`
           : `\nObservation: No results.\n`;
         scratchpad += obs;
       } else {
@@ -471,7 +480,13 @@ Be Shuka - wise, kind, and devoted to truth.
             if (onSourcesFound) onSourcesFound(results);
 
             const toolResultContent = results.length > 0
-              ? `Found ${results.length} verses: \n${results.map(c => `[[${c.id}]] ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`).join('\n')} `
+              ? `Found ${results.length} verses: \n${results.map(c => {
+                  let text = `[[${c.id}]] (${c.lang || 'unknown'}) ${c.bookTitle} ${c.chapter}:${c.verse} - "${c.content}"`;
+                  if (c.translation) {
+                    text += `\n[Translation in ${c.translation.lang}]: "${c.translation.text}"`;
+                  }
+                  return text;
+                }).join('\n')} `
               : "No relevant verses found.";
 
             // Push Tool Result to history

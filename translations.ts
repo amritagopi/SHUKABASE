@@ -105,6 +105,8 @@ export const TRANSLATIONS = {
         sendRequest: "Send Request",
         activateProtocol: "Activate Protocol",
         openAiTools: "AI Tools Studio",
+        multilingualSearch: "Multilingual Search",
+        multilingualSearchHint: "Search across RU and EN databases simultaneously (uses more tokens)",
         responseGenerationFailed: "Response generation failed."
     },
     ru: {
@@ -197,6 +199,8 @@ export const TRANSLATIONS = {
         sendRequest: "Отправить запрос",
         activateProtocol: "Активировать Протокол",
         openAiTools: "Студия AI Инструментов",
+        multilingualSearch: "Мультиязычный поиск",
+        multilingualSearchHint: "Искать одновременно в RU и EN базах данных (тратит больше токенов)",
         responseGenerationFailed: "Не удалось сгенерировать ответ."
     }
 };
