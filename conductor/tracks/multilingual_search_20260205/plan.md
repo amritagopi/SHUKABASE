@@ -1,9 +1,9 @@
 # Implementation Plan: Multilingual Search Enhancement
 
 ## Phase 1: Research & Setup
-- [ ] Task: Анализ текущей реализации поиска в `rag_engine.py` и `rag_search_service.py`
-- [ ] Task: Проверка структуры FAISS индексов для `ru` и `en` сегментов
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Setup' (Protocol in workflow.md)
+- [x] Task: Анализ текущей реализации поиска в `rag_engine.py` и `rag_search_service.py`
+- [x] Task: Проверка структуры FAISS индексов для `ru` и `en` сегментов
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Research & Setup' (Protocol in workflow.md)
 
 ## Phase 2: RAG Backend Updates
 - [ ] Task: Реализация метода расширения запроса (query expansion) для поддержки двух языков
