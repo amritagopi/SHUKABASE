@@ -18,11 +18,11 @@ const DEFAULT_SETTINGS: AppSettings = {
     apiKey: localStorage.getItem('shukabase_api_key') || '',
     backendUrl: 'http://localhost:5000/api/search',
     useMockData: false,
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-2.5-flash',
     language: 'all',
     provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
-    openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.0-flash-exp:free',
+    openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.5-flash',
     telemetryEnabled: localStorage.getItem('shukabase_telemetry_enabled') !== 'false', // Default true
 };
 
@@ -1196,7 +1196,7 @@ const App: React.FC = () => {
                                                     type="text"
                                                     value={settings.openrouterModel}
                                                     onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
-                                                    placeholder="google/gemini-2.0-flash-exp:free"
+                                                    placeholder="google/gemini-2.5-flash"
                                                     className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                                                 />
                                             )}
