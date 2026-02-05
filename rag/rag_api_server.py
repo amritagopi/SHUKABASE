@@ -326,6 +326,7 @@ def search():
         data = request.json
         query = data.get('query', '').strip()
         language = data.get('language', 'ru')
+        multilingual = data.get('multilingual', False) # New flag
         top_k = int(data.get('top_k', 10))
         
         if not query:
@@ -334,6 +335,7 @@ def search():
         search_results = rag_engine_instance.search(
             query=query,
             language=language,
+            multilingual=multilingual,
             top_k=top_k,
             api_key=data.get('api_key') # Pass API key from request
         )

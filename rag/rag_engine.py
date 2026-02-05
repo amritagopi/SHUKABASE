@@ -276,6 +276,33 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"❌ Ошибка при создании клиента Gemini API: {e}")
 
+    def _translate_query(self, query: str, target_lang: str) -> str:
+        """Переводит поисковый запрос на целевой язык для расширения поиска."""
+        if not self.genai_client:
+            return ""
+        
+        try:
+            prompt = (
+                f"Translate the following search query into {target_lang}. "
+                "Provide ONLY the translation, no explanations or quotes.\n\n"
+                f"Query: {query}"
+            )
+            
+            response = self.genai_client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt
+            )
+            
+            translation = response.text.strip().lower()
+            # Убираем возможные кавычки и точки в конце
+            translation = re.sub(r'[".!]$', '', translation).strip()
+            
+            logger.info(f"🌐 Translated query to {target_lang}: '{translation}'")
+            return translation
+        except Exception as e:
+            logger.error(f"❌ Error translating query: {e}")
+            return ""
+
     def _load_language_data(self, language: str):
         """Загружает индекс, метаданные и чанки для указанного языка."""
         index_file = self.base_dir / f"faiss_index_{language}.bin"
@@ -479,7 +506,8 @@ class RAGEngine:
                     'verse': None, 
                     'chunk_idx': meta.get('chunk_idx'),
                     'html_path': meta.get('html_path'),
-                    'source': 'bm25'
+                    'source': 'bm25',
+                    'lang': language # New field
                 })
             
             return results
@@ -518,7 +546,8 @@ class RAGEngine:
                     'verse': None,
                     'chunk_idx': meta.get('chunk_idx'),
                     'html_path': meta.get('html_path'),
-                    'source': 'simple_match'
+                    'source': 'simple_match',
+                    'lang': language # New field
                 })
 
         # Сортируем по количеству вхождений
@@ -569,7 +598,8 @@ class RAGEngine:
                     'verse': None, 
                     'chunk_idx': chunk_idx,
                     'html_path': meta.get('html_path'),
-                    'source': 'vector'
+                    'source': 'vector',
+                    'lang': language # New field
                 })
                 
                 if len(results) >= top_k:
@@ -702,7 +732,8 @@ class RAGEngine:
         use_reranking: bool = True,
         expand_query: bool = True,
         vector_distance_threshold: float = None,
-        api_key: str = None
+        api_key: str = None,
+        multilingual: bool = False
     ) -> Dict[str, Any]:
         """
         Основной метод поиска.
@@ -723,10 +754,10 @@ class RAGEngine:
         CORE_BOOST_MULTIPLIER = 3.0 
         # ===================================================================
 
-        logger.info(f"🔍 Поиск: '{query}' (lang={language}, top_k={top_k})")
+        logger.info(f"🔍 Поиск: '{query}' (lang={language}, multilingual={multilingual}, top_k={top_k})")
         
         target_languages = []
-        if language == 'all':
+        if multilingual or language == 'all':
             target_languages = list(self.indices.keys())
         else:
             if language in self.indices:
@@ -740,44 +771,63 @@ class RAGEngine:
             all_keyword_results = []
             all_simple_match_results = []
             all_query_variants = [query]
+            
+            # Храним переводы, чтобы не переводить по сто раз
+            translations = {} 
 
             # --- SEARCH IN EACH LANGUAGE ---
             for lang in target_languages:
-                # 0. Проверка на точный стих
+                # 0. Проверка на точный стих (в каждом языке свой формат может быть, но ключи общие)
                 verse_ref = self._detect_verse_reference(query)
                 if verse_ref:
                     exact_res = self._find_verse_in_metadata(verse_ref, lang)
                     if exact_res:
                         all_exact_results.extend(exact_res)
 
-                # 1. Расширение запроса
+                # 1. Формируем варианты запроса для ДАННОГО языка
+                current_lang_variants = [query]
+                
                 if expand_query:
+                    # 1.1 Синонимы для текущего языка
                     expander_method = getattr(QueryExpander, f'expand_query_{lang}', None)
                     if expander_method:
-                        variants = expander_method(query)
-                        all_query_variants.extend(variants)
+                        current_lang_variants.extend(expander_method(query))
+                    
+                    # 1.2 Если запрос на другом языке, пробуем перевести его на текущий lang
+                    # Обычный детектор языка (упрощенный)
+                    query_is_russian = any(c in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя' for c in query.lower())
+                    query_lang = 'ru' if query_is_russian else 'en'
+                    
+                    if lang != query_lang:
+                        if lang not in translations:
+                            translations[lang] = self._translate_query(query, lang)
+                        
+                        if translations[lang]:
+                            current_lang_variants.append(translations[lang])
+                
+                current_lang_variants = list(set(current_lang_variants))
+                all_query_variants.extend(current_lang_variants)
+                logger.info(f"   📋 Варианты для {lang}: {current_lang_variants}")
 
-                # 2. Получение эмбеддингов и Векторный поиск
-                # Используем варианты для текущего языка + оригинал
-                # (Можно оптимизировать и эмбеддить один раз для всех вариантов, но пока так)
-                lang_query_variants = [query]
-                if expand_query and getattr(QueryExpander, f'expand_query_{lang}', None):
-                     lang_query_variants = getattr(QueryExpander, f'expand_query_{lang}')(query)
-                
-                variant_embeddings = self._get_embedding(lang_query_variants, api_key=api_key)
-                
-                for idx, emb in enumerate(variant_embeddings):
+                # 2. Векторный поиск по всем вариантам текущего языка
+                variant_embeddings = self._get_embedding(current_lang_variants, api_key=api_key)
+                for emb in variant_embeddings:
                     vec_res = self._search_by_vector(emb, lang, top_k * 2, vector_distance_threshold)
                     all_vector_results.extend(vec_res)
 
-                # 4. Keyword Search (BM25)
-                if lang in self.bm25_indices:
-                    kw_res = self._search_by_keyword(query, lang, top_k * 2)
-                    all_keyword_results.extend(kw_res)
+                # 4. Keyword Search (BM25) - по оригиналу и переводу
+                search_terms = [query]
+                if lang in translations and translations[lang]:
+                    search_terms.append(translations[lang])
+                
+                for term in search_terms:
+                    if lang in self.bm25_indices:
+                        kw_res = self._search_by_keyword(term, lang, top_k * 2)
+                        all_keyword_results.extend(kw_res)
 
-                # 5. Simple Exact Phrase Search
-                sm_res = self._search_by_simple_match(query, lang, top_k * 2)
-                all_simple_match_results.extend(sm_res)
+                    # 5. Simple Exact Phrase Search
+                    sm_res = self._search_by_simple_match(term, lang, top_k * 2)
+                    all_simple_match_results.extend(sm_res)
 
             # Если нашли точные стихи, возвращаем их сразу (если их достаточно?)
             # Но пользователь может хотеть мульти-язычный ответ. 
@@ -817,12 +867,31 @@ class RAGEngine:
             
             # Helper to check if book is CORE
             def get_boost_multiplier(res_item):
-                book_name = res_item.get('book', '')
-                if any(cb.lower() in book_name.lower().replace('_', '-') for cb in CORE_BOOKS) or \
-                   any(cb.lower() in book_name.lower().replace('-', '_') for cb in CORE_BOOKS):
-                    logger.info(f"   🚀 BOOSTING CORE BOOK: {book_name}")
-                    return CORE_BOOST_MULTIPLIER
-                return 1.0
+                book_name = res_item.get('book')
+                
+                # 1. Core Books Boost
+                multiplier = 1.0
+                if book_name:
+                    if any(cb.lower() in book_name.lower().replace('_', '-') for cb in CORE_BOOKS) or \
+                       any(cb.lower() in book_name.lower().replace('-', '_') for cb in CORE_BOOKS):
+                        logger.info(f"   🚀 BOOSTING CORE BOOK: {book_name}")
+                        multiplier *= CORE_BOOST_MULTIPLIER
+                
+                # 2. Language Match Boost
+                # Если язык результата совпадает с языком исходного запроса, даем бонус
+                query_is_russian = any(c in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя' for c in query.lower())
+                query_lang = 'ru' if query_is_russian else 'en'
+                
+                # Как определить язык результата? 
+                # Мы можем зашить его в 'index' или передавать явно.
+                # Пока определим эвристически по тексту или по названию книги (в RU индексе обычно русские книги)
+                # Но лучше всего передавать 'lang' в объекте результата из _search_by_... методов.
+                res_lang = res_item.get('lang', 'ru') # По умолчанию ru для безопасности
+                
+                if res_lang == query_lang:
+                    multiplier *= 1.2 # Небольшой 20% бонус за родной язык
+                    
+                return multiplier
 
             # Process Vector Results
             # Sort globally by score before RRF ranking? 
