@@ -992,6 +992,11 @@ class RAGEngine:
             # 8. Graph Context
             graph_context = self.graph_service.search_context(query)
 
+            # 9. Link Translations (NEW)
+            if multilingual or language == 'all':
+                for res in final_results:
+                    res['translation'] = self._find_translation(res)
+
             return {
                 'success': True,
                 'results': final_results,
@@ -1003,6 +1008,53 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"❌ Критическая ошибка при поиске: {e}", exc_info=True)
             return {'success': False, 'error': str(e), 'query': query}
+
+    def _find_translation(self, res: Dict[str, Any]) -> Dict[str, Any]:
+        """Пытается найти перевод для данного результата в другом языке."""
+        source_lang = res.get('lang')
+        if not source_lang: 
+            return None
+        
+        target_lang = 'en' if source_lang == 'ru' else 'ru'
+        if target_lang not in self.metadata: 
+            return None
+        
+        book = res.get('book')
+        chapter = res.get('chapter')
+        chunk_idx = res.get('chunk_idx')
+        
+        if not book or not chapter: 
+            return None
+        
+        target_metadata = self.metadata[target_lang]
+        
+        # Эвристика: ищем первый чанк этой же книги и главы в другом языке
+        for meta in target_metadata:
+            if not meta: continue
+            if meta.get('book') == book and meta.get('chapter') == chapter:
+                # Если индекс чанка совпадает - идеально
+                if meta.get('chunk_idx') == chunk_idx:
+                    return {
+                        'text': self._get_text_from_meta(meta, target_lang),
+                        'book': book,
+                        'chapter': chapter,
+                        'lang': target_lang,
+                        'chunk_idx': meta.get('chunk_idx')
+                    }
+        
+        # Fallback: просто первый чанк этой главы
+        for meta in target_metadata:
+            if not meta: continue
+            if meta.get('book') == book and meta.get('chapter') == chapter:
+                return {
+                    'text': self._get_text_from_meta(meta, target_lang),
+                    'book': book,
+                    'chapter': chapter,
+                    'lang': target_lang,
+                    'chunk_idx': meta.get('chunk_idx')
+                }
+                
+        return None
 
     def keyword_search(self, query: str, language: str = 'en', case_sensitive: bool = False) -> Dict[str, Any]:
         """

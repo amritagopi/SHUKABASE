@@ -5,12 +5,12 @@
 - [x] Task: Проверка структуры FAISS индексов для `ru` и `en` сегментов ee8b942
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Research & Setup' (Protocol in workflow.md) ee8b942
 
-## Phase 2: RAG Backend Updates [checkpoint: 7a8b9c0]
-- [x] Task: Реализация метода расширения запроса (query expansion) для поддержки двух языков 7a8b9c0
-- [x] Task: Обновление `rag_engine.py` для параллельного поиска по двум индексам 7a8b9c0
-- [x] Task: Разработка механизма ранжирования кросс-языковых результатов 7a8b9c0
-- [x] Task: Написание тестов для проверки мультиязычного поиска в `test_engine.py` (реализовано в `test_multilingual.py`) 7a8b9c0
-- [x] Task: Conductor - User Manual Verification 'Phase 2: RAG Backend Updates' (Protocol in workflow.md) 7a8b9c0
+## Phase 2: RAG Backend Updates [checkpoint: 71564b2]
+- [x] Task: Реализация метода расширения запроса (query expansion) для поддержки двух языков 71564b2
+- [x] Task: Обновление `rag_engine.py` для параллельного поиска по двум индексам 71564b2
+- [x] Task: Разработка механизма ранжирования кросс-языковых результатов 71564b2
+- [x] Task: Написание тестов для проверки мультиязычного поиска в `test_engine.py` (реализовано в `test_multilingual.py`) 71564b2
+- [x] Task: Conductor - User Manual Verification 'Phase 2: RAG Backend Updates' (Protocol in workflow.md) 71564b2
 
 ## Phase 3: Content Linking Logic
 - [~] Task: Реализация маппинга идентификаторов (ID) между русскими и английскими чанками книг
