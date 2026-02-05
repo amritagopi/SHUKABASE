@@ -4,6 +4,7 @@ import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkle
 import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader, AgentStep } from './types';
 import { generateRAGResponse, getConversations, getConversation, saveConversation, searchScriptures } from './services/geminiService';
 import { ParsedContent } from './utils/citationParser';
+import { resolveApiBaseUrl, resolveBackendOrigin } from './utils/apiUrl';
 import ConversationHistory from './ConversationHistory';
 import PromptDrawer from './PromptDrawer';
 import ToolCardWidget from './ToolCardWidget';
@@ -40,7 +41,8 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
         if (step === 'download') {
             const interval = setInterval(async () => {
                 try {
-                    const res = await fetch('http://localhost:5000/api/setup/status');
+                    const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+                    const res = await fetch(`${apiBaseUrl}/setup/status`);
                     const data = await res.json();
                     if (data.setup_state) {
                         setProgress(data.setup_state.progress);
@@ -64,7 +66,8 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
     const startDownload = async (lang: string) => {
         try {
             setStep('download');
-            await fetch('http://localhost:5000/api/setup/download', {
+            const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+            await fetch(`${apiBaseUrl}/setup/download`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ language: lang })
@@ -231,6 +234,55 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
 };
 
 const App: React.FC = () => {
+    type OpenRouterModel = {
+        id: string;
+        name?: string;
+        context_length?: number;
+        pricing?: {
+            prompt?: string;
+            completion?: string;
+        };
+        supported_parameters?: string[];
+    };
+
+    const isGeminiVersionSupported = (modelId: string) => {
+        const versionMatch = modelId.match(/gemini-(\d+(?:\.\d+)?)/i);
+        if (!versionMatch) return false;
+        const version = Number(versionMatch[1]);
+        return Number.isFinite(version) && version >= 2.0;
+    };
+
+    const shouldIncludeGoogleOpenRouterModel = (model: OpenRouterModel) => {
+        const id = (model.id || '').toLowerCase();
+        if (!id.startsWith('google/')) return false;
+        if (id.includes('gemma')) return false;
+        if (id.includes('flash-lite')) return false;
+        if (!id.includes('gemini-')) return false;
+        if (!isGeminiVersionSupported(id)) return false;
+
+        const supportsTools = (model.supported_parameters || []).includes('tools');
+        if (!supportsTools) return false;
+
+        return true;
+    };
+
+    const formatModelPrice = (model: OpenRouterModel) => {
+        const prompt = model.pricing?.prompt ?? '-';
+        const completion = model.pricing?.completion ?? '-';
+        return `$${prompt} / $${completion} per 1M tok`;
+    };
+
+    const getNumericPrice = (value?: string) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : Number.POSITIVE_INFINITY;
+    };
+
+    const getTotalModelPrice = (model: OpenRouterModel) => {
+        const promptPrice = getNumericPrice(model.pricing?.prompt);
+        const completionPrice = getNumericPrice(model.pricing?.completion);
+        return promptPrice + completionPrice;
+    };
+
     const [appMode, setAppMode] = useState<'loading' | 'setup' | 'chat'>('loading');
     const [conversations, setConversations] = useState<ConversationHeader[]>([]);
     const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
@@ -267,7 +319,7 @@ const App: React.FC = () => {
         fullTextTitle,
         handleReadFull,
         handleModalClick
-    } = useBookReader(settings.language === 'all' ? 'ru' : settings.language, settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
+    } = useBookReader(settings.language === 'all' ? 'ru' : settings.language, resolveBackendOrigin(settings.backendUrl));
 
     // Manual Search State
     const [sidebarMode, setSidebarMode] = useState<'context' | 'search'>('context');
@@ -279,7 +331,9 @@ const App: React.FC = () => {
     const [drawerInitialState, setDrawerInitialState] = useState<{ templateId?: string, data?: any }>({});
 
     // OpenRouter State
-    const [openRouterModels, setOpenRouterModels] = useState<any[]>([]);
+    const [openRouterFreeModels, setOpenRouterFreeModels] = useState<OpenRouterModel[]>([]);
+    const [openRouterPaidModels, setOpenRouterPaidModels] = useState<OpenRouterModel[]>([]);
+    const [openRouterTab, setOpenRouterTab] = useState<'free' | 'paid'>('free');
     const [isLoadingModels, setIsLoadingModels] = useState(false);
     const [agentThought, setAgentThought] = useState('');
     const [agentSteps, setAgentSteps] = useState<AgentStep[]>([]);
@@ -319,14 +373,21 @@ const App: React.FC = () => {
             const res = await fetch('https://openrouter.ai/api/v1/models?supported_parameters=tools');
             if (res.ok) {
                 const data = await res.json();
-                // Filter: Google + Free (prompt=0) models
-                const models = (data.data || [])
-                    .filter((m: any) =>
-                        m.id.startsWith("google/") &&
-                        m.pricing?.prompt === "0"
-                    )
-                    .sort((a: any, b: any) => (b.context_length || 0) - (a.context_length || 0));
-                setOpenRouterModels(models);
+                const models = ((data.data || []) as OpenRouterModel[])
+                    .filter(shouldIncludeGoogleOpenRouterModel)
+                    .sort((a, b) => (b.context_length || 0) - (a.context_length || 0));
+
+                const freeModels = models.filter((m) => m.pricing?.prompt === '0' && m.pricing?.completion === '0');
+                const paidModels = models
+                    .filter((m) => !(m.pricing?.prompt === '0' && m.pricing?.completion === '0'))
+                    .sort((a, b) => {
+                        const priceDiff = getTotalModelPrice(a) - getTotalModelPrice(b);
+                        if (priceDiff !== 0) return priceDiff;
+                        return (b.context_length || 0) - (a.context_length || 0);
+                    });
+
+                setOpenRouterFreeModels(freeModels);
+                setOpenRouterPaidModels(paidModels);
             }
         } catch (e) {
             console.error("Failed to fetch models", e);
@@ -343,7 +404,8 @@ const App: React.FC = () => {
 
         const checkStatus = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/setup/status');
+                const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+                const res = await fetch(`${apiBaseUrl}/setup/status`);
                 const data = await res.json();
                 if (data.installed) {
                     setAppMode('chat');
@@ -411,7 +473,7 @@ const App: React.FC = () => {
         if (appMode === 'chat') {
             const loadConversations = async () => {
                 try {
-                    const convos = await getConversations();
+                    const convos = await getConversations(settings.backendUrl);
                     setConversations(convos);
                 } catch (error) {
                     console.error("Failed to load conversations", error);
@@ -426,7 +488,7 @@ const App: React.FC = () => {
 
     const handleSelectConversation = async (id: string) => {
         try {
-            const convo = await getConversation(id);
+            const convo = await getConversation(id, settings.backendUrl);
             if (convo) {
                 setActiveConversation(convo);
                 const lastModelMessage = [...convo.messages].reverse().find(m => m.role === 'model' && m.sources && m.sources.length > 0);
@@ -552,8 +614,8 @@ const App: React.FC = () => {
                 if (!sidebarOpen) setSidebarOpen(true);
             }
 
-            await saveConversation(finalConversation);
-            const convos = await getConversations();
+            await saveConversation(finalConversation, settings.backendUrl);
+            const convos = await getConversations(settings.backendUrl);
             setConversations(convos);
 
         } catch (error: any) {
@@ -669,9 +731,10 @@ const App: React.FC = () => {
                 onSelectConversation={handleSelectConversation}
                 onNewChat={handleNewChat}
                 t={t}
+                backendUrl={settings.backendUrl}
                 onConversationsUpdate={async () => {
                     try {
-                        const convos = await getConversations();
+                        const convos = await getConversations(settings.backendUrl);
                         setConversations(convos);
                     } catch (e) { console.error("Failed to refresh conversations", e); }
                 }}
@@ -1156,10 +1219,31 @@ const App: React.FC = () => {
                                                 placeholder="sk-or-v1-..."
                                                 className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                                                 onBlur={() => {
-                                                    if (settings.openrouterApiKey && openRouterModels.length === 0) fetchOpenRouterModels();
+                                                    if (settings.openrouterApiKey && openRouterFreeModels.length === 0 && openRouterPaidModels.length === 0) fetchOpenRouterModels();
                                                 }}
                                             />
                                             <p className="text-[10px] text-slate-500">{t('keySavedLocally')}</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button
+                                                onClick={() => setOpenRouterTab('free')}
+                                                className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${openRouterTab === 'free'
+                                                    ? 'bg-purple-600/20 text-purple-300 border border-purple-500/50'
+                                                    : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
+                                                    }`}
+                                            >
+                                                {settings.language === 'ru' ? 'Бесплатные Google' : 'Free Google'}
+                                            </button>
+                                            <button
+                                                onClick={() => setOpenRouterTab('paid')}
+                                                className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${openRouterTab === 'paid'
+                                                    ? 'bg-red-600/20 text-red-300 border border-red-500/50'
+                                                    : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
+                                                    }`}
+                                            >
+                                                {settings.language === 'ru' ? 'Платные Google' : 'Paid Google'}
+                                            </button>
                                         </div>
 
                                         <div className="space-y-2">
@@ -1175,15 +1259,15 @@ const App: React.FC = () => {
                                                 </button>
                                             </div>
 
-                                            {openRouterModels.length > 0 ? (
+                                            {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).length > 0 ? (
                                                 <select
                                                     value={settings.openrouterModel}
                                                     onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
                                                     className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none appearance-none"
                                                 >
-                                                    {openRouterModels.map((m: any) => (
+                                                    {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).map((m: OpenRouterModel) => (
                                                         <option key={m.id} value={m.id}>
-                                                            {m.name || m.id} ({Math.round((m.context_length || 0) / 1024)}k ctx)
+                                                            {(m.name || m.id)} ({Math.round((m.context_length || 0) / 1024)}k ctx • {formatModelPrice(m)})
                                                         </option>
                                                     ))}
                                                 </select>
@@ -1199,6 +1283,11 @@ const App: React.FC = () => {
                                             <p className="text-[10px] text-slate-500">
                                                 {// @ts-ignore
                                                     t('openRouterFooter')}
+                                            </p>
+                                            <p className="text-[10px] text-slate-500">
+                                                {settings.language === 'ru'
+                                                    ? 'Фильтры: только Google + tools, без Gemma, без Flash Lite, только Gemini 2.0+.'
+                                                    : 'Filters: Google + tools only, no Gemma, no Flash Lite, Gemini 2.0+ only.'}
                                             </p>
                                         </div>
                                     </div>
