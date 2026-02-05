@@ -1,14 +1,16 @@
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import { SourceChunk, AppSettings, Conversation, ConversationHeader, AgentStep } from '../types';
 import { DEMO_CHUNKS } from '../constants';
+import { resolveApiBaseUrl, resolveSearchUrl } from '../utils/apiUrl';
 
 const createClient = (apiKey: string) => new GoogleGenAI({ apiKey });
 
 const API_BASE_URL = "http://localhost:5000/api";
 
-export const getConversations = async (): Promise<ConversationHeader[]> => {
+export const getConversations = async (backendUrl?: string): Promise<ConversationHeader[]> => {
+  const apiBaseUrl = resolveApiBaseUrl(backendUrl || API_BASE_URL);
   try {
-    const response = await fetch(`${API_BASE_URL}/conversations`);
+    const response = await fetch(`${apiBaseUrl}/conversations`);
     if (!response.ok) return [];
     return await response.json();
   } catch (error) {
@@ -17,9 +19,10 @@ export const getConversations = async (): Promise<ConversationHeader[]> => {
   }
 };
 
-export const getConversation = async (id: string): Promise<Conversation | null> => {
+export const getConversation = async (id: string, backendUrl?: string): Promise<Conversation | null> => {
+  const apiBaseUrl = resolveApiBaseUrl(backendUrl || API_BASE_URL);
   try {
-    const response = await fetch(`${API_BASE_URL}/conversations/${id}`);
+    const response = await fetch(`${apiBaseUrl}/conversations/${id}`);
     if (!response.ok) return null;
     return await response.json();
   } catch (error) {
@@ -28,9 +31,10 @@ export const getConversation = async (id: string): Promise<Conversation | null> 
   }
 };
 
-export const saveConversation = async (conversation: Conversation): Promise<void> => {
+export const saveConversation = async (conversation: Conversation, backendUrl?: string): Promise<void> => {
+  const apiBaseUrl = resolveApiBaseUrl(backendUrl || API_BASE_URL);
   try {
-    await fetch(`${API_BASE_URL}/conversations`, {
+    await fetch(`${apiBaseUrl}/conversations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(conversation),
@@ -40,9 +44,10 @@ export const saveConversation = async (conversation: Conversation): Promise<void
   }
 }
 
-export const deleteConversation = async (id: string): Promise<void> => {
+export const deleteConversation = async (id: string, backendUrl?: string): Promise<void> => {
+  const apiBaseUrl = resolveApiBaseUrl(backendUrl || API_BASE_URL);
   try {
-    const response = await fetch(`${API_BASE_URL}/conversations/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${apiBaseUrl}/conversations/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error(`Failed to delete: ${response.status}`);
   } catch (e) {
     console.error("Failed to delete conversation:", e);
@@ -72,7 +77,8 @@ const SEARCH_TOOL_DEF = {
 const callOpenAICompatibleApi = async (
   messages: any[],
   settings: AppSettings,
-  temperature: number = 0
+  temperature: number = 0,
+  signal?: AbortSignal
 ): Promise<any> => {
   const config = {
     url: "https://openrouter.ai/api/v1/chat/completions",
@@ -115,7 +121,8 @@ const callOpenAICompatibleApi = async (
         'Authorization': `Bearer ${apiKey}`,
         ...headers
       },
-      body: bodyString
+      body: bodyString,
+      signal
     });
 
     console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
@@ -144,10 +151,10 @@ const callOpenAICompatibleApi = async (
   }
 };
 
-export const searchScriptures = async (query: string, settings: AppSettings): Promise<SourceChunk[]> => {
+export const searchScriptures = async (query: string, settings: AppSettings, signal?: AbortSignal): Promise<SourceChunk[]> => {
   if (settings.useMockData) return DEMO_CHUNKS;
 
-  const url = settings.backendUrl || `${API_BASE_URL}/search`;
+  const url = resolveSearchUrl(settings.backendUrl || `${API_BASE_URL}/search`);
 
   try {
     const isCyrillic = /[а-яА-ЯёЁ]/.test(query);
@@ -161,7 +168,8 @@ export const searchScriptures = async (query: string, settings: AppSettings): Pr
         language: lang,
         top_k: 20, // Reverted to 20 as requested
         api_key: settings.apiKey
-      })
+      }),
+      signal
     });
 
     if (!response.ok) {
@@ -336,7 +344,7 @@ RULES:
       if (actionMatch) {
         const query = actionMatch[2];
         if (onStep) onStep({ type: 'action', content: `Searching: ${query} `, timestamp: Date.now() });
-        const results = await searchScriptures(query, settings);
+        const results = await searchScriptures(query, settings, signal);
         if (onSourcesFound) onSourcesFound(results);
 
         const obs = results.length > 0
@@ -435,7 +443,7 @@ Be Shuka - wise, kind, and devoted to truth.
       currentStep++;
       if (signal?.aborted) throw new Error("Aborted");
 
-      const responseMessage = await callOpenAICompatibleApi(messages, settings);
+      const responseMessage = await callOpenAICompatibleApi(messages, settings, 0, signal);
 
       // Add the Assistant's response to history immediately
       messages.push(responseMessage);
@@ -457,7 +465,7 @@ Be Shuka - wise, kind, and devoted to truth.
             if (onStep) onStep({ type: 'action', content: `Searching: "${query}"`, timestamp: Date.now() });
             console.log(`[OpenRouter] Tool Call: Searching '${query}'`);
 
-            const results = await searchScriptures(query, settings);
+            const results = await searchScriptures(query, settings, signal);
             console.log(`[OpenRouter] Found ${results.length} results.`);
 
             if (onSourcesFound) onSourcesFound(results);
