@@ -18,11 +18,11 @@ const DEFAULT_SETTINGS: AppSettings = {
     apiKey: localStorage.getItem('shukabase_api_key') || '',
     backendUrl: 'http://localhost:5000/api/search',
     useMockData: false,
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-2.5-flash',
     language: 'all',
     provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
-    openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.0-flash-exp:free',
+    openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.5-flash',
     telemetryEnabled: localStorage.getItem('shukabase_telemetry_enabled') !== 'false', // Default true
 };
 
@@ -45,14 +45,9 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
         if (step === 'download') {
             const interval = setInterval(async () => {
                 try {
-                    let data: any = null;
-                    for (const apiBaseUrl of getSetupApiCandidates()) {
-                        const res = await fetch(`${apiBaseUrl}/setup/status`);
-                        if (!res.ok) continue;
-                        data = await res.json();
-                        break;
-                    }
-                    if (!data) throw new Error('Setup status endpoint unavailable');
+                    const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+                    const res = await fetch(`${apiBaseUrl}/setup/status`);
+                    const data = await res.json();
                     if (data.setup_state) {
                         setProgress(data.setup_state.progress);
                         setStatus(data.setup_state.status);
@@ -75,20 +70,12 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
     const startDownload = async (lang: string) => {
         try {
             setStep('download');
-            let started = false;
-            for (const apiBaseUrl of getSetupApiCandidates()) {
-                const res = await fetch(`${apiBaseUrl}/setup/download`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ language: lang })
-                });
-                if (res.ok) {
-                    started = true;
-                    break;
-                }
-            }
-
-            if (!started) throw new Error('Setup download endpoint unavailable');
+            const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+            await fetch(`${apiBaseUrl}/setup/download`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: lang })
+            });
         } catch (e) {
             setError("Failed to start download");
         }
@@ -283,18 +270,9 @@ const App: React.FC = () => {
         return true;
     };
 
-    const formatPriceValue = (value?: string) => {
-        if (value === undefined) return '-';
-        const num = Number(value);
-        if (!Number.isFinite(num)) return value;
-        if (num === 0) return '0';
-        if (num >= 1) return num.toFixed(4).replace(/\.?0+$/, '');
-        return num.toPrecision(6).replace(/\.?0+$/, '');
-    };
-
     const formatModelPrice = (model: OpenRouterModel) => {
-        const prompt = formatPriceValue(model.pricing?.prompt);
-        const completion = formatPriceValue(model.pricing?.completion);
+        const prompt = model.pricing?.prompt ?? '-';
+        const completion = model.pricing?.completion ?? '-';
         return `$${prompt} / $${completion} per 1M tok`;
     };
 
@@ -442,20 +420,9 @@ const App: React.FC = () => {
 
         const checkStatus = async () => {
             try {
-                const setupApiCandidates = Array.from(new Set([
-                    resolveApiBaseUrl(settings.backendUrl),
-                    'http://localhost:5000/api'
-                ]));
-
-                let data: any = null;
-                for (const apiBaseUrl of setupApiCandidates) {
-                    const res = await fetch(`${apiBaseUrl}/setup/status`);
-                    if (!res.ok) continue;
-                    data = await res.json();
-                    break;
-                }
-
-                if (!data) throw new Error('Setup status endpoint unavailable');
+                const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+                const res = await fetch(`${apiBaseUrl}/setup/status`);
+                const data = await res.json();
                 if (data.installed) {
                     setAppMode('chat');
                 } else {
@@ -1308,28 +1275,26 @@ const App: React.FC = () => {
                                                 </button>
                                             </div>
 
-                                            {currentOpenRouterModels.length > 0 ? (
+                                            {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).length > 0 ? (
                                                 <select
                                                     value={settings.openrouterModel}
                                                     onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
                                                     className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none appearance-none"
                                                 >
-                                                    {currentOpenRouterModels.map((m: OpenRouterModel) => (
+                                                    {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).map((m: OpenRouterModel) => (
                                                         <option key={m.id} value={m.id}>
                                                             {(m.name || m.id)} ({Math.round((m.context_length || 0) / 1024)}k ctx • {formatModelPrice(m)})
                                                         </option>
                                                     ))}
                                                 </select>
                                             ) : (
-                                                <div className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-400">
-                                                    {openRouterTab === 'free'
-                                                        ? (settings.language === 'ru'
-                                                            ? 'Сейчас нет бесплатных Google-моделей с tools на OpenRouter.'
-                                                            : 'No free Google models with tools are currently available on OpenRouter.')
-                                                        : (settings.language === 'ru'
-                                                            ? 'Сейчас нет платных Google-моделей с tools на OpenRouter.'
-                                                            : 'No paid Google models with tools are currently available on OpenRouter.')}
-                                                </div>
+                                                <input
+                                                    type="text"
+                                                    value={settings.openrouterModel}
+                                                    onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
+                                                    placeholder="google/gemini-2.5-flash"
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                                                />
                                             )}
                                             <p className="text-[10px] text-slate-500">
                                                 {// @ts-ignore
