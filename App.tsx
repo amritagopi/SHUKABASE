@@ -4,6 +4,7 @@ import { Send, Settings, BookOpen, Database, AlertCircle, Scroll, Globe, Sparkle
 import { Message, SourceChunk, AppSettings, Conversation, ConversationHeader, AgentStep } from './types';
 import { generateRAGResponse, getConversations, getConversation, saveConversation, searchScriptures } from './services/geminiService';
 import { ParsedContent } from './utils/citationParser';
+import { resolveApiBaseUrl, resolveBackendOrigin } from './utils/apiUrl';
 import ConversationHistory from './ConversationHistory';
 import PromptDrawer from './PromptDrawer';
 import ToolCardWidget from './ToolCardWidget';
@@ -40,7 +41,8 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
         if (step === 'download') {
             const interval = setInterval(async () => {
                 try {
-                    const res = await fetch('http://localhost:5000/api/setup/status');
+                    const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+                    const res = await fetch(`${apiBaseUrl}/setup/status`);
                     const data = await res.json();
                     if (data.setup_state) {
                         setProgress(data.setup_state.progress);
@@ -64,7 +66,8 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
     const startDownload = async (lang: string) => {
         try {
             setStep('download');
-            await fetch('http://localhost:5000/api/setup/download', {
+            const apiBaseUrl = resolveApiBaseUrl(settings.backendUrl);
+            await fetch(`${apiBaseUrl}/setup/download`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ language: lang })
@@ -267,7 +270,7 @@ const App: React.FC = () => {
         fullTextTitle,
         handleReadFull,
         handleModalClick
-    } = useBookReader(settings.language === 'all' ? 'ru' : settings.language, settings.backendUrl ? settings.backendUrl.replace('/api/search', '').replace(/\/api$/, '') : 'http://localhost:5000');
+    } = useBookReader(settings.language === 'all' ? 'ru' : settings.language, resolveBackendOrigin(settings.backendUrl));
 
     // Manual Search State
     const [sidebarMode, setSidebarMode] = useState<'context' | 'search'>('context');
@@ -411,7 +414,7 @@ const App: React.FC = () => {
         if (appMode === 'chat') {
             const loadConversations = async () => {
                 try {
-                    const convos = await getConversations();
+                    const convos = await getConversations(settings.backendUrl);
                     setConversations(convos);
                 } catch (error) {
                     console.error("Failed to load conversations", error);
@@ -426,7 +429,7 @@ const App: React.FC = () => {
 
     const handleSelectConversation = async (id: string) => {
         try {
-            const convo = await getConversation(id);
+            const convo = await getConversation(id, settings.backendUrl);
             if (convo) {
                 setActiveConversation(convo);
                 const lastModelMessage = [...convo.messages].reverse().find(m => m.role === 'model' && m.sources && m.sources.length > 0);
@@ -552,8 +555,8 @@ const App: React.FC = () => {
                 if (!sidebarOpen) setSidebarOpen(true);
             }
 
-            await saveConversation(finalConversation);
-            const convos = await getConversations();
+            await saveConversation(finalConversation, settings.backendUrl);
+            const convos = await getConversations(settings.backendUrl);
             setConversations(convos);
 
         } catch (error: any) {
@@ -669,9 +672,10 @@ const App: React.FC = () => {
                 onSelectConversation={handleSelectConversation}
                 onNewChat={handleNewChat}
                 t={t}
+                backendUrl={settings.backendUrl}
                 onConversationsUpdate={async () => {
                     try {
-                        const convos = await getConversations();
+                        const convos = await getConversations(settings.backendUrl);
                         setConversations(convos);
                     } catch (e) { console.error("Failed to refresh conversations", e); }
                 }}

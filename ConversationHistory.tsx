@@ -10,6 +10,7 @@ interface ConversationHistoryProps {
   onNewChat: () => void;
   t: (key: any) => string;
   onConversationsUpdate?: () => void;
+  backendUrl?: string;
 }
 
 const ConversationHistory: React.FC<ConversationHistoryProps> = ({
@@ -18,7 +19,8 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   onSelectConversation,
   onNewChat,
   t,
-  onConversationsUpdate
+  onConversationsUpdate,
+  backendUrl
 }) => {
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -38,10 +40,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   const handleRename = async (id: string) => {
     if (!editTitle.trim()) return;
     try {
-      const convo = await getConversation(id);
+      const convo = await getConversation(id, backendUrl);
       if (convo) {
         const updatedConvo = { ...convo, title: editTitle };
-        await saveConversation(updatedConvo);
+        await saveConversation(updatedConvo, backendUrl);
         setEditingId(null);
         setMenuOpenId(null);
         if (onConversationsUpdate) onConversationsUpdate();
@@ -54,7 +56,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   const handleDelete = async (id: string) => {
     if (window.confirm(t('confirmDelete'))) {
       try {
-        await deleteConversation(id);
+        await deleteConversation(id, backendUrl);
         setMenuOpenId(null);
         if (activeConversationId === id) {
           onNewChat();
@@ -68,7 +70,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
   const handleExport = async (id: string) => {
     try {
-      const convo = await getConversation(id);
+      const convo = await getConversation(id, backendUrl);
       if (!convo) return;
 
       const htmlContent = `
