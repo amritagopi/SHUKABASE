@@ -36,6 +36,10 @@ const SetupScreen = ({ onComplete, settings, setSettings }: {
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('idle');
     const [error, setError] = useState<string | null>(null);
+    const getSetupApiCandidates = () => {
+        const primary = resolveApiBaseUrl(settings.backendUrl);
+        return Array.from(new Set([primary, 'http://localhost:5000/api']));
+    };
 
     useEffect(() => {
         if (step === 'download') {
@@ -335,6 +339,8 @@ const App: React.FC = () => {
     const [openRouterPaidModels, setOpenRouterPaidModels] = useState<OpenRouterModel[]>([]);
     const [openRouterTab, setOpenRouterTab] = useState<'free' | 'paid'>('free');
     const [isLoadingModels, setIsLoadingModels] = useState(false);
+
+    const currentOpenRouterModels = openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels;
     const [agentThought, setAgentThought] = useState('');
     const [agentSteps, setAgentSteps] = useState<AgentStep[]>([]);
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -395,6 +401,16 @@ const App: React.FC = () => {
             setIsLoadingModels(false);
         }
     };
+
+    useEffect(() => {
+        if (settings.provider !== 'openrouter') return;
+        if (currentOpenRouterModels.length === 0) return;
+
+        const isSelectedAvailable = currentOpenRouterModels.some((m) => m.id === settings.openrouterModel);
+        if (!isSelectedAvailable) {
+            setSettings((prev) => ({ ...prev, openrouterModel: currentOpenRouterModels[0].id }));
+        }
+    }, [settings.provider, openRouterTab, currentOpenRouterModels, settings.openrouterModel]);
 
 
     // Initial Check for Setup
