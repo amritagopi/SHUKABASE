@@ -47,8 +47,9 @@ export interface AppSettings {
   language: 'ru' | 'en' | 'all';
   multilingualSearch: boolean; // New flag for Phase 4
   // New Multi-provider settings
-  provider: 'google' | 'openrouter';
+  provider: 'google' | 'openrouter' | 'proxyapi';
   openrouterApiKey: string;
+  proxyapiApiKey: string;
   openrouterModel: string;
   telemetryEnabled: boolean;
 }

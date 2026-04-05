@@ -21,8 +21,9 @@ const DEFAULT_SETTINGS: AppSettings = {
     model: 'gemini-2.5-flash',
     language: 'all',
     multilingualSearch: localStorage.getItem('shukabase_multilingual_search') === 'true',
-    provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter') || 'google',
+    provider: (localStorage.getItem('shukabase_provider') as 'google' | 'openrouter' | 'proxyapi') || 'google',
     openrouterApiKey: localStorage.getItem('shukabase_openrouter_api_key') || '',
+    proxyapiApiKey: localStorage.getItem('shukabase_proxyapi_api_key') || '',
     openrouterModel: localStorage.getItem('shukabase_openrouter_model') || 'google/gemini-2.5-flash',
     telemetryEnabled: localStorage.getItem('shukabase_telemetry_enabled') !== 'false', // Default true
 };
@@ -261,7 +262,7 @@ const App: React.FC = () => {
         const id = (model.id || '').toLowerCase();
         if (!id.startsWith('google/')) return false;
         if (id.includes('gemma')) return false;
-        if (id.includes('flash-lite')) return false;
+        if (id.includes('flash-lite') || id.includes('-lite')) return false;
         if (!id.includes('gemini-')) return false;
         if (!isGeminiVersionSupported(id)) return false;
 
@@ -272,9 +273,13 @@ const App: React.FC = () => {
     };
 
     const formatModelPrice = (model: OpenRouterModel) => {
-        const prompt = model.pricing?.prompt ?? '-';
-        const completion = model.pricing?.completion ?? '-';
-        return `$${prompt} / $${completion} per 1M tok`;
+        const promptPrice = Number(model.pricing?.prompt);
+        const completionPrice = Number(model.pricing?.completion);
+
+        const promptStr = Number.isFinite(promptPrice) ? (promptPrice * 1000000).toFixed(2) : '-';
+        const completionStr = Number.isFinite(completionPrice) ? (completionPrice * 1000000).toFixed(2) : '-';
+        
+        return `$${promptStr} / $${completionStr} per 1M tok`;
     };
 
     const getNumericPrice = (value?: string) => {
@@ -309,9 +314,11 @@ const App: React.FC = () => {
         }
         localStorage.setItem('shukabase_provider', settings.provider);
         localStorage.setItem('shukabase_openrouter_api_key', settings.openrouterApiKey);
+        localStorage.setItem('shukabase_proxyapi_api_key', settings.proxyapiApiKey);
         localStorage.setItem('shukabase_openrouter_model', settings.openrouterModel);
     }, [settings]);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [settingsTab, setSettingsTab] = useState<'google' | 'proxyapi' | 'openrouter_free' | 'openrouter_paid' | 'about'>('google');
     const [currentSources, setCurrentSources] = useState<SourceChunk[]>([]);
     const [highlightedSourceId, setHighlightedSourceId] = useState<string | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -557,11 +564,13 @@ const App: React.FC = () => {
         if (!contentToSend.trim() || loading || isSendingRef.current) return;
 
         // Check API key based on provider
-        if (settings.provider === 'openrouter') {
-            if (!settings.openrouterApiKey) {
-                setIsSettingsOpen(true);
-                return;
-            }
+        if (settings.provider === 'openrouter' && !settings.openrouterApiKey) {
+            setIsSettingsOpen(true);
+            return;
+        }
+        if (settings.provider === 'proxyapi' && !settings.proxyapiApiKey) {
+            setIsSettingsOpen(true);
+            return;
         }
 
         // Google API Key is ALWAYS required for Knowledge Base search/embeddings
@@ -1154,7 +1163,7 @@ const App: React.FC = () => {
             {
                 isSettingsOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setIsSettingsOpen(false)}>
-                        <div className="glass-panel border border-slate-700/50 rounded-2xl w-full max-w-[400px] max-h-[85vh] shadow-2xl bg-black/60 backdrop-blur-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+                        <div className="glass-panel border border-slate-700/50 rounded-2xl w-full max-w-[600px] max-h-[85vh] shadow-2xl bg-black/60 backdrop-blur-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
                             <div className="p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
                                 <h3 className="font-bold text-lg text-slate-100 glow-text-cyan">{t('settings')}</h3>
                                 <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
@@ -1162,270 +1171,366 @@ const App: React.FC = () => {
                                 </button>
                             </div>
 
-                            <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
-                                <div className="space-y-4 border-b border-slate-700/50 pb-6 mb-6">
-                                    <label className="text-sm font-medium text-slate-300">{t('aiProvider')}</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button
-                                            onClick={() => setSettings({ ...settings, provider: 'google' })}
-                                            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${settings.provider === 'google'
-                                                ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.2)]'
-                                                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                                }`}
-                                        >
-                                            Google
-                                        </button>
-                                        <button
-                                            onClick={() => setSettings({ ...settings, provider: 'openrouter' })}
-                                            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${settings.provider === 'openrouter'
-                                                ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]'
-                                                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                                }`}
-                                        >
-                                            OpenRouter
-                                        </button>
-                                    </div>
-                                </div>
+                            {/* Tabs Navigation */}
+                            <div className="flex border-b border-slate-700/50 px-2 pt-2 gap-1 overflow-x-auto custom-scrollbar shrink-0">
+                                <button onClick={() => setSettingsTab('google')} className={`px-4 py-2 text-xs font-medium rounded-t-lg transition-all ${settingsTab === 'google' ? 'bg-cyan-600/20 text-cyan-400 border-x border-t border-cyan-500/50' : 'text-slate-400 hover:bg-slate-800/50'}`}>Gemini API</button>
+                                <button onClick={() => setSettingsTab('proxyapi')} className={`px-4 py-2 text-xs font-medium rounded-t-lg transition-all ${settingsTab === 'proxyapi' ? 'bg-cyan-600/20 text-cyan-400 border-x border-t border-cyan-500/50' : 'text-slate-400 hover:bg-slate-800/50'}`}>Proxyapi</button>
+                                <button onClick={() => { setSettingsTab('openrouter_free'); setOpenRouterTab('free'); }} className={`px-4 py-2 text-xs font-medium rounded-t-lg transition-all ${settingsTab === 'openrouter_free' ? 'bg-purple-600/20 text-purple-400 border-x border-t border-purple-500/50' : 'text-slate-400 hover:bg-slate-800/50'}`}>OpenRouter Free</button>
+                                <button onClick={() => { setSettingsTab('openrouter_paid'); setOpenRouterTab('paid'); }} className={`px-4 py-2 text-xs font-medium rounded-t-lg transition-all ${settingsTab === 'openrouter_paid' ? 'bg-rose-600/20 text-rose-400 border-x border-t border-rose-500/50' : 'text-slate-400 hover:bg-slate-800/50'}`}>OpenRouter Paid</button>
+                                <button onClick={() => setSettingsTab('about')} className={`px-4 py-2 text-xs font-medium rounded-t-lg transition-all ${settingsTab === 'about' ? 'bg-slate-700/50 text-slate-200 border-x border-t border-slate-600/50' : 'text-slate-400 hover:bg-slate-800/50'}`}>{settings.language === 'ru' ? 'О приложении' : 'About'}</button>
+                            </div>
 
-                                <div className="space-y-4 border-b border-slate-700/50 pb-6 mb-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <label className="text-sm font-medium text-slate-300">{// @ts-ignore
-                                                t('multilingualSearch')}</label>
-                                            <p className="text-[10px] text-slate-500">{// @ts-ignore
-                                                t('multilingualSearchHint')}</p>
+                            <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
+                                
+                                {/* GOOGLE TAB */}
+                                {settingsTab === 'google' && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="bg-slate-900/50 border border-slate-700/50 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-200">Gemini API</h4>
+                                                <p className="text-xs text-slate-500">{settings.language === 'ru' ? 'Прямое подключение к Google' : 'Direct Google Connection'}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => setSettings({ ...settings, provider: 'google' })}
+                                                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${settings.provider === 'google' ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200'}`}
+                                            >
+                                                {settings.provider === 'google' ? (settings.language === 'ru' ? 'АКТИВЕН' : 'ACTIVE') : (settings.language === 'ru' ? 'ВЫБРАТЬ' : 'SELECT')}
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => {
-                                                const newVal = !settings.multilingualSearch;
-                                                setSettings({ ...settings, multilingualSearch: newVal });
-                                                localStorage.setItem('shukabase_multilingual_search', String(newVal));
-                                            }}
-                                            className={`w-10 h-5 rounded-full transition-all relative ${settings.multilingualSearch ? 'bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.4)]' : 'bg-slate-700'}`}
-                                        >
-                                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.multilingualSearch ? 'left-6' : 'left-1'}`} />
-                                        </button>
-                                    </div>
-                                </div>
 
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">
-                                            {t('geminiApiKey')} <span className="text-[10px] text-cyan-400 uppercase font-bold ml-1 tracking-tighter">(Mandatory for Search)</span>
-                                        </label>
-                                        <input
-                                            type="password"
-                                            value={settings.apiKey}
-                                            onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
-                                            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
-                                            placeholder="AIza..."
-                                        />
-                                    </div>
-                                </div>
-
-                                {settings.provider === 'google' ? (
-                                    <>
-                                        <div className="pt-2 space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">Model</label>
-                                            <input
-                                                type="text"
-                                                list="model-options"
-                                                value={settings.model}
-                                                onChange={(e) => setSettings({ ...settings, model: e.target.value })}
-                                                placeholder="Select or type model ID..."
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
-                                            />
-                                            <datalist id="model-options">
-                                                <option value="gemini-2.5-flash-preview-09-2025" />
-                                                <option value="gemini-2.5-flash-lite" />
-                                                <option value="gemini-2.5-flash" />
-                                                <option value="gemini-2.0-flash" />
-                                            </datalist>
-                                            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                                                {settings.language === 'ru' ? (
-                                                    <>
-                                                        См. <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog?hl=ru').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog?hl=ru', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">историю изменений</button>, чтобы узнать о новых и закрытых моделях. На Preview и Experimental версии часто действуют щедрые бесплатные лимиты.
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        Check the <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">changelog</button> for new/deprecated models. Preview & Experimental versions often have generous free tier limits.
-                                                    </>
-                                                )}
-                                            </p>
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-slate-300">
+                                                    {t('geminiApiKey')} <span className="text-[10px] text-cyan-400 uppercase font-bold ml-1 tracking-tighter">(Mandatory for Search)</span>
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    value={settings.apiKey}
+                                                    onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
+                                                    placeholder="AIza..."
+                                                />
+                                            </div>
+                                            <div className="pt-2 space-y-2">
+                                                <label className="text-sm font-medium text-slate-300">Model</label>
+                                                <input
+                                                    type="text"
+                                                    list="model-options"
+                                                    value={settings.model}
+                                                    onChange={(e) => setSettings({ ...settings, model: e.target.value })}
+                                                    placeholder="Select or type model ID..."
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
+                                                />
+                                                <datalist id="model-options">
+                                                    <option value="gemini-2.5-flash-preview-09-2025" />
+                                                    <option value="gemini-2.5-flash-lite" />
+                                                    <option value="gemini-2.5-flash" />
+                                                    <option value="gemini-2.0-flash" />
+                                                </datalist>
+                                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                    {settings.language === 'ru' ? (
+                                                        <>См. <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog?hl=ru').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog?hl=ru', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">историю изменений</button>, чтобы узнать о новых и закрытых моделях.</>
+                                                    ) : (
+                                                        <>Check the <button onClick={() => openUrl('https://ai.google.dev/gemini-api/docs/changelog').catch(() => window.open('https://ai.google.dev/gemini-api/docs/changelog', '_blank'))} className="text-cyan-400 hover:underline cursor-pointer">changelog</button> for new/deprecated models.</>
+                                                    )}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </>
-                                ) : (
-                                    <div className="space-y-4 animate-fade-in">
+                                    </div>
+                                )}
+
+                                {/* PROXYAPI TAB */}
+                                {settingsTab === 'proxyapi' && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="bg-slate-900/50 border border-slate-700/50 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-200">ProxyAPI.ru</h4>
+                                                <p className="text-xs text-slate-500">{settings.language === 'ru' ? 'Оплата картами РФ' : 'Accepts RU Cards'}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => setSettings({ ...settings, provider: 'proxyapi' })}
+                                                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${settings.provider === 'proxyapi' ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200'}`}
+                                            >
+                                                {settings.provider === 'proxyapi' ? (settings.language === 'ru' ? 'АКТИВЕН' : 'ACTIVE') : (settings.language === 'ru' ? 'ВЫБРАТЬ' : 'SELECT')}
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-slate-300">
+                                                    {settings.language === 'ru' ? 'Ключ ProxyAPI' : 'ProxyAPI Key'}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    value={settings.proxyapiApiKey}
+                                                    onChange={(e) => setSettings({ ...settings, proxyapiApiKey: e.target.value })}
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
+                                                    placeholder="sk-..."
+                                                />
+                                            </div>
+                                            <div className="pt-2 space-y-2">
+                                                <label className="text-sm font-medium text-slate-300">Model</label>
+                                                <select
+                                                    value={settings.model}
+                                                    onChange={(e) => setSettings({ ...settings, model: e.target.value })}
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-cyan-500 focus:outline-none appearance-none"
+                                                >
+                                                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                                                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                                    <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro Experimental</option>
+                                                    <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro</option>
+                                                </select>
+                                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                    {settings.language === 'ru' 
+                                                        ? 'Доступны только проверенные модели (исключая Lite).' 
+                                                        : 'Only verified models are available (excluding Lite).'}
+                                                </p>
+                                                <p className="text-[10px] text-cyan-400/80">
+                                                    * Для поиска по базе по-прежнему требуется бесплатный ключ Google Gemini API.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* OPENROUTER TABS */}
+                                {(settingsTab === 'openrouter_free' || settingsTab === 'openrouter_paid') && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="bg-slate-900/50 border border-slate-700/50 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-200">OpenRouter</h4>
+                                                <p className="text-xs text-slate-500">{settingsTab === 'openrouter_free' ? 'Free Models' : 'Paid Models'}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => setSettings({ ...settings, provider: 'openrouter' })}
+                                                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${settings.provider === 'openrouter' ? (settingsTab === 'openrouter_free' ? 'bg-purple-500 text-black shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-rose-500 text-black shadow-[0_0_15px_rgba(244,63,94,0.4)]') : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200'}`}
+                                            >
+                                                {settings.provider === 'openrouter' ? (settings.language === 'ru' ? 'АКТИВЕН' : 'ACTIVE') : (settings.language === 'ru' ? 'ВЫБРАТЬ' : 'SELECT')}
+                                            </button>
+                                        </div>
+
                                         <div className="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg text-xs text-purple-200">
                                             {// @ts-ignore
                                                 t('openRouterDescription')} <button onClick={() => openUrl('https://openrouter.ai/models').catch(() => window.open('https://openrouter.ai/models', '_blank'))} className="text-purple-400 hover:underline">{// @ts-ignore
                                                     t('checkAvailableModels')}</button>.
                                         </div>
 
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">{// @ts-ignore
-                                                t('openRouterApiKey')}</label>
-                                            <input
-                                                type="password"
-                                                value={settings.openrouterApiKey}
-                                                onChange={(e) => setSettings({ ...settings, openrouterApiKey: e.target.value })}
-                                                placeholder="sk-or-v1-..."
-                                                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
-                                                onBlur={() => {
-                                                    if (settings.openrouterApiKey && openRouterFreeModels.length === 0 && openRouterPaidModels.length === 0) fetchOpenRouterModels();
-                                                }}
-                                            />
-                                            <p className="text-[10px] text-slate-500">{t('keySavedLocally')}</p>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <button
-                                                onClick={() => setOpenRouterTab('free')}
-                                                className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${openRouterTab === 'free'
-                                                    ? 'bg-purple-600/20 text-purple-300 border border-purple-500/50'
-                                                    : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                                    }`}
-                                            >
-                                                {settings.language === 'ru' ? 'Бесплатные Google' : 'Free Google'}
-                                            </button>
-                                            <button
-                                                onClick={() => setOpenRouterTab('paid')}
-                                                className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${openRouterTab === 'paid'
-                                                    ? 'bg-red-600/20 text-red-300 border border-red-500/50'
-                                                    : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800'
-                                                    }`}
-                                            >
-                                                {settings.language === 'ru' ? 'Платные Google' : 'Paid Google'}
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between items-center">
-                                                <label className="text-sm font-medium text-slate-300">{t('model')}</label>
-                                                <button
-                                                    onClick={fetchOpenRouterModels}
-                                                    disabled={isLoadingModels}
-                                                    className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 disabled:opacity-50"
-                                                >
-                                                    {isLoadingModels ? <span className="animate-spin">↻</span> : <Sparkles size={12} />}
-                                                    {t('refreshList')}
-                                                </button>
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-slate-300">{// @ts-ignore
+                                                    t('openRouterApiKey')}</label>
+                                                <input
+                                                    type="password"
+                                                    value={settings.openrouterApiKey}
+                                                    onChange={(e) => setSettings({ ...settings, openrouterApiKey: e.target.value })}
+                                                    placeholder="sk-or-v1-..."
+                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                                                    onBlur={() => {
+                                                        if (settings.openrouterApiKey && openRouterFreeModels.length === 0 && openRouterPaidModels.length === 0) fetchOpenRouterModels();
+                                                    }}
+                                                />
                                             </div>
 
-                                            {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).length > 0 ? (
-                                                <select
-                                                    value={settings.openrouterModel}
-                                                    onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
-                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none appearance-none"
-                                                >
-                                                    {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).map((m: OpenRouterModel) => (
-                                                        <option key={m.id} value={m.id}>
-                                                            {(m.name || m.id)} ({Math.round((m.context_length || 0) / 1024)}k ctx • {formatModelPrice(m)})
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            ) : (
-                                                <input
-                                                    type="text"
-                                                    value={settings.openrouterModel}
-                                                    onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
-                                                    placeholder="google/gemini-2.5-flash"
-                                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
-                                                />
-                                            )}
-                                            <p className="text-[10px] text-slate-500">
-                                                {// @ts-ignore
-                                                    t('openRouterFooter')}
-                                            </p>
-                                            <p className="text-[10px] text-slate-500">
-                                                {settings.language === 'ru'
-                                                    ? 'Фильтры: только Google + tools, без Gemma, без Flash Lite, только Gemini 2.0+.'
-                                                    : 'Filters: Google + tools only, no Gemma, no Flash Lite, Gemini 2.0+ only.'}
-                                            </p>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <label className="text-sm font-medium text-slate-300">{t('model')}</label>
+                                                    <button
+                                                        onClick={fetchOpenRouterModels}
+                                                        disabled={isLoadingModels}
+                                                        className={`text-xs ${settingsTab === 'openrouter_free' ? 'text-purple-400 hover:text-purple-300' : 'text-rose-400 hover:text-rose-300'} flex items-center gap-1 disabled:opacity-50`}
+                                                    >
+                                                        {isLoadingModels ? <span className="animate-spin">↻</span> : <Sparkles size={12} />}
+                                                        {t('refreshList')}
+                                                    </button>
+                                                </div>
+
+                                                {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).length > 0 ? (
+                                                    <select
+                                                        value={settings.openrouterModel}
+                                                        onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
+                                                        className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none appearance-none"
+                                                    >
+                                                        {(openRouterTab === 'free' ? openRouterFreeModels : openRouterPaidModels).map((m: OpenRouterModel) => (
+                                                            <option key={m.id} value={m.id}>
+                                                                {(m.name || m.id)} ({Math.round((m.context_length || 0) / 1024)}k ctx • {formatModelPrice(m)})
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        value={settings.openrouterModel}
+                                                        onChange={(e) => setSettings({ ...settings, openrouterModel: e.target.value })}
+                                                        placeholder="google/gemini-2.5-flash"
+                                                        className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:ring-1 focus:ring-purple-500 focus:outline-none"
+                                                    />
+                                                )}
+                                                <p className="text-[10px] text-slate-500">
+                                                    {// @ts-ignore
+                                                        t('openRouterFooter')}
+                                                </p>
+                                                <p className="text-[10px] text-slate-500">
+                                                    {settings.language === 'ru'
+                                                        ? 'Фильтры: только Google + tools, без Gemma, без Flash Lite, только Gemini 2.0+.'
+                                                        : 'Filters: Google + tools only, no Gemma, no Flash Lite, Gemini 2.0+ only.'}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
 
-
-                                {/* Telemetry Setting */}
-                                <div className="pt-6 border-t border-slate-700/50">
-                                    <h3 className="text-white/90 text-sm font-medium mb-3 flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-cyan-400" />
-                                        {settings.language === 'ru' ? 'Телеметрия' : 'Telemetry'}
-                                    </h3>
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <div className="relative">
-                                            <input
-                                                type="checkbox"
-                                                checked={settings.telemetryEnabled}
-                                                onChange={(e) => {
-                                                    const enabled = e.target.checked;
-                                                    setSettings(prev => ({ ...prev, telemetryEnabled: enabled }));
-                                                    localStorage.setItem('shukabase_telemetry_enabled', String(enabled));
+                                {/* ABOUT TAB */}
+                                {settingsTab === 'about' && (
+                                    <div className="space-y-6 animate-fade-in pb-8">
+                                        <div className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-700/50 rounded-xl space-y-3 relative overflow-hidden group">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <img src="/logo192.png" alt="Logo" className="w-16 h-16 object-contain z-10" />
+                                            <h2 className="text-xl font-bold text-slate-200 z-10">Shukabase AI</h2>
+                                            <p className="text-xs text-slate-400 text-center max-w-xs z-10">
+                                                {// @ts-ignore
+                                                    t('appSubtitle')}
+                                            </p>
+                                            
+                                            <button 
+                                                onClick={async () => {
+                                                    try {
+                                                        const { check } = await import('@tauri-apps/plugin-updater');
+                                                        const update = await check();
+                                                        if (update?.available) {
+                                                            const confirmUpdate = window.confirm(
+                                                                settings.language === 'ru'
+                                                                    ? `Доступна новая версия ${update.version}! Обновить?`
+                                                                    : `Update ${update.version} available! Update now?`
+                                                            );
+                                                            if (confirmUpdate) {
+                                                                await update.downloadAndInstall();
+                                                                if (window.confirm(settings.language === 'ru' ? "Установлено. Перезапустить?" : "Installed. Restart?")) {
+                                                                    window.location.reload();
+                                                                }
+                                                            }
+                                                        } else {
+                                                            alert(settings.language === 'ru' ? "У вас последняя версия!" : "You are up to date!");
+                                                        }
+                                                    } catch (e) {
+                                                        alert("Update mechanism not available here.");
+                                                    }
                                                 }}
-                                                className="sr-only peer"
-                                            />
-                                            <div className="w-10 h-6 bg-white/5 rounded-full peer-checked:bg-cyan-500/20 transition-colors border border-white/10 peer-checked:border-cyan-500/50"></div>
-                                            <div className="absolute left-1 top-1 w-4 h-4 bg-white/40 peer-checked:bg-cyan-400 rounded-full transition-all peer-checked:translate-x-4"></div>
+                                                className="mt-4 px-4 py-2 bg-slate-800 hover:bg-cyan-600 text-slate-200 hover:text-white text-xs font-bold rounded-lg border border-slate-600 hover:border-cyan-500 transition-all z-10"
+                                            >
+                                                {settings.language === 'ru' ? 'Проверить обновления' : 'Check for Updates'}
+                                            </button>
                                         </div>
-                                        <span className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors">
-                                            {settings.language === 'ru'
-                                                ? 'Отправлять анонимную статистику использования (помогает улучшать приложение)'
-                                                : 'Send anonymous usage statistics (helps improve the app)'}
-                                        </span>
-                                    </label>
-                                </div>
 
+                                        <div className="space-y-4 pt-4 border-t border-slate-700/50">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <label className="text-sm font-medium text-slate-300">{// @ts-ignore
+                                                        t('multilingualSearch')}</label>
+                                                    <p className="text-[10px] text-slate-500">{// @ts-ignore
+                                                        t('multilingualSearchHint')}</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        const newVal = !settings.multilingualSearch;
+                                                        setSettings({ ...settings, multilingualSearch: newVal });
+                                                        localStorage.setItem('shukabase_multilingual_search', String(newVal));
+                                                    }}
+                                                    className={`w-10 h-5 rounded-full transition-all relative ${settings.multilingualSearch ? 'bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.4)]' : 'bg-slate-700'}`}
+                                                >
+                                                    <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.multilingualSearch ? 'left-6' : 'left-1'}`} />
+                                                </button>
+                                            </div>
 
+                                            {/* Telemetry Setting */}
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="text-slate-300 text-sm font-medium flex items-center gap-2">
+                                                        <Sparkles className="w-4 h-4 text-cyan-400" />
+                                                        {settings.language === 'ru' ? 'Телеметрия' : 'Telemetry'}
+                                                    </h3>
+                                                    <p className="text-[10px] text-slate-500">
+                                                        {settings.language === 'ru'
+                                                            ? 'Отправлять анонимную статистику использования'
+                                                            : 'Send anonymous usage statistics'}
+                                                    </p>
+                                                </div>
+                                                <label className="flex items-center gap-3 cursor-pointer group">
+                                                    <div className="relative">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={settings.telemetryEnabled}
+                                                            onChange={(e) => {
+                                                                const enabled = e.target.checked;
+                                                                setSettings(prev => ({ ...prev, telemetryEnabled: enabled }));
+                                                                localStorage.setItem('shukabase_telemetry_enabled', String(enabled));
+                                                            }}
+                                                            className="sr-only peer"
+                                                        />
+                                                        <div className="w-10 h-6 bg-slate-700 peer-checked:bg-cyan-500 rounded-full transition-colors border-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"></div>
+                                                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-4 shadow-sm"></div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
 
-                                <div className="pt-6 border-t border-slate-700/50 text-center space-y-3">
-                                    <p className="text-sm text-cyan-200/80 font-medium leading-relaxed">
-                                        {t('settingsFooterText')}
-                                    </p>
-                                    <div className="flex flex-col items-center gap-2 text-xs text-slate-400">
-                                        <p>{t('createdWithLove')}</p>
-                                        <button
-                                            onClick={async () => {
-                                                try {
-                                                    await openUrl('https://boosty.to/amritagopi');
-                                                } catch (e) {
-                                                    console.error('Failed to open link with Tauri, trying window.open:', e);
-                                                    window.open('https://boosty.to/amritagopi', '_blank');
-                                                }
-                                            }}
-                                            className="relative group transition-transform hover:scale-110 active:scale-95 p-2 mt-1"
-                                            title="Support on Boosty"
-                                        >
-                                            <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                            <Heart
-                                                className="w-8 h-8 text-rose-400 fill-rose-500/10 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(251,113,133,0.8)] group-hover:fill-rose-500/30 transition-all duration-300"
-                                                strokeWidth={1.5}
-                                            />
-                                        </button>
+                                        <div className="pt-6 border-t border-slate-700/50 space-y-4">
+                                            <h4 className="text-sm font-bold text-slate-200">
+                                                {settings.language === 'ru' ? 'Справка и поддержка' : 'Help & Support'}
+                                            </h4>
+                                            
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => { const u = settings.language === 'ru' ? 'https://shukabase.free.site.pro/gallery/Manual_RU.pdf' : 'https://shukabase.free.site.pro/gallery/Manual_EN.pdf'; openUrl(u).catch(()=>window.open(u, '_blank')); }}
+                                                    className="p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-cyan-500/50 rounded-lg text-xs text-slate-300 transition-colors flex flex-col items-center gap-2"
+                                                >
+                                                    <Scroll size={20} className="text-cyan-400" />
+                                                    {settings.language === 'ru' ? 'Pdf-инструкция' : 'PDF Manual'}
+                                                </button>
+                                                <button
+                                                    onClick={() => { const u = settings.language === 'ru' ? 'https://www.youtube.com/watch?v=MEJkGB42D0o' : 'https://www.youtube.com/watch?v=lOhTM1XBJ2U'; openUrl(u).catch(()=>window.open(u, '_blank')); }}
+                                                    className="p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-red-500/50 rounded-lg text-xs text-slate-300 transition-colors flex flex-col items-center gap-2"
+                                                >
+                                                    <Database size={20} className="text-red-400" />
+                                                    {settings.language === 'ru' ? 'Видео-гайд' : 'Video Guide'}
+                                                </button>
+                                            </div>
+
+                                            <div className="text-center pt-4">
+                                                <p className="text-xs text-slate-400 mb-2">{t('createdWithLove')}</p>
+                                                <div className="flex justify-center gap-2">
+                                                    <button
+                                                        onClick={() => { const url = settings.language === 'ru' ? 'https://shukabase.free.site.pro/ru/#donate' : 'https://shukabase.free.site.pro/#donate'; openUrl(url).catch(()=>window.open(url, '_blank')); }}
+                                                        className="px-4 py-2 flex items-center gap-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-500/50 text-rose-400 rounded-lg transition-all text-xs font-bold"
+                                                    >
+                                                        <Heart size={14} className="fill-rose-500" />
+                                                        {settings.language === 'ru' ? 'Поддержать автора' : 'Support Author'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
+                            </div>
 
-                                <div className="pt-4 flex justify-end">
-                                    <button
-                                        onClick={() => {
-                                            localStorage.setItem('shukabase_api_key', settings.apiKey);
-                                            localStorage.setItem('shukabase_provider', settings.provider);
-                                            localStorage.setItem('shukabase_openrouter_api_key', settings.openrouterApiKey);
-                                            localStorage.setItem('shukabase_openrouter_model', settings.openrouterModel);
-                                            setIsSettingsOpen(false);
-                                        }}
-                                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-400 text-white rounded-lg transition-colors shadow-lg shadow-cyan-900/20"
-                                    >
-                                        {t('save')}
-                                    </button>
-                                </div>
+                            <div className="p-4 border-t border-slate-700/50 flex justify-end shrink-0">
+                                <button
+                                    onClick={() => {
+                                        localStorage.setItem('shukabase_api_key', settings.apiKey);
+                                        localStorage.setItem('shukabase_provider', settings.provider);
+                                        localStorage.setItem('shukabase_openrouter_api_key', settings.openrouterApiKey);
+                                        localStorage.setItem('shukabase_proxyapi_api_key', settings.proxyapiApiKey);
+                                        localStorage.setItem('shukabase_openrouter_model', settings.openrouterModel);
+                                        setIsSettingsOpen(false);
+                                    }}
+                                    className="px-6 py-2 bg-cyan-600 hover:bg-cyan-400 text-white font-bold rounded-lg transition-colors shadow-lg shadow-cyan-900/20"
+                                >
+                                    {t('save')}
+                                </button>
                             </div>
                         </div>
                     </div >
-                )
-            }
 
-            <PromptDrawer
                 isOpen={isPromptDrawerOpen}
                 onClose={() => {
                     setIsPromptDrawerOpen(false);

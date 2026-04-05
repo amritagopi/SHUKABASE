@@ -67,7 +67,7 @@ export const getBookFolder = (bookTitle: string): string | null => {
             }
         }
     }
-    return bookFolder;
+    return bookFolder || bookTitle.trim();
 };
 
 export const generateChapterPath = (

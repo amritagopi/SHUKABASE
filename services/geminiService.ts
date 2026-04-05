@@ -3,7 +3,7 @@ import { SourceChunk, AppSettings, Conversation, ConversationHeader, AgentStep }
 import { DEMO_CHUNKS } from '../constants';
 import { resolveApiBaseUrl, resolveSearchUrl } from '../utils/apiUrl';
 
-const createClient = (apiKey: string) => new GoogleGenAI({ apiKey });
+const createClient = (apiKey: string, baseUrl?: string) => baseUrl ? new GoogleGenAI({ apiKey, httpOptions: { baseUrl } }) : new GoogleGenAI({ apiKey });
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -222,9 +222,13 @@ export const generateRAGResponse = async (
   signal?: AbortSignal
 ) => {
   // --- GOOGLE PROVIDER (ReAct Pattern) ---
-  if (settings.provider === 'google') {
-    if (!settings.apiKey) throw new Error("Google API Key is missing.");
-    const client = createClient(settings.apiKey);
+  if (settings.provider === 'google' || settings.provider === 'proxyapi') {
+    const isProxy = settings.provider === 'proxyapi';
+    const activeKey = isProxy ? settings.proxyapiApiKey : settings.apiKey;
+    const baseUrl = isProxy ? 'https://api.proxyapi.ru/google' : undefined;
+
+    if (!activeKey) throw new Error(isProxy ? "ProxyAPI Key is missing." : "Google API Key is missing.");
+    const client = createClient(activeKey, baseUrl);
     const MAX_STEPS = 10;
     let currentStep = 0;
 
