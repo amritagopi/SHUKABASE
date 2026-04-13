@@ -1529,8 +1529,11 @@ const App: React.FC = () => {
                                 </button>
                             </div>
                         </div>
-                    </div >
+                    </div>
+                )
+            }
 
+            <PromptDrawer
                 isOpen={isPromptDrawerOpen}
                 onClose={() => {
                     setIsPromptDrawerOpen(false);
